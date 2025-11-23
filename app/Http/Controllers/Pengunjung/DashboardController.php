@@ -17,4 +17,12 @@ class DashboardController extends Controller
     {
         return view('pengunjung.dashboard');
     }
+    
+    public function search(Request $request)
+{
+    $keyword = $request->q;
+
+    return "Fitur search berjalan. Kata kunci: " . $keyword;
+}
+
 }
