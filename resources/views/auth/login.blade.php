@@ -71,24 +71,17 @@
                         <label class="form-check-label text-dark fw-medium" for="remember">Ingat saya</label>
                     </div>
                     <div class="form-check">
-                        <a href="" class="text-dark fw-bold text-decoration-none">Lupa Password?</a>
+                        <a href="{{ route('password.request') }}" class="text-dark fw-bold text-decoration-none">Lupa Password?</a>
                     </div>
                 </div>
 
                 <div class="d-grid gap-2">
                     <button type="submit" class="btn btn-auth mb-2">
-                        <i class="fas fa-sign-in-alt me-2"></i>Masuk
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
                     </button>
 
-                    <div class="d-flex gap-2 flex-column">
-                            @if (Route::has('register'))
-                                <a href="{{ route('register') }}" class="btn btn-outline-primary mb-2">
-                                    <i class="fas fa-user-plus me-2"></i>Daftar Akun
-                                </a>
-                            @endif
-                    </div>
 
-                    <a href="{{ url('/') }}" class="btn btn-back-home w-100">
+                    <a href="{{ url('/') }}" class="btn btn-outline-primary mb-2 w-100">
                         <i class="fas fa-home me-2"></i>Kembali ke Beranda
                     </a>
                 </div>
@@ -134,6 +127,22 @@
 
 @push('styles')
     <style>
+        
+        :root {
+            --navy: #2b3458;
+            --navy-dark: #232a4a;
+            --coral: #e84b63;
+            --coral-2: #ff7b84;
+            --cream: #fbf9e7;
+            --light-blue: #c7e1f2;
+
+            --primary-color: var(--navy);
+            --primary-dark: var(--navy-dark);
+            --accent-color: #4aa0c9; /* darker blue from palette */
+            --accent-2: #2b7cae;
+            --secondary-color: var(--light-blue);
+            --light-color: var(--cream);
+        }
         /* Override layout background for the login page only */
         body::before {
             background-image: url("{{ asset('assets/bg-image-login.jpg') }}") !important;
@@ -176,7 +185,54 @@
 
         /* Slightly dim header text to match the transparent container */
         .auth-header h1, .auth-header h4 {
-            color: #00363a;
+            color: var(--primary-color);
         }
+
+        /* Button styles (colour only) */
+        .btn-auth {
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-2));
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-weight: 700;
+        }
+        .btn-outline-primary {
+            color: var(--accent-color);
+            border-color: var(--accent-color);
+            border-width: 2px;
+            font-weight: 700;
+            padding: 10px 14px;
+            border-radius: 10px;
+            background: transparent;
+            box-shadow: 0 6px 18px rgba(74,160,201,0.10);
+            transition: var(--transition);
+        }
+        .btn-outline-primary:hover, .btn-outline-primary:focus {
+            background: rgba(74,160,201,0.14);
+            color: var(--navy-dark);
+            border-color: var(--accent-2);
+            text-decoration: none;
+        }
+
+        .btn-back-home {
+            background: transparent !important;
+            color: var(--accent-color) !important;
+            border: 2px solid var(--accent-color) !important;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-weight: 700;
+            box-shadow: 0 8px 22px rgba(74,160,201,0.12) !important;
+            backdrop-filter: blur(4px);
+        }
+        .btn-back-home:hover, .btn-back-home:focus {
+            background: rgba(74,160,201,0.16) !important;
+            color: var(--navy-dark) !important;
+            border-color: var(--accent-2) !important;
+            text-decoration: none;
+        }
+
+        /* input-group icons */
+        .auth-body .input-group-text { color: var(--primary-dark); }
     </style>
 @endpush

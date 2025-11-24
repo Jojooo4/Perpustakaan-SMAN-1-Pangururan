@@ -12,12 +12,24 @@
     <link rel="shortcut icon" href="{{ asset('assets/logo-side.png') }}" type="image/x-icon">
     <style>
         :root {
-            --primary-color: #01747B;
-            --primary-dark: #005a60;
-            --secondary-color: #00ABB5;
-            --accent-color: #00D2DF;
-            --light-color: #B5FBFF;
-            --dark-color: #004F54;
+            /* Exact palette values taken from your sample image */
+            --navy: #2b3458;       /* deep navy */
+            --navy-dark: #232a4a;  /* darker navy */
+            --coral: #e84b63;      /* primary coral */
+            --coral-2: #ff7b84;    /* lighter coral */
+            --cream: #fbf9e7;      /* warm cream */
+            --light-blue: #c7e1f2; /* pale blue */
+
+           
+            --primary-color: var(--navy);
+            --primary-dark: var(--navy-dark);
+            --secondary-color: var(--light-blue);
+            /* Darker blue accent (from your palette) */
+            --accent-color: #4aa0c9; /* darker blue */
+            --accent-2: #2b7cae; /* deeper blue for gradients/shadows */
+
+            --light-color: var(--cream);
+            --dark-color: var(--navy);
             --success-color: #28a745;
             --warning-color: #ffc107;
             --card-bg: rgba(255, 255, 255, 0.95);
@@ -87,16 +99,16 @@
         .subtitle { color:rgba(255,255,255,0.9); font-size:1.3rem; margin-bottom:40px; font-weight:400; max-width:600px; text-align:center; }
         .cta-buttons { display:flex; gap:20px; margin-bottom:18px; flex-wrap:wrap; justify-content:center; }
         .btn-login { 
-            background: white; 
-            color: var(--primary-color); 
-            border: 2px solid white; 
-            padding: 18px 48px; 
-            min-width: 220px;
-            border-radius: 60px; 
+            background: linear-gradient(90deg, var(--accent-color), var(--accent-2));
+            color: #fff; 
+            border: none; 
+            padding: 16px 40px; 
+            min-width: 200px;
+            border-radius: 40px; 
             font-weight: 700; 
-            font-size: 1.25rem; 
+            font-size: 1.05rem; 
             transition: var(--transition); 
-            box-shadow: 0 8px 22px rgba(0,0,0,0.22); 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.18); 
             display: inline-flex; 
             align-items: center; 
             justify-content: center; 
@@ -174,9 +186,9 @@
 
         .card { background:var(--card-bg); border-radius:20px; box-shadow:var(--shadow); border:none; transition:var(--transition); overflow:hidden; backdrop-filter: blur(10px); }
 
-        .card-header { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color:white; font-weight:600; padding:20px 25px; border-bottom:none; display:flex; align-items:center; gap:10px; }
+        .card-header { background: linear-gradient(135deg, var(--primary-dark), var(--primary-color)); color:white; font-weight:600; padding:20px 25px; border-bottom:none; display:flex; align-items:center; gap:10px; }
 
-        .visitor-count { background: linear-gradient(135deg, var(--success-color), #20c997); color:white; border-radius:15px; padding:25px; text-align:center; margin-bottom:25px; box-shadow:0 5px 15px rgba(40,167,69,0.3); position:relative; overflow:hidden; }
+        .visitor-count { background: linear-gradient(135deg, var(--accent-color), var(--accent-2)); color:white; border-radius:15px; padding:25px; text-align:center; margin-bottom:25px; box-shadow:0 5px 15px rgba(74,160,201,0.18); position:relative; overflow:hidden; }
 
         .footer { margin-top:50px; color:white; text-align:center; font-size:0.9rem; opacity:0.8; padding:20px 0; }
     </style>
