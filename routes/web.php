@@ -4,9 +4,36 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\BukuController;
+use App\Http\Controllers\Admin\TransaksiController;
+use App\Http\Controllers\Admin\PengelolaanController;
+use App\Http\Controllers\Admin\ProfilController;
 use App\Http\Controllers\Petugas\DashboardController as PetugasDashboardController;
 use App\Http\Controllers\Petugas\ProfileController as PetugasProfileController; // Import Controller untuk Profil Petugas
 use App\Http\Controllers\Pengunjung\DashboardController as PengunjungDashboardController;
+
+Route::get('/manajemen_buku', [BukuController::class, 'index'])->name('buku.index');
+Route::get('/pinjam_kembali', [TransaksiController::class, 'index'])->name('transaksi.index');
+Route::get('/permintaan_perpanjangan', [TransaksiController::class, 'perpanjangan'])->name('perpanjangan.index');
+Route::get('/laporan-denda', [TransaksiController::class, 'laporanDenda'])->name('denda.index');
+Route::post('/denda/export', [TransaksiController::class, 'exportDenda'])->name('denda.export');
+
+Route::get('/manajemen-pengguna', [PengelolaanController::class, 'pengguna'])->name('pengelolaan.pengguna');
+Route::get('/review-ulasan', [PengelolaanController::class, 'review'])->name('pengelolaan.review');
+
+// Route untuk Pengaturan Profil (GET)
+Route::get('/pengaturan-profil', [ProfilController::class, 'index'])->name('profil.index');
+
+// Route untuk Update Profil (POST)
+Route::post('/pengaturan-profil', [ProfilController::class, 'update'])->name('profil.update');
+
+// Route untuk Logout (Biasanya menggunakan POST atau GET sederhana)
+Route::post('/logout', function () {
+    auth()->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/'); // Redirect ke halaman login
+})->name('logout');
 
 Route::get('/', function () {
     return view('index');
