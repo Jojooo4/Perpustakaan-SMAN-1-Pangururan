@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Petugas;
+namespace App\Http\Controllers\Pengunjung;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -10,9 +10,9 @@ class ProfileController extends Controller
 {
     public function index()
     {
-        return view('petugas.profile');
+        return view('pengunjung.profile');
     }
-
+    
     public function update(Request $request)
     {
         $user = auth()->user();
@@ -23,7 +23,7 @@ class ProfileController extends Controller
             'password_lama' => 'nullable|required_with:password_baru',
             'password_baru' => 'nullable|min:6|confirmed'
         ]);
-
+        
         // Update nama
         $user->nama = $validated['nama'];
         
@@ -44,7 +44,7 @@ class ProfileController extends Controller
         }
         
         $user->save();
-
-        return redirect()->route('petugas.profile')->with('success', 'Profil berhasil diperbarui!');
+        
+        return redirect()->route('pengunjung.profile')->with('success', 'Profil berhasil diperbarui!');
     }
 }

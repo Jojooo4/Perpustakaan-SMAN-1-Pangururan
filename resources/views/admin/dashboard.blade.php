@@ -1,110 +1,180 @@
 @extends('layouts.admin')
 
-@section('title', 'Dashboard Utama')
+@section('title', 'Dashboard Admin')
+@section('page-title', 'Dashboard Admin')
 
 @section('content')
+<div class="row g-3 mb-4">
+    <!-- Stat Cards -->
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted mb-1">Total Buku</p>
+                    <h3 class="mb-0">{{ $totalBuku ?? 0 }}</h3>
+                </div>
+                <div class="stat-icon icon-primary">
+                    <i class="fas fa-book"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted mb-1">Stok Tersedia</p>
+                    <h3 class="mb-0">{{ $totalStok ?? 0 }}</h3>
+                </div>
+                <div class="stat-icon icon-success">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted mb-1">Peminjaman Aktif</p>
+                    <h3 class="mb-0">{{ $peminjamanAktif ?? 0 }}</h3>
+                </div>
+                <div class="stat-icon icon-warning">
+                    <i class="fas fa-clock"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted mb-1">Total Denda</p>
+                    <h3 class="mb-0">Rp {{ number_format($totalDenda ?? 0, 0, ',', '.') }}</h3>
+                </div>
+                <div class="stat-icon icon-primary">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
-    {{-- RINGKASAN STATISTIK (CARDS) --}}
-    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        
-        {{-- Card Total Judul Buku --}}
-        <div class="flex items-center bg-white p-5 rounded-xl shadow-lg transition duration-300 hover:shadow-xl transform hover:-translate-y-1 relative group overflow-hidden">
-            <div class="absolute inset-0 bg-[#EB455F] opacity-0 group-hover:opacity-5 transition duration-300"></div>
-            <div class="shrink-0 w-16 h-16 rounded-full bg-[#EB455F] flex justify-center items-center text-white text-3xl mr-4">
-                <i class="fas fa-book-open"></i>
-            </div>
-            <div class="z-10">
-                <p class="text-4xl font-bold text-[#2B3467]">2,500</p>
-                <h3 class="text-sm text-[#BAD7E9] font-medium mt-1">Total Judul Buku</h3>
-            </div>
-        </div>
-        
-        {{-- Card Peminjaman Aktif --}}
-        <div class="flex items-center bg-white p-5 rounded-xl shadow-lg transition duration-300 hover:shadow-xl transform hover:-translate-y-1 relative group overflow-hidden">
-            <div class="absolute inset-0 bg-[#2B3467] opacity-0 group-hover:opacity-5 transition duration-300"></div>
-            <div class="shrink-0 w-16 h-16 rounded-full bg-[#2B3467] flex justify-center items-center text-white text-3xl mr-4">
-                <i class="fas fa-exchange-alt"></i>
-            </div>
-            <div class="z-10">
-                <p class="text-4xl font-bold text-[#2B3467]">120</p>
-                <h3 class="text-sm text-[#BAD7E9] font-medium mt-1">Peminjaman Aktif Saat Ini</h3>
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="stat-card">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <p class="text-muted mb-1">Anggota Aktif</p>
+                    <h3 class="mb-0">{{ $anggotaAktif ?? 0 }}</h3>
+                </div>
+                <div class="stat-icon icon-secondary">
+                    <i class="fas fa-users"></i>
+                </div>
             </div>
         </div>
-        
-        {{-- Card Jumlah Anggota --}}
-        <div class="flex items-center bg-white p-5 rounded-xl shadow-lg transition duration-300 hover:shadow-xl transform hover:-translate-y-1 relative group overflow-hidden">
-            <div class="absolute inset-0 bg-[#BAD7E9] opacity-0 group-hover:opacity-5 transition duration-300"></div>
-            <div class="shrink-0 w-16 h-16 rounded-full bg-[#BAD7E9] flex justify-center items-center text-[#2B3467] text-3xl mr-4">
-                <i class="fas fa-users"></i>
-            </div>
-            <div class="z-10">
-                <p class="text-4xl font-bold text-[#2B3467]">850</p>
-                <h3 class="text-sm text-[#BAD7E9] font-medium mt-1">Jumlah Anggota Aktif</h3>
-            </div>
-        </div>
-        
-        {{-- Card Kasus Denda --}}
-        <div class="flex items-center bg-white p-5 rounded-xl shadow-lg transition duration-300 hover:shadow-xl transform hover:-translate-y-1 relative group overflow-hidden">
-            <div class="absolute inset-0 bg-red-600 opacity-0 group-hover:opacity-5 transition duration-300"></div>
-            <div class="shrink-0 w-16 h-16 rounded-full bg-red-600 flex justify-center items-center text-white text-3xl mr-4">
-                <i class="fas fa-money-bill-wave"></i>
-            </div>
-            <div class="z-10">
-                <p class="text-4xl font-bold text-[#2B3467]">15</p>
-                <h3 class="text-sm text-[#BAD7E9] font-medium mt-1">Kasus Denda Belum Selesai</h3>
-            </div>
-        </div>
-    </section>
-    {{-- END RINGKASAN STATISTIK --}}
+    </div>
+</div>
 
-    {{-- GRAFIK & LAPORAN TAMBAHAN --}}
-    <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        
-        {{-- Grafik Tren Peminjaman --}}
-        <div class="report-box bg-white p-6 rounded-xl shadow-md lg:col-span-2">
-            <h3 class="text-lg font-semibold text-[#2B3467] border-b pb-3 mb-5 border-[#BAD7E9]">Grafik Tren Peminjaman (6 Bulan)</h3>
-            <div class="placeholder-chart h-80 bg-[#FCFFE7] border border-[#BAD7E9] flex justify-center items-center text-[#BAD7E9] italic rounded-md text-sm">
-                <p>Placeholder: Area untuk Chart.js/ApexCharts</p>
+<!-- Quick Actions -->
+<div class="row g-3 mb-4">
+    <div class="col-12">
+        <div class="stat-card">
+            <h6 class="mb-3"><i class="fas fa-bolt me-2" style="color: var(--primary);"></i>Aksi Cepat</h6>
+            <div class="row g-2">
+                <div class="col-md-3 col-6">
+                    <a href="{{ route('buku.index') }}" class="btn btn-primary w-100">
+                        <i class="fas fa-plus me-2"></i>Tambah Buku
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="{{ route('transaksi.index') }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-exchange-alt me-2"></i>Pinjam Buku
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="{{ route('pengelolaan.pengguna') }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-user-plus me-2"></i>Tambah User
+                    </a>
+                </div>
+                <div class="col-md-3 col-6">
+                    <a href="{{ route('denda.index') }}" class="btn btn-outline-primary w-100">
+                        <i class="fas fa-file-export me-2"></i>Laporan Denda
+                    </a>
+                </div>
             </div>
         </div>
+    </div>
+</div>
 
-        {{-- Permintaan Perpanjangan (Tabel) --}}
-        <div class="report-box bg-white p-6 rounded-xl shadow-md">
-            <h3 class="text-lg font-semibold text-[#2B3467] border-b pb-3 mb-5 border-[#BAD7E9]">Permintaan Perpanjangan (3 Terbaru)</h3>
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left text-[#2B3467]">
-                    <thead class="text-xs text-[#2B3467] uppercase bg-[#BAD7E9]/50">
-                        <tr><th class="py-2 px-1">Anggota</th><th class="py-2 px-1">Buku</th><th class="py-2 px-1 text-center">Aksi</th></tr>
-                    </thead>
-                    <tbody>
-                        <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/20"><td>Siti A.</td><td>Sejarah Dunia</td><td class="text-center"><button class="btn bg-[#EB455F] text-white hover:bg-[#2B3467] px-3 py-1 rounded-md text-xs transition duration-150">Setujui</button></td></tr>
-                        <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/20"><td>Budi S.</td><td>Fisika Modern</td><td class="text-center"><button class="btn bg-[#EB455F] text-white hover:bg-[#2B3467] px-3 py-1 rounded-md text-xs transition duration-150">Setujui</button></td></tr>
-                        <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/20"><td>Ahmad K.</td><td>Novel X</td><td class="text-center"><button class="btn bg-[#EB455F] text-white hover:bg-[#2B3467] px-3 py-1 rounded-md text-xs transition duration-150">Setujui</button></td></tr>
-                    </tbody>
-                </table>
+<!-- Recent Activity -->
+<div class="row g-3">
+    @if(isset($requestPending) && $requestPending->count() > 0)
+    <div class="col-md-6">
+        <div class="stat-card">
+            <h6 class="mb-3"><i class="fas fa-clock me-2" style="color: var(--primary);"></i>Permintaan Perpanjangan</h6>
+            <div class="list-group list-group-flush">
+                @foreach($requestPending as $request)
+                <div class="list-group-item border-0 px-0">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>{{ $request->peminjaman->user->nama ?? '-' }}</strong>
+                            <p class="mb-0 text-muted small">{{ $request->peminjaman->asetBuku->buku->judul ?? '-' }}</p>
+                        </div>
+                        <span class="badge badge-status" style="background: rgba(255,193,7,0.2); color: #c4930b;">Pending</span>
+                    </div>
+                </div>
+                @endforeach
             </div>
+            <a href="{{ route('perpanjangan.index') }}" class="btn btn-sm btn-outline-primary mt-2">
+                Lihat Semua <i class="fas fa-arrow-right ms-1"></i>
+            </a>
         </div>
+    </div>
+    @endif
+    
+    @if(isset($reviewTerbaru) && $reviewTerbaru->count() > 0)
+    <div class="col-md-6">
+        <div class="stat-card">
+            <h6 class="mb-3"><i class="fas fa-star me-2" style="color: var(--primary);"></i>Review Terbaru</h6>
+            <div class="list-group list-group-flush">
+                @foreach($reviewTerbaru as $review)
+                <div class="list-group-item border-0 px-0">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <strong>{{ $review->user->nama ?? '-' }}</strong>
+                            <p class="mb-0 text-muted small">{{ $review->buku->judul ?? '-' }}</p>
+                            <div class="mt-1">
+                                @for($i = 1; $i <= 5; $i++)
+                                    <i class="fas fa-star {{ $i <= ($review->rating ?? 0) ? 'text-warning' : 'text-muted' }}" style="font-size: 0.8rem;"></i>
+                                @endfor
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                @endforeach
+            </div>
+            <a href="{{ route('pengelolaan.review') }}" class="btn btn-sm btn-outline-primary mt-2">
+                Lihat Semua <i class="fas fa-arrow-right ms-1"></i>
+            </a>
+        </div>
+    </div>
+    @endif
+</div>
 
-        {{-- Review Terbaru --}}
-        <div class="report-box bg-white p-6 rounded-xl shadow-md lg:col-span-1">
-            <h3 class="text-lg font-semibold text-[#2B3467] border-b pb-3 mb-5 border-[#BAD7E9]">Review Terbaru</h3>
-            <ul class="divide-y divide-[#BAD7E9]">
-                <li class="py-2 flex justify-between items-center text-sm text-[#2B3467]">
-                    <div><i class="fas fa-star text-yellow-500 mr-2"></i> "Sangat informatif!"</div>
-                    <small class="italic text-[#BAD7E9]">Buku X</small>
-                </li>
-                <li class="py-2 flex justify-between items-center text-sm text-[#2B3467]">
-                    <div><i class="fas fa-star text-yellow-500 mr-2"></i> "Ceritanya bagus"</div>
-                    <small class="italic text-[#BAD7E9]">Buku Y</small>
-                </li>
-                <li class="py-2 flex justify-between items-center text-sm text-[#2B3467]">
-                    <div><i class="fas fa-star text-yellow-500 mr-2"></i> "Kurang lengkap"</div>
-                    <small class="italic text-[#BAD7E9]">Buku Z</small>
-                </li>
-            </ul>
+@if((!isset($requestPending) || $requestPending->count() == 0) && (!isset($reviewTerbaru) || $reviewTerbaru->count() == 0))
+<div class="row g-3">
+    <div class="col-12">
+        <div class="stat-card text-center py-5">
+            <i class="fas fa-chart-line" style="font-size: 3rem; color: var(--secondary); opacity: 0.3;"></i>
+            <h5 class="mt-3 text-muted">Selamat Datang di Dashboard Admin</h5>
+            <p class="text-muted">Gunakan menu navigasi untuk mulai mengelola perpustakaan</p>
         </div>
-        
-    </section>
-    {{-- END GRAFIK & LAPORAN TAMBAHAN --}}
+    </div>
+</div>
+@endif
 
 @endsection

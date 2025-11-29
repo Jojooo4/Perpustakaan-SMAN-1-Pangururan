@@ -1,102 +1,71 @@
 @extends('layouts.admin')
 
-@section('title', 'Review & Ulasan')
+@section('title', 'Review Ulasan')
+@section('page-title', 'Review Ulasan Buku')
 
 @section('content')
-
-<h2 class="text-2xl font-bold text-[#2B3467] mb-6"></h2>
-
-<div class="bg-white p-6 rounded-xl shadow-lg">
-
-    <div class="flex justify-between items-center mb-5 border-b pb-4 border-[#BAD7E9]">
-        <h3 class="text-xl font-semibold text-[#2B3467] uppercase tracking-wider">DAFTAR ULASAN TERBARU</h3>
-        <span class="text-sm font-medium text-[#EB455F] bg-[#BAD7E9]/30 px-3 py-1 rounded-full">50 Ulasan Baru</span>
-    </div>
-
-    {{-- FILTER DAN SEARCH --}}
-    <div class="mb-6 flex justify-between gap-4">
-        <input type="text" placeholder="Cari Judul Buku atau Penulis Ulasan..." class="py-2 px-3 border border-[#BAD7E9] rounded-md text-sm w-1/3 focus:ring-[#EB455F] focus:border-[#EB455F]" disabled>
-        
-        <select class="py-2 px-3 border border-[#BAD7E9] rounded-md text-sm text-[#2B3467]" disabled>
-            <option>Semua Rating</option>
-            <option>⭐️⭐️⭐️⭐️⭐️ (5)</option>
-            <option>⭐️⭐️⭐️⭐️ (4)</option>
-            <option>⭐️⭐️⭐️ (3)</option>
-            <option>⭐️⭐️ (2)</option>
-            <option>⭐️ (1)</option>
-        </select>
-    </div>
-    
-    {{-- REVIEWS LIST --}}
-    <div class="space-y-4">
-        
-        {{-- ULASAN 1 (5 Bintang) --}}
-        <div class="p-4 border border-[#BAD7E9] rounded-lg bg-[#FCFFE7]/50 shadow-sm">
-            <div class="flex justify-between items-start mb-2">
-                <div>
-                    <span class="text-lg font-bold text-yellow-500">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </span>
-                    <p class="text-sm font-semibold text-[#2B3467]">Buku: Sejarah Dunia</p>
+<div class="stat-card">
+    <div class="row">
+        @forelse($reviews ?? [] as $review)
+        <div class="col-md-6 mb-3">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <div>
+                            <h6 class="mb-1">{{ $review->buku->judul ?? '-' }}</h6>
+                            <small class="text-muted">oleh {{ $review->user->nama ?? '-' }}</small>
+                        </div>
+                        <button class="btn btn-danger btn-sm" onclick="deleteReview({{ $review->id_ulasan }})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    <div class="mb-2">
+                        @for($i = 1; $i <= 5; $i++)
+                            <i class="fas fa-star {{ $i <= ($review->rating ?? 0) ? 'text-warning' : 'text-muted' }}"></i>
+                        @endfor
+                        <span class="ms-2 text-muted">({{ $review->rating }}/5)</span>
+                    </div>
+                    <p class="card-text">{{ $review->ulasan }}</p>
+                    <small class="text-muted">
+                        <i class="fas fa-user me-1"></i>
+                        Review ID: {{ $review->id_ulasan }}
+                    </small>
                 </div>
-                <div class="text-right">
-                    <p class="text-xs text-gray-500">Oleh: Siti A.</p>
-                    <p class="text-xs text-gray-500">Tanggal: 24 Nov 2025</p>
-                </div>
-            </div>
-            <p class="text-sm text-gray-700 italic border-l-4 border-green-500 pl-3">
-                "Ulasan yang sangat mendalam dan informatif! Penjelasannya sangat mudah dipahami. Rekomendasi wajib untuk semua anggota."
-            </p>
-            <div class="mt-3 text-right">
-                <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus Ulasan</button>
             </div>
         </div>
-
-        {{-- ULASAN 2 (3 Bintang) --}}
-        <div class="p-4 border border-[#BAD7E9] rounded-lg bg-[#FCFFE7]/50 shadow-sm">
-            <div class="flex justify-between items-start mb-2">
-                <div>
-                    <span class="text-lg font-bold text-yellow-500">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </span>
-                    <p class="text-sm font-semibold text-[#2B3467]">Buku: Fisika Modern</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-xs text-gray-500">Oleh: Budi S.</p>
-                    <p class="text-xs text-gray-500">Tanggal: 20 Nov 2025</p>
-                </div>
-            </div>
-            <p class="text-sm text-gray-700 italic border-l-4 border-orange-500 pl-3">
-                "Buku ini bagus, tetapi beberapa bab awal kurang terstruktur. Cukup membantu untuk kuliah, tapi perlu revisi."
-            </p>
-            <div class="mt-3 text-right">
-                <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus Ulasan</button>
-            </div>
+        @empty
+        <div class="col-12 text-center text-muted py-5">
+            <i class="fas fa-star fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+            <h5>Belum ada review</h5>
         </div>
-        
-        {{-- ULASAN 3 (1 Bintang) --}}
-        <div class="p-4 border border-[#EB455F]/50 rounded-lg bg-[#FCFFE7]/50 shadow-sm">
-            <div class="flex justify-between items-start mb-2">
-                <div>
-                    <span class="text-lg font-bold text-yellow-500">
-                        <i class="fas fa-star"></i>
-                    </span>
-                    <p class="text-sm font-semibold text-[#2B3467]">Buku: Ekonomi Makro</p>
-                </div>
-                <div class="text-right">
-                    <p class="text-xs text-gray-500">Oleh: Pengunjung Anonim</p>
-                    <p class="text-xs text-gray-500">Tanggal: 18 Nov 2025</p>
-                </div>
-            </div>
-            <p class="text-sm text-gray-700 italic border-l-4 border-red-500 pl-3">
-                "Kondisi buku sangat buruk saat dipinjam, banyak coretan. Mohon petugas dicek sebelum dipinjamkan."
-            </p>
-            <div class="mt-3 text-right">
-                <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus Ulasan</button>
-            </div>
-        </div>
-
+        @endforelse
     </div>
-
 </div>
 @endsection
+
+@push('scripts')
+<script>
+function deleteReview(id) {
+    if(confirm('Hapus review ini?')) {
+        let form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/admin/reviews/${id}`;
+        
+        let csrf = document.createElement('input');
+        csrf.type = 'hidden';
+        csrf.name = '_token';
+        csrf.value = '{{ csrf_token() }}';
+        form.appendChild(csrf);
+        
+        let method = document.createElement('input');
+        method.type = 'hidden';
+        method.name = '_method';
+        method.value = 'DELETE';
+        form.appendChild(method);
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+}
+</script>
+@endpush

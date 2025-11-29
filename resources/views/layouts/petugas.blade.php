@@ -1,182 +1,334 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Petugas - @yield('title', 'Dashboard')</title>
-
-    {{-- BOOTSTRAP 5 & ICONS CDN --}}
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Petugas') - Perpustakaan SMAN 1 Pangururan</title>
+    
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --primary: #EB455F;
+            --secondary: #BAD7E9;
+            --dark: #2B3467;
+            --light: #FCFFE7;
+            --sidebar-width: 260px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Poppins', sans-serif;
-            background: #f5f7fb;
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            overflow-x: hidden;
         }
-
-        /* Sidebar Styling */
+        
+        /* Sidebar */
         .sidebar {
-            background: #063852;
-            color: #fff;
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--dark);
+            z-index: 1000;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary), #c93551);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.75rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .menu-item {
+            display: block;
+            padding: 0.9rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--primary);
+        }
+        
+        .menu-item.active {
+            background: rgba(235, 69, 95, 0.2);
+            color: white;
+            border-left-color: var(--primary);
+        }
+        
+        .menu-item i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
             min-height: 100vh;
+            padding: 0;
         }
-        .sidebar .sidebar-title {
-            font-size: .75rem;
-            text-transform: uppercase;
-            letter-spacing: .12em;
-            opacity: .7;
-            margin-top: 1rem;
-            margin-bottom: .3rem;
+        
+        /* Top Navbar */
+        .top-navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        .sidebar .nav-link {
-            color: #e6f7fb;
-            font-size: .9rem;
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 5px;
+        
+        .top-navbar h5 {
+            margin: 0;
+            color: var(--dark);
+            font-weight: 600;
         }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active {
-            background: rgba(255,255,255,0.15);
-            color: #fff;
-            font-weight: 500;
-        }
-        .sidebar .nav-link i {
-            margin-right: .5rem;
-        }
-
-        /* Navbar Profile Styling */
-        .profile-wrapper {
+        
+        .user-menu {
             display: flex;
             align-items: center;
-            justify-content: flex-end;
-            cursor: pointer;
-            padding: 5px 10px;
-            border-radius: 8px;
-            transition: background 0.2s;
+            gap: 1rem;
         }
-        .profile-wrapper:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-        .profile-name {
-            margin-right: 12px;
-            color: white;
-            text-align: right;
-            line-height: 1.2;
-        }
-        .profile-image {
+        
+        .user-avatar {
             width: 40px;
             height: 40px;
-            object-fit: cover;
             border-radius: 50%;
-            border: 2px solid #fff;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* Content Area */
+        .content-area {
+            padding: 2rem;
+        }
+        
+        /* Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .icon-primary { background: rgba(235, 69, 95, 0.1); color: var(--primary); }
+        .icon-secondary { background: rgba(186, 215, 233, 0.3); color: #5a9cc2; }
+        .icon-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .icon-warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: #c93551;
+            border-color: #c93551;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .content-area {
+                padding: 1rem;
+            }
         }
     </style>
-
-    @yield('styles')
+    
+    @stack('styles')
 </head>
 <body>
-
-{{-- NAVBAR ATAS --}}
-<nav class="navbar navbar-expand-lg navbar-dark sticky-top" style="background:#05445E; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
-    <div class="container-fluid">
-        
-        {{-- PERUBAHAN DISINI: Logo diganti menjadi "Petugas" --}}
-        <a class="navbar-brand fw-bold" href="{{ route('petugas.dashboard') }}">
-            <i class="bi bi-person-badge-fill me-2"></i>Petugas
-        </a>
-
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navPetugas">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="navPetugas">
-            <ul class="navbar-nav ms-auto align-items-center">
-                {{-- Profile Section (Klik untuk Modal) --}}
-                <li class="nav-item me-3 d-none d-md-block">
-                    <div class="profile-wrapper" data-bs-toggle="modal" data-bs-target="#profileModal">
-                        <div class="profile-name">
-                            <div style="font-size: 0.75rem; opacity: 0.8;">Petugas</div>
-                            <div class="fw-semibold">{{ auth()->user()->nama ?? auth()->user()->username }}</div>
-                        </div>
-                        <img src="{{ asset('images/foto-profil.jpg') }}" alt="Foto" class="profile-image">
-                    </div>
-                </li>
-                
-                {{-- Menu Mobile --}}
-                <li class="nav-item d-md-none">
-                    <a class="nav-link" href="{{ route('petugas.profile') }}">Profil Saya</a>
-                </li>
-                <li class="nav-item ms-md-2">
-                    <form method="POST" action="{{ route('logout') }}" class="d-inline">
-                        @csrf
-                        <button class="btn btn-sm btn-outline-danger text-white border-white" type="submit">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </button>
-                    </form>
-                </li>
-            </ul>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-book-reader"></i> PERPUSTAKAAN</h4>
+            <p>SMAN 1 Pangururan - Petugas</p>
         </div>
-    </div>
-</nav>
-
-{{-- MODAL POP-UP PROFIL --}}
-<div class="modal fade" id="profileModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-sm modal-dialog-centered">
-    <div class="modal-content border-0 shadow">
-      <div class="modal-header border-0 pb-0">
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body text-center pt-0 pb-4">
-        <img src="{{ asset('images/foto-profil.jpg') }}" alt="Foto" class="rounded-circle mb-3 shadow-sm" style="width: 80px; height: 80px; object-fit: cover; border: 3px solid #f8f9fa;">
-        <h6 class="fw-bold mb-0">{{ auth()->user()->nama ?? 'User' }}</h6>
-        <p class="text-muted small mb-3">{{ auth()->user()->nip ?? 'NIP Tidak Tersedia' }}</p>
         
-        <div class="d-grid">
-            <a href="{{ route('petugas.profile') }}" class="btn btn-primary btn-sm rounded-pill">
-                Selengkapnya
+        <div class="sidebar-menu">
+            <a href="{{ route('petugas.dashboard') }}" class="menu-item {{ request()->routeIs('petugas.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{{ route('buku.index') }}" class="menu-item {{ request()->routeIs('buku.*') ? 'active' : '' }}">
+                <i class="fas fa-book"></i> Manajemen Buku
+            </a>
+            <a href="{{ route('transaksi.index') }}" class="menu-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
+                <i class="fas fa-exchange-alt"></i> Pinjam & Kembali
+            </a>
+            <a href="{{ route('perpanjangan.index') }}" class="menu-item {{ request()->routeIs('perpanjangan.*') ? 'active' : '' }}">
+                <i class="fas fa-clock"></i> Perpanjangan
+            </a>
+            <a href="{{ route('denda.index') }}" class="menu-item {{ request()->routeIs('denda.*') ? 'active' : '' }}">
+                <i class="fas fa-money-bill-wave"></i> Laporan Denda
+            </a>
+            <a href="{{ route('pengelolaan.review') }}" class="menu-item {{ request()->routeIs('pengelolaan.review') ? 'active' : '' }}">
+                <i class="fas fa-star"></i> Review Ulasan
+            </a>
+            <a href="{{ route('petugas.profile') }}" class="menu-item {{ request()->routeIs('petugas.profile') ? 'active' : '' }}">
+                <i class="fas fa-user-cog"></i> Pengaturan Profil
+            </a>
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
             </a>
         </div>
-      </div>
     </div>
-  </div>
-</div>
-
-{{-- LAYOUT UTAMA --}}
-<div class="container-fluid">
-    <div class="row">
-        {{-- SIDEBAR KIRI --}}
-        <aside class="col-12 col-md-3 col-lg-2 p-0 sidebar collapse d-md-block" id="sidebarMenu">
-            <div class="p-3">
-                <h5 class="mb-4 fw-bold px-2 mt-2" style="letter-spacing: 1px;">MENU</h5>
-
-                <div class="sidebar-title px-2">Utama</div>
-                <nav class="nav flex-column mb-3">
-                    <a class="nav-link {{ request()->routeIs('petugas.dashboard') ? 'active' : '' }}" href="{{ route('petugas.dashboard') }}">
-                        <i class="bi bi-grid-1x2-fill"></i> Dashboard
-                    </a>
-                    <a class="nav-link" href="#"><i class="bi bi-journal-album"></i> Data Buku</a>
-                    <a class="nav-link" href="#"><i class="bi bi-people-fill"></i> Data Anggota</a>
-                </nav>
-
-                <div class="sidebar-title px-2">Transaksi</div>
-                <nav class="nav flex-column">
-                    <a class="nav-link" href="#"><i class="bi bi-arrow-left-right"></i> Peminjaman</a>
-                    <a class="nav-link" href="#"><i class="bi bi-arrow-counterclockwise"></i> Pengembalian</a>
-                </nav>
+    
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-navbar">
+            <div>
+                <button class="btn btn-link d-md-none" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="d-inline-block">@yield('page-title', 'Dashboard')</h5>
             </div>
-        </aside>
-
-        {{-- KONTEN KANAN --}}
-        <main class="col-12 col-md-9 col-lg-10 py-4 px-4">
+            
+            <div class="user-menu">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="user-avatar me-2">
+                            {{ strtoupper(substr(auth()->user()->nama ?? 'P', 0, 1)) }}
+                        </div>
+                        <div class="d-none d-md-block">
+                            <small class="d-block text-muted">Petugas</small>
+                            <strong class="d-block" style="color: var(--dark);">{{ auth()->user()->nama ?? 'Petugas' }}</strong>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('petugas.profile') }}"><i class="fas fa-user me-2"></i> Profil</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            
+            @if($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            
             @yield('content')
-        </main>
+        </div>
     </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-@yield('scripts')
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar toggle for mobile
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+        
+        // Auto-hide alerts
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+    
+    @stack('scripts')
 </body>
 </html>

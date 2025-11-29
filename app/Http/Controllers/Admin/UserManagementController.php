@@ -4,22 +4,19 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, UlasanBuku};
+use App\Models\User;
 use Illuminate\Support\Facades\{Hash, Storage};
 
-class PengelolaanController extends Controller
+class UserManagementController extends Controller
 {
-    // USER MANAGEMENT
-    public function pengguna(Request $request)
+    public function index(Request $request)
     {
         $query = User::query();
         
-        // Filter by role
         if ($request->filled('role')) {
             $query->where('role', $request->role);
         }
         
-        // Search
         if ($request->filled('search')) {
             $query->where(function($q) use ($request) {
                 $q->where('nama', 'like', "%{$request->search}%")
@@ -33,94 +30,63 @@ class PengelolaanController extends Controller
         return view('admin.manajemen_pengguna', compact('users'));
     }
 
-    public function storeUser(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'username' => 'required|unique:users,username',
             'nama' => 'required|string|max:100',
+            'email' => 'nullable|email|unique:users,email',
             'password' => 'required|min:6',
             'role' => 'required|in:admin,petugas,pengunjung',
             'foto_profil' => 'nullable|image|max:2048'
         ]);
 
-        // Hash password
         $validated['password'] = Hash::make($validated['password']);
         
-        // Handle photo upload
         if ($request->hasFile('foto_profil')) {
             $validated['foto_profil'] = $request->file('foto_profil')->store('profiles', 'public');
         }
 
         User::create($validated);
 
-        return redirect()->route('pengelolaan.pengguna')->with('success', 'Pengguna berhasil ditambahkan!');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil ditambahkan!');
     }
 
-    public function updateUser(Request $request, $id_user)
+    public function update(Request $request, $id_user)
     {
         $user = User::findOrFail($id_user);
         
         $validated = $request->validate([
             'username' => 'required|unique:users,username,' . $id_user . ',id_user',
             'nama' => 'required|string|max:100',
+            'email' => 'nullable|email|unique:users,email,' . $id_user . ',id_user',
             'password' => 'nullable|min:6',
             'role' => 'required|in:admin,petugas,pengunjung',
             'foto_profil' => 'nullable|image|max:2048'
         ]);
 
-        // Update password only if provided
         if ($request->filled('password')) {
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
         }
         
-        // Handle photo upload
         if ($request->hasFile('foto_profil')) {
-            if ($user->foto_profil) {
-                Storage::disk('public')->delete($user->foto_profil);
-            }
+            if ($user->foto_profil) Storage::disk('public')->delete($user->foto_profil);
             $validated['foto_profil'] = $request->file('foto_profil')->store('profiles', 'public');
         }
 
         $user->update($validated);
 
-        return redirect()->route('pengelolaan.pengguna')->with('success', 'Pengguna berhasil diperbarui!');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil diperbarui!');
     }
 
-    public function destroyUser($id_user)
+    public function destroy($id_user)
     {
         $user = User::findOrFail($id_user);
-        
-        // Delete photo if exists
-        if ($user->foto_profil) {
-            Storage::disk('public')->delete($user->foto_profil);
-        }
-        
+        if ($user->foto_profil) Storage::disk('public')->delete($user->foto_profil);
         $user->delete();
 
-        return redirect()->route('pengelolaan.pengguna')->with('success', 'Pengguna berhasil dihapus!');
-    }
-
-    // REVIEW MANAGEMENT
-    public function review(Request $request)
-    {
-        $query = UlasanBuku::with(['user', 'buku']);
-        
-        if ($request->filled('search')) {
-            $query->whereHas('buku', function($q) use ($request) {
-                $q->where('judul', 'like', "%{$request->search}%");
-            });
-        }
-        
-        $reviews = $query->latest('id_ulasan')->paginate(10); // FIX: use id_ulasan
-        
-        return view('admin.review_ulasan', compact('reviews'));
-    }
-
-    public function destroyReview($id_ulasan)
-    {
-        UlasanBuku::findOrFail($id_ulasan)->delete();
-        return redirect()->route('pengelolaan.review')->with('success', 'Review berhasil dihapus!');
+        return redirect()->route('admin.users.index')->with('success', 'User berhasil dihapus!');
     }
 }
