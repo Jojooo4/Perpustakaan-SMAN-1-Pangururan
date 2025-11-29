@@ -1,164 +1,268 @@
 @extends('layouts.admin')
 
 @section('title', 'Manajemen Buku')
+@section('page-title', 'Manajemen Buku')
+
+@push('styles')
+<!-- DataTables CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<style>
+    .book-cover-preview {
+        width: 60px;
+        height: 80px;
+        object-fit: cover;
+        border-radius: 4px;
+    }
+    
+    .image-upload-preview {
+        max-width: 200px;
+        max-height: 250px;
+        margin-top: 10px;
+        border-radius: 8px;
+    }
+</style>
+@endpush
 
 @section('content')
-
-<h2 class="text-2xl font-bold text-[#2B3467] mb-6"></h2>
-
-<div class="bg-white p-6 rounded-xl shadow-lg">
-
-    {{-- HEADER DAN JUMLAH DATA --}}
-    <div class="flex justify-between items-center mb-5 border-b pb-4 border-[#BAD7E9]">
-        <h3 class="text-xl font-semibold text-[#2B3467] uppercase tracking-wider">DAFTAR BUKU</h3>
-        {{-- Total data diupdate menjadi 7 --}}
-        <span class="text-sm font-medium text-[#EB455F] bg-[#BAD7E9]/30 px-3 py-1 rounded-full">Total: 7 Judul</span>
+<div class="row mb-3">
+    <div class="col-md-6">
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBookModal">
+            <i class="fas fa-plus me-2"></i>Tambah Buku
+        </button>
     </div>
-
-    {{-- SEARCH DAN TAMBAH BUKU --}}
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6 items-end">
-        
-        {{-- Tombol Tambah Buku (Posisi di samping) --}}
-        <div class="md:col-span-1 order-2 md:order-1">
-            <a href="#" class="inline-flex items-center justify-center w-full md:w-auto py-2 px-4 bg-[#EB455F] text-white rounded-md font-semibold hover:bg-[#2B3467] transition duration-150 shadow-md">
-                <i class="fas fa-plus mr-2"></i> Tambah Buku Baru
-            </a>
-        </div>
-
-        {{-- Form Pencarian --}}
-        <div class="md:col-span-3 flex gap-2 order-1 md:order-2">
-            <input type="text" class="form-input w-full py-2 px-4 border border-[#BAD7E9] rounded-md focus:ring-1 focus:ring-[#EB455F] focus:border-[#EB455F] transition" placeholder="Cari Judul, Penulis, atau Kategori..." disabled>
-            <button class="py-2 px-4 bg-[#2B3467] text-white rounded-md font-semibold hover:bg-[#EB455F] transition duration-150" disabled>
-                <i class="fas fa-search"></i> Cari
-            </button>
+    <div class="col-md-6">
+        <div class="input-group">
+            <span class="input-group-text"><i class="fas fa-search"></i></span>
+            <input type="text" class="form-control" id="searchBook" placeholder="Cari buku...">
         </div>
     </div>
+</div>
 
-    {{-- BOOK LIST TABLE --}}
-    <div class="overflow-x-auto rounded-xl border border-[#BAD7E9]">
-        <table class="min-w-full bg-white text-sm">
+<div class="stat-card">
+    <div class="table-responsive">
+        <table class="table table-hover" id="booksTable">
             <thead>
-                <tr class="bg-[#2B3467] text-white uppercase text-xs tracking-wider">
-                    <th class="px-4 py-3 text-left">Judul</th>
-                    <th class="px-4 py-3 text-left">Penulis</th>
-                    <th class="px-4 py-3 text-left hidden sm:table-cell">Penerbit</th>
-                    <th class="px-4 py-3 text-center hidden md:table-cell">Tahun Terbit</th>
-                    <th class="px-4 py-3 text-left">Kategori</th>
-                    <th class="px-4 py-3 text-center">Aksi</th>
+                <tr>
+                    <th>Cover</th>
+                    <th>Kode</th>
+                    <th>Judul</th>
+                    <th>Pengarang</th>
+                    <th>Penerbit</th>
+                    <th>Tahun</th>
+                    <th>Stok</th>
+                    <th>Aksi</th>
                 </tr>
             </thead>
             <tbody>
-                
-                {{-- BUKU ASLI 1 --}}
-                <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/30 transition duration-100">
-                    <td class="px-4 py-3 font-medium text-[#2B3467]">Sejarah Dunia</td>
-                    <td class="px-4 py-3">Siti A.</td>
-                    <td class="px-4 py-3 hidden sm:table-cell">ABC Publisher</td>
-                    <td class="px-4 py-3 text-center hidden md:table-cell">2020</td>
-                    <td class="px-4 py-3"><span class="bg-[#BAD7E9] text-[#2B3467] px-2 py-0.5 rounded-full text-xs font-semibold">Sejarah</span></td>
-                    <td class="px-4 py-3 text-center space-x-1">
-                        <a href="#" class="py-1 px-3 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600 transition" disabled>Edit</a>
-                        <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus</button>
+                @forelse($bukus ?? [] as $buku)
+                <tr>
+                    <td>
+                        @if($buku->gambar)
+                            <img src="{{ asset('storage/' . $buku->gambar) }}" class="book-cover-preview" alt="{{ $buku->judul }}">
+                        @else
+                            <div class="book-cover-preview bg-secondary d-flex align-items-center justify-content-center text-white">
+                                <i class="fas fa-book"></i>
+                            </div>
+                        @endif
+                    </td>
+                    <td>{{ $buku->kode_buku }}</td>
+                    <td><strong>{{ $buku->judul }}</strong></td>
+                    <td>{{ $buku->nama_pengarang ?? '-' }}</td>
+                    <td>{{ $buku->penerbit ?? '-' }}</td>
+                    <td>{{ $buku->tahun_terbit ?? '-' }}</td>
+                    <td>
+                        <span class="badge {{ $buku->stok_tersedia > 0 ? 'bg-success' : 'bg-danger' }}">
+                            {{ $buku->stok_tersedia }}
+                        </span>
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-info" onclick="viewBook('{{ $buku->kode_buku }}')" title="Detail">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-warning" onclick="editBook('{{ $buku->kode_buku }}')" title="Edit">
+                                <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger" onclick="deleteBook('{{ $buku->kode_buku }}', '{{ $buku->judul }}')" title="Hapus">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
                     </td>
                 </tr>
-                
-                {{-- BUKU ASLI 2 --}}
-                <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/30 transition duration-100">
-                    <td class="px-4 py-3 font-medium text-[#2B3467]">Fisika Modern</td>
-                    <td class="px-4 py-3">Budi S.</td>
-                    <td class="px-4 py-3 hidden sm:table-cell">XYZ Publisher</td>
-                    <td class="px-4 py-3 text-center hidden md:table-cell">2018</td>
-                    <td class="px-4 py-3"><span class="bg-[#BAD7E9] text-[#2B3467] px-2 py-0.5 rounded-full text-xs font-semibold">Fisika</span></td>
-                    <td class="px-4 py-3 text-center space-x-1">
-                        <a href="#" class="py-1 px-3 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600 transition" disabled>Edit</a>
-                        <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus</button>
+                @empty
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">
+                        <i class="fas fa-book-open fa-3x mb-3 d-block" style="opacity: 0.3;"></i>
+                        Belum ada data buku
                     </td>
                 </tr>
-
-                {{-- BUKU BARU 1 --}}
-                <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/30 transition duration-100">
-                    <td class="px-4 py-3 font-medium text-[#2B3467]">Kisah Para Nabi</td>
-                    <td class="px-4 py-3">Ahmad Z.</td>
-                    <td class="px-4 py-3 hidden sm:table-cell">Muslim Media</td>
-                    <td class="px-4 py-3 text-center hidden md:table-cell">2022</td>
-                    <td class="px-4 py-3"><span class="bg-teal-200 text-teal-800 px-2 py-0.5 rounded-full text-xs font-semibold">Agama</span></td>
-                    <td class="px-4 py-3 text-center space-x-1">
-                        <a href="#" class="py-1 px-3 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600 transition" disabled>Edit</a>
-                        <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus</button>
-                    </td>
-                </tr>
-
-                {{-- BUKU BARU 2 --}}
-                <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/30 transition duration-100">
-                    <td class="px-4 py-3 font-medium text-[#2B3467]">Struktur Data Lanjut</td>
-                    <td class="px-4 py-3">Cahya N.</td>
-                    <td class="px-4 py-3 hidden sm:table-cell">IT Press</td>
-                    <td class="px-4 py-3 text-center hidden md:table-cell">2023</td>
-                    <td class="px-4 py-3"><span class="bg-indigo-200 text-indigo-800 px-2 py-0.5 rounded-full text-xs font-semibold">Komputer</span></td>
-                    <td class="px-4 py-3 text-center space-x-1">
-                        <a href="#" class="py-1 px-3 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600 transition" disabled>Edit</a>
-                        <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus</button>
-                    </td>
-                </tr>
-                
-                {{-- BUKU BARU 3 --}}
-                <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/30 transition duration-100">
-                    <td class="px-4 py-3 font-medium text-[#2B3467]">Menguasai Grammar</td>
-                    <td class="px-4 py-3">Devi R.</td>
-                    <td class="px-4 py-3 hidden sm:table-cell">Language Pub.</td>
-                    <td class="px-4 py-3 text-center hidden md:table-cell">2021</td>
-                    <td class="px-4 py-3"><span class="bg-pink-200 text-pink-800 px-2 py-0.5 rounded-full text-xs font-semibold">Bahasa</span></td>
-                    <td class="px-4 py-3 text-center space-x-1">
-                        <a href="#" class="py-1 px-3 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600 transition" disabled>Edit</a>
-                        <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus</button>
-                    </td>
-                </tr>
-
-                {{-- BUKU BARU 4 --}}
-                <tr class="border-b border-[#BAD7E9]/50 hover:bg-[#BAD7E9]/30 transition duration-100">
-                    <td class="px-4 py-3 font-medium text-[#2B3467]">Novel Senja</td>
-                    <td class="px-4 py-3">Faisal G.</td>
-                    <td class="px-4 py-3 hidden sm:table-cell">Sastra Indah</td>
-                    <td class="px-4 py-3 text-center hidden md:table-cell">2019</td>
-                    <td class="px-4 py-3"><span class="bg-yellow-200 text-yellow-800 px-2 py-0.5 rounded-full text-xs font-semibold">Fiksi</span></td>
-                    <td class="px-4 py-3 text-center space-x-1">
-                        <a href="#" class="py-1 px-3 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600 transition" disabled>Edit</a>
-                        <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus</button>
-                    </td>
-                </tr>
-                
-                {{-- BUKU BARU 5 --}}
-                <tr class="hover:bg-[#BAD7E9]/30 transition duration-100">
-                    <td class="px-4 py-3 font-medium text-[#2B3467]">Ekonomi Makro</td>
-                    <td class="px-4 py-3">Indra L.</td>
-                    <td class="px-4 py-3 hidden sm:table-cell">Econ Publishers</td>
-                    <td class="px-4 py-3 text-center hidden md:table-cell">2017</td>
-                    <td class="px-4 py-3"><span class="bg-lime-200 text-lime-800 px-2 py-0.5 rounded-full text-xs font-semibold">Ekonomi</span></td>
-                    <td class="px-4 py-3 text-center space-x-1">
-                        <a href="#" class="py-1 px-3 bg-yellow-500 text-white rounded-md text-xs hover:bg-yellow-600 transition" disabled>Edit</a>
-                        <button class="py-1 px-3 bg-[#EB455F] text-white rounded-md text-xs hover:bg-red-700 transition" disabled>Hapus</button>
-                    </td>
-                </tr>
-
+                @endforelse
             </tbody>
         </table>
     </div>
+</div>
 
-    {{-- PAGINATION --}}
-    <div class="flex justify-between items-center mt-5 text-sm">
-        <div class="text-[#2B3467]">
-            Showing 1 to 7 of 7 entries
-        </div>
-        <div class="flex space-x-2">
-            <button class="py-2 px-4 bg-[#BAD7E9] text-[#2B3467] rounded-md font-medium hover:bg-[#BAD7E9]/70 transition" disabled>
-                <i class="fas fa-chevron-left"></i> Prev
-            </button>
-            <span class="py-2 px-4 bg-[#EB455F] text-white rounded-md font-bold">1</span>
-            <button class="py-2 px-4 bg-[#BAD7E9] text-[#2B3467] rounded-md font-medium hover:bg-[#BAD7E9]/70 transition" disabled>
-                Next <i class="fas fa-chevron-right"></i>
-            </button>
+<!-- Add Book Modal -->
+<div class="modal fade" id="addBookModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <form action="{{ route('buku.index') }}" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="modal-header" style="background: var(--dark); color: white;">
+                    <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Tambah Buku Baru</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Kode Buku <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="kode_buku" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Judul Buku <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" name="judul" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Nama Pengarang</label>
+                            <input type="text" class="form-control" name="nama_pengarang">
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Penerbit</label>
+                            <input type="text" class="form-control" name="penerbit">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Tahun Terbit</label>
+                            <input type="number" class="form-control" name="tahun_terbit" min="1900" max="2100">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Jumlah Halaman</label>
+                            <input type="number" class="form-control" name="jumlah_halaman">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Stok Tersedia</label>
+                            <input type="number" class="form-control" name="stok_tersedia" value="0">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Cover Buku</label>
+                            <input type="file" class="form-control" name="gambar" accept="image/*" onchange="previewImage(event, 'addPreview')">
+                            <img id="addPreview" class="image-upload-preview" style="display: none;">
+                        </div>
+                        <div class="col-12 mb-3">
+                            <label class="form-label">Genre</label>
+                            <select class="form-select" name="genres[]" multiple>
+                                @foreach($genres ?? [] as $genre)
+                                    <option value="{{ $genre->id_genre }}">{{ $genre->nama_genre }}</option>
+                                @endforeach
+                            </select>
+                            <small class="text-muted">Tekan Ctrl untuk memilih lebih dari satu</small>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-2"></i>Simpan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
+</div>
 
+<!-- Edit Book Modal (will be populated via AJAX) -->
+<div class="modal fade" id="editBookModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="editBookContent">
+            <!-- Content loaded via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- View Book Modal -->
+<div class="modal fade" id="viewBookModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content" id="viewBookContent">
+            <!-- Content loaded via JavaScript -->
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Konfirmasi Hapus</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p>Apakah Anda yakin ingin menghapus buku:</p>
+                <h6 id="deleteBookTitle" class="text-center"></h6>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                <form id="deleteForm" method="POST" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash me-2"></i>Hapus
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
+
+@push('scripts')
+<!-- DataTables JS -->
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+<script>
+$(document).ready(function() {
+    $('#booksTable').DataTable({
+        language: {
+            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
+        },
+        order: [[2, 'asc']]
+    });
+    
+    // Search functionality
+    $('#searchBook').on('keyup', function() {
+        $('#booksTable').DataTable().search(this.value).draw();
+    });
+});
+
+function previewImage(event, previewId) {
+    const preview = document.getElementById(previewId);
+    const file = event.target.files[0];
+    
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            preview.src = e.target.result;
+            preview.style.display = 'block';
+        }
+        reader.readAsDataURL(file);
+    }
+}
+
+function editBook(kodeBuku) {
+    // TODO: Load book data via AJAX and populate edit modal
+    alert('Edit buku: ' + kodeBuku + '\nFitur ini terhubung ke controller untuk edit data.');
+}
+
+function viewBook(kodeBuku) {
+    // TODO: Load book details via AJAX
+    alert('View detail buku: ' + kodeBuku);
+}
+
+function deleteBook(kodeBuku, judul) {
+    document.getElementById('deleteBookTitle').innerText = judul;
+    document.getElementById('deleteForm').action = '/admin/books/' + kodeBuku;
+    new bootstrap.Modal(document.getElementById('deleteModal')).show();
+}
+</script>
+@endpush

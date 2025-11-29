@@ -3,182 +3,361 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'Dashboard Admin Perpustakaan')</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-    @vite('resources/css/app.css') 
-</head>
-<body class="bg-[#FCFFE7] antialiased">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>@yield('title', 'Admin') - Perpustakaan SMAN 1 Pangururan</title>
     
-    <div class="grid grid-cols-1 lg:grid-cols-[260px_1fr] min-h-screen">
-
-        {{-- SIDEBAR --}}
-        <aside class="bg-[#2B3467] text-white p-5 lg:p-0 shadow-lg lg:col-span-1 fixed lg:static w-full lg:w-auto z-50">
-            <div class="logo border-b border-white/10 pb-5 mb-5 hidden lg:block">
-                <div class="text-2xl font-extrabold flex items-center pt-5 px-5">
-                    <i class="fas fa-school text-[#EB455F] mr-3 text-3xl"></i>
-                    <span class="tracking-wider">PERPUSKU ADMIN</span>
-                </div>
+    <!-- Bootstrap 5.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #EB455F;
+            --secondary: #BAD7E9;
+            --dark: #2B3467;
+            --light: #FCFFE7;
+            --sidebar-width: 260px;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light);
+            overflow-x: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: var(--sidebar-width);
+            background: var(--dark);
+            z-index: 1000;
+            transition: all 0.3s;
+            overflow-y: auto;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            background: linear-gradient(135deg, var(--primary), #c93551);
+            color: white;
+            text-align: center;
+        }
+        
+        .sidebar-header h4 {
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .sidebar-header p {
+            font-size: 0.75rem;
+            margin: 0;
+            opacity: 0.9;
+        }
+        
+        .sidebar-menu {
+            padding: 1rem 0;
+        }
+        
+        .menu-item {
+            display: block;
+            padding: 0.9rem 1.5rem;
+            color: rgba(255,255,255,0.8);
+            text-decoration: none;
+            transition: all 0.3s;
+            border-left: 3px solid transparent;
+        }
+        
+        .menu-item:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border-left-color: var(--primary);
+        }
+        
+        .menu-item.active {
+            background: rgba(235, 69, 95, 0.2);
+            color: white;
+            border-left-color: var(--primary);
+        }
+        
+        .menu-item i {
+            width: 20px;
+            margin-right: 10px;
+        }
+        
+        /* Main Content */
+        .main-content {
+            margin-left: var(--sidebar-width);
+            min-height: 100vh;
+            padding: 0;
+        }
+        
+        /* Top Navbar */
+        .top-navbar {
+            background: white;
+            padding: 1rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .top-navbar h5 {
+            margin: 0;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        .user-menu {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark);
+            font-weight: 600;
+        }
+        
+        /* Content Area */
+        .content-area {
+            padding: 2rem;
+        }
+        
+        /* Cards */
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+        }
+        
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+        
+        .icon-primary { background: rgba(235, 69, 95, 0.1); color: var(--primary); }
+        .icon-secondary { background: rgba(186, 215, 233, 0.3); color: #5a9cc2; }
+        .icon-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
+        .icon-warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
+        
+        /* Buttons */
+        .btn-primary {
+            background: var(--primary);
+            border-color: var(--primary);
+        }
+        
+        .btn-primary:hover {
+            background: #c93551;
+            border-color: #c93551;
+        }
+        
+        /* Table */
+        .table-custom {
+            background: white;
+            border-Radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        
+        .table-custom thead {
+            background: var(--dark);
+            color: white;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                margin-left: calc(-1 * var(--sidebar-width));
+            }
+            
+            .sidebar.show {
+                margin-left: 0;
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .content-area {
+                padding: 1rem;
+            }
+        }
+        
+        /* Badges */
+        .badge-status {
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 500;
+        }
+        
+        /* Alerts */
+        .alert {
+            border-radius: 10px;
+            border: none;
+        }
+    </style>
+    
+    @stack('styles')
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h4><i class="fas fa-book-reader"></i> PERPUSTAKAAN</h4>
+            <p>SMAN 1 Pangururan</p>
+        </div>
+        
+        <div class="sidebar-menu">
+            <a href="{{ route('admin.dashboard') }}" class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
+                <i class="fas fa-home"></i> Dashboard
+            </a>
+            <a href="{{ route('buku.index') }}" class="menu-item {{ request()->routeIs('buku.*') ? 'active' : '' }}">
+                <i class="fas fa-book"></i> Manajemen Buku
+            </a>
+            <a href="{{ route('pengelolaan.pengguna') }}" class="menu-item {{ request()->routeIs('pengelolaan.pengguna') ? 'active' : '' }}">
+                <i class="fas fa-users"></i> Manajemen Pengguna
+            </a>
+            <a href="{{ route('transaksi.index') }}" class="menu-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
+                <i class="fas fa-exchange-alt"></i> Pinjam & Kembali
+            </a>
+            <a href="{{ route('perpanjangan.index') }}" class="menu-item {{ request()->routeIs('perpanjangan.*') ? 'active' : '' }}">
+                <i class="fas fa-clock"></i> Perpanjangan
+            </a>
+            <a href="{{ route('denda.index') }}" class="menu-item {{ request()->routeIs('denda.*') ? 'active' : '' }}">
+                <i class="fas fa-money-bill-wave"></i> Laporan Denda
+            </a>
+            <a href="{{ route('pengelolaan.review') }}" class="menu-item {{ request()->routeIs('pengelolaan.review') ? 'active' : '' }}">
+                <i class="fas fa-star"></i> Review Ulasan
+            </a>
+            <a href="{{ route('profil.index') }}" class="menu-item {{ request()->routeIs('profil.*') ? 'active' : '' }}">
+                <i class="fas fa-user-cog"></i> Pengaturan Profil
+            </a>
+            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="menu-item">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+    
+    <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+        @csrf
+    </form>
+    
+    <!-- Main Content -->
+    <div class="main-content">
+        <!-- Top Navbar -->
+        <div class="top-navbar">
+            <div>
+                <button class="btn btn-link d-md-none" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h5 class="d-inline-block">@yield('page-title', 'Dashboard')</h5>
             </div>
             
-            <nav class="hidden lg:block">
-                <div class="space-y-4">
-                    
-                    {{-- UTAMA --}}
-                    <div class="menu-group">
-                        <span class="uppercase text-xs font-semibold text-[#BAD7E9] px-5 mb-1 block">UTAMA</span>
-                        <ul>
-                            {{-- MENU DASHBOARD --}}
-                            <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
-                                <a href="{{ route('admin.dashboard') }}" 
-                                   class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                          {{ request()->routeIs('admin.dashboard') 
-                                                ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                                : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                    <i class="fas fa-tachometer-alt w-5 mr-4 text-center"></i> Dashboard
-                                </a>
-                            </li>
-                            
-                            {{-- MENU MANAJEMEN BUKU - SEKARANG AKAN AKTIF JIKA ROUTE ADALAH 'buku.index' --}}
-                            <li class="{{ request()->routeIs('buku.index') ? 'active' : '' }}">
-                                <a href="{{ route('buku.index') }}" 
-                                   class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                          {{ request()->routeIs('buku.index') 
-                                                ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                                : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                    <i class="fas fa-book w-5 mr-4 text-center"></i> Manajemen Buku
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    
-
-                    {{-- TRANSAKSI --}}
-                    <div class="menu-group">
-                        <span class="uppercase text-xs font-semibold text-[#BAD7E9] px-5 mb-1 block">TRANSAKSI</span>
-                        <ul>
-                            {{-- MENU PINJAM & KEMBALI (Baris yang Diperbarui) --}}
-                            <li class="{{ request()->routeIs('transaksi.index') ? 'active' : '' }}">
-                                <a href="{{ route('transaksi.index') }}" 
-                                   class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                          {{ request()->routeIs('transaksi.index') 
-                                                ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                                : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                    <i class="fas fa-exchange-alt w-5 mr-4 text-center"></i> Pinjam & Kembali
-                                </a>
-                            </li>
-                            
-{{-- MENU PERMINTAAN PERPANJANGAN (Baris yang Diperbarui) --}}
-                            <li class="{{ request()->routeIs('perpanjangan.index') ? 'active' : '' }}">
-                                <a href="{{ route('perpanjangan.index') }}" 
-                                   class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                          {{ request()->routeIs('perpanjangan.index') 
-                                                ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                                : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                    <i class="fas fa-clock w-5 mr-4 text-center"></i> Permintaan Perpanjangan
-                                </a>
-                            </li>
-                            
-{{-- MENU LAPORAN DENDA (Baris yang Diperbarui) --}}
-                            <li class="{{ request()->routeIs('denda.index') ? 'active' : '' }}">
-                                <a href="{{ route('denda.index') }}" 
-                                   class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                          {{ request()->routeIs('denda.index') 
-                                                ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                                : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                    <i class="fas fa-money-check-alt w-5 mr-4 text-center"></i> Laporan Denda
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    
-
-{{-- PENGELOLAAN --}}
-                    <div class="menu-group">
-                        <span class="uppercase text-xs font-semibold text-[#BAD7E9] px-5 mb-1 block">PENGELOLAAN</span>
-                        <ul>
-                            {{-- MENU MANAJEMEN PENGGUNA (Baris yang Diperbarui) --}}
-                            <li class="{{ request()->routeIs('pengelolaan.pengguna') ? 'active' : '' }}">
-                                <a href="{{ route('pengelolaan.pengguna') }}" 
-                                   class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                          {{ request()->routeIs('pengelolaan.pengguna') 
-                                                ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                                : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                    <i class="fas fa-users-cog w-5 mr-4 text-center"></i> Manajemen Pengguna
-                                </a>
-                            </li>
-                            
-                            {{-- MENU REVIEW & ULASAN (Baris yang Diperbarui) --}}
-                            <li class="{{ request()->routeIs('pengelolaan.review') ? 'active' : '' }}">
-                                <a href="{{ route('pengelolaan.review') }}" 
-                                   class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                          {{ request()->routeIs('pengelolaan.review') 
-                                                ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                                : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                    <i class="fas fa-star w-5 mr-4 text-center"></i> Review & Ulasan
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-                
-<div class="mt-8 border-t border-white/10 pt-4">
-                    <ul>
-                        {{-- MENU PENGATURAN PROFIL (Baris yang Diperbarui) --}}
-                        <li class="{{ request()->routeIs('profil.index') ? 'active' : '' }}">
-                            <a href="{{ route('profil.index') }}" 
-                               class="flex items-center py-3 px-5 transition duration-200 border-l-4 
-                                      {{ request()->routeIs('profil.index') 
-                                            ? 'bg-white/10 border-[#EB455F] font-medium text-[#FCFFE7]' 
-                                            : 'text-[#BAD7E9] border-transparent hover:bg-white/15 hover:border-[#BAD7E9]' }}">
-                                <i class="fas fa-user-circle w-5 mr-4 text-center"></i> Pengaturan Profil
-                            </a>
-                        </li>
-                        
-                        {{-- MENU LOGOUT (Menggunakan form POST untuk keamanan) --}}
+            <div class="user-menu">
+                <div class="dropdown">
+                    <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
+                        <div class="user-avatar me-2">
+                            {{ strtoupper(substr(auth()->user()->nama ?? 'A', 0, 1)) }}
+                        </div>
+                        <div class="d-none d-md-block">
+                            <small class="d-block text-muted">Admin</small>
+                            <strong class="d-block" style="color: var(--dark);">{{ auth()->user()->nama ?? 'Administrator' }}</strong>
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="{{ route('profil.index') }}"><i class="fas fa-user me-2"></i> Profil</a></li>
+                        <li><hr class="dropdown-divider"></li>
                         <li>
-                            <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"
-                               class="flex items-center text-[#BAD7E9] py-3 px-5 transition duration-200 hover:bg-white/15 border-l-4 border-transparent hover:border-[#BAD7E9]">
-                                <i class="fas fa-sign-out-alt w-5 mr-4 text-center"></i> Logout
+                            <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                <i class="fas fa-sign-out-alt me-2"></i> Logout
                             </a>
                         </li>
                     </ul>
                 </div>
-                
-                {{-- Form Logout Tersembunyi --}}
-                <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf
-                </form>
-            </nav>
-            
-             {{-- Navigasi Mobile (Perlu diperbarui juga jika menggunakan nav mobile) --}}
-             <nav class="lg:hidden">
-                <ul class="flex justify-around">
-                    <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}"><a href="#" class="flex flex-col items-center text-xs p-2 {{ request()->routeIs('admin.dashboard') ? 'text-[#EB455F] font-bold' : 'text-[#BAD7E9]' }}"><i class="fas fa-tachometer-alt text-lg"></i> Dashboard</a></li>
-                    <li class="{{ request()->routeIs('buku.index') ? 'active' : '' }}"><a href="{{ route('buku.index') }}" class="flex flex-col items-center text-xs p-2 {{ request()->routeIs('buku.index') ? 'text-[#EB455F] font-bold' : 'text-[#BAD7E9]' }}"><i class="fas fa-book text-lg"></i> Buku</a></li>
-                    <li><a href="#" class="flex flex-col items-center text-xs p-2 text-[#BAD7E9]"><i class="fas fa-exchange-alt text-lg"></i> Transaksi</a></li>
-                    <li><a href="#" class="flex flex-col items-center text-xs p-2 text-[#BAD7E9]"><i class="fas fa-users-cog text-lg"></i> Pengguna</a></li>
-                    <li><a href="#" class="flex flex-col items-center text-xs p-2 text-[#BAD7E9]"><i class="fas fa-sign-out-alt text-lg"></i> Keluar</a></li>
-                </ul>
-            </nav>
-        </aside>
-
-        {{-- KONTEN UTAMA --}}
-        <main class="lg:col-span-1 p-4 lg:p-8 pt-[70px] lg:pt-8">
-            <header class="flex justify-between items-center bg-white p-4 lg:p-6 mb-8 rounded-lg shadow-md fixed top-0 left-0 lg:static w-full lg:w-auto z-40 lg:z-auto">
-                <h2 class="text-2xl font-semibold text-[#2B3467] hidden lg:block">@yield('title', 'Dashboard')</h2>
-                <div class="profile-area flex items-center ml-auto">
-                    <div class="admin-info text-right mr-4 hidden sm:block">
-                        <span class="block font-semibold text-sm text-[#2B3467]">Admin Perpustakaan</span>
-                        <small class="text-xs text-[#BAD7E9]">Admin Utama</small>
-                    </div>
-                    <img src="https://via.placeholder.com/45/EB455F/fff?text=A" alt="Admin Profile" class="w-11 h-11 rounded-full object-cover border-2 border-[#EB455F] cursor-pointer">
+            </div>
+        </div>
+        
+        <!-- Content Area -->
+        <div class="content-area">
+            @if(session('success'))
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
                 </div>
-                <div class="lg:hidden text-xl font-bold text-[#2B3467]">PERPUSKU</div>
-            </header>
+            @endif
+            
+            @if(session('error'))
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
+            
+            @if($errors->any())
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    <ul class="mb-0">
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            @endif
             
             @yield('content')
-            
-        </main>
+        </div>
     </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Sidebar toggle for mobile
+        document.getElementById('sidebarToggle')?.addEventListener('click', function() {
+            document.getElementById('sidebar').classList.toggle('show');
+        });
+        
+        // Auto-hide alerts
+        setTimeout(function() {
+            document.querySelectorAll('.alert').forEach(function(alert) {
+                let bsAlert = new bootstrap.Alert(alert);
+                bsAlert.close();
+            });
+        }, 5000);
+    </script>
+    
+    @stack('scripts')
 </body>
 </html>
