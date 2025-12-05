@@ -62,4 +62,4 @@ jobs:
         run: php artisan migrate --force
 
       - name: Execute tests
-        run: php artisan test --without-creating-snapshots
+        run: php artisan test
