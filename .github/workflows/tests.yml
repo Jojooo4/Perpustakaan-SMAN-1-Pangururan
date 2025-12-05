@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        php: [8.2, 8.3, 8.4]
+        php: [8.3, 8.4]
 
     name: PHP ${{ matrix.php }}
 
@@ -37,11 +37,29 @@ jobs:
       - name: Install Composer dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Node dependencies
+        run: npm ci
+
       - name: Copy environment file
         run: cp .env.example .env
 
       - name: Generate app key
         run: php artisan key:generate
 
+      - name: Build Vite assets
+        run: npm run build
+
+      - name: Create SQLite database
+        run: touch database/database.sqlite
+
+      - name: Run database migrations
+        run: php artisan migrate --force
+
       - name: Execute tests
-        run: php artisan test
+        run: php artisan test --without-creating-snapshots
