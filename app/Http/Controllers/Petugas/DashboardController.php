@@ -3,18 +3,16 @@
 namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Models\{Buku, Peminjaman, User};
 
 class DashboardController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('auth');
-        // Optionally: $this->middleware('is_petugas');
-    }
-
     public function index()
     {
-        return view('petugas.dashboard');
+        $peminjamanAktif = Peminjaman::where('status_peminjaman', 'Dipinjam')->count();
+        $totalBuku = Buku::count();
+        $pengunjungAktif = User::where('role', 'pengunjung')->count();
+        
+        return view('petugas.dashboard', compact('peminjamanAktif', 'totalBuku', 'pengunjungAktif'));
     }
 }

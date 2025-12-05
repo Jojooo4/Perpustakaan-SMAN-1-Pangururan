@@ -49,13 +49,35 @@ class User extends Authenticatable
      *
      * @return array<string, string>
      */
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string,string>
-     */
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
+
+    // Relationships
+    public function peminjaman()
+    {
+        return $this->hasMany(Peminjaman::class, 'id_user', 'id_user');
+    }
+
+    public function ulasan()
+    {
+        return $this->hasMany(UlasanBuku::class, 'id_user', 'id_user');
+    }
+
+    // Role Helpers
+    public function isAdmin()
+    {
+        return $this->role === 'admin';
+    }
+
+    public function isPetugas()
+    {
+        return $this->role === 'petugas';
+    }
+
+    public function isPengunjung()
+    {
+        return $this->role === 'pengunjung';
+    }
 }
