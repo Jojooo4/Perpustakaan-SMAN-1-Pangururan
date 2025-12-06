@@ -23,7 +23,7 @@ class RequestPerpanjangan extends Model
 
     public function diproses()
     {
-        return $this->belongsTo(User::class, 'diproses_oleh', 'id_user');
+        return $this->belongsTo(User::class, 'diproses_oleh', 'id');
     }
 
     public function scopePending($query)

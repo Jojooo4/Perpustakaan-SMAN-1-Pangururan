@@ -56,7 +56,7 @@ class CatalogController extends Controller
         
         // Create borrow request (waiting admin approval)
         RequestPeminjaman::create([
-            'id_user' => auth()->user()->id_user, // Use correct PK column
+            'id_user' => auth()->user()->id_user,
             'kode_buku' => $kode_buku,
             'status' => 'pending',
             'tanggal_request' => now()
