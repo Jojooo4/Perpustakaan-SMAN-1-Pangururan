@@ -12,27 +12,27 @@ class DashboardController extends Controller
         $user = auth()->user();
         
         // Statistics
-        $peminjamanAktif = Peminjaman::where('id_user', $user->id_user)
+        $peminjamanAktif = Peminjaman::where('id_user', auth()->user()->id_user)
             ->where('status_peminjaman', 'Dipinjam')
             ->count();
             
-        $totalPeminjaman = Peminjaman::where('id_user', $user->id_user)->count();
+        $totalPeminjaman = Peminjaman::where('id_user', auth()->user()->id_user)->count();
         
-        $dendaBelumLunas = Peminjaman::where('id_user', $user->id_user)
+        $dendaBelumLunas = Peminjaman::where('id_user', auth()->user()->id_user)
             ->where('denda', '>', 0)
             ->where('denda_lunas', false)
             ->sum('denda');
         
         // Active loans
         $peminjamanAktifList = Peminjaman::with(['asetBuku.buku'])
-            ->where('id_user', $user->id_user)
+            ->where('id_user', auth()->user()->id_user)
             ->where('status_peminjaman', 'Dipinjam')
             ->latest('tanggal_pinjam')
             ->get();
         
         // Loan history
         $riwayatPeminjaman = Peminjaman::with(['asetBuku.buku'])
-            ->where('id_user', $user->id_user)
+            ->where('id_user', auth()->user()->id_user)
             ->whereIn('status_peminjaman', ['Dikembalikan', 'Terlambat'])
             ->latest('tanggal_kembali')
             ->limit(10)

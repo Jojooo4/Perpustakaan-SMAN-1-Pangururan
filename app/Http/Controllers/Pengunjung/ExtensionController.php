@@ -15,14 +15,14 @@ class ExtensionController extends Controller
         
         // Get active loans
         $activeLoans = Peminjaman::with(['asetBuku.buku', 'requestPerpanjangan'])
-            ->where('id_user', $user->id_user)
+            ->where('id_user', auth()->user()->id_user)
             ->where('status_peminjaman', 'Dipinjam')
             ->get();
         
         // Get extension request history
         $extensionRequests = RequestPerpanjangan::with(['peminjaman.asetBuku.buku'])
             ->whereHas('peminjaman', function($q) use ($user) {
-                $q->where('id_user', $user->id_user);
+                $q->where('id_user', auth()->user()->id_user);
             })
             ->latest('tanggal_request')
             ->get();

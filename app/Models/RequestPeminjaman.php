@@ -19,7 +19,7 @@ class RequestPeminjaman extends Model
     
     public function user()
     {
-        return $this->belongsTo(User::class, 'id_user', 'id_user');
+        return $this->belongsTo(User::class, 'id_user', 'id');
     }
     
     public function buku()
@@ -29,6 +29,6 @@ class RequestPeminjaman extends Model
     
     public function petugas()
     {
-        return $this->belongsTo(User::class, 'diproses_oleh', 'id_user');
+        return $this->belongsTo(User::class, 'diproses_oleh', 'id');
     }
 }
