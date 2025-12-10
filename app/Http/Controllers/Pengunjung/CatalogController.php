@@ -28,13 +28,13 @@ class CatalogController extends Controller
         return view('pengunjung.catalog', compact('books'));
     }
     
-    public function show($kode_buku)
+    public function show($id_buku)
     {
-        $book = Buku::with(['genres'])->findOrFail($kode_buku);
+        $book = Buku::with(['genres'])->findOrFail($id_buku);
         
         // Get reviews
         $reviews = UlasanBuku::with('user')
-            ->where('kode_buku', $kode_buku)
+            ->where('id_buku', $id_buku)
             ->latest('id_ulasan')
             ->get();
         
@@ -45,9 +45,9 @@ class CatalogController extends Controller
         return view('pengunjung.book_detail', compact('book', 'reviews', 'userHasBorrowed'));
     }
     
-    public function borrow(Request $request, $kode_buku)
+    public function borrow(Request $request, $id_buku)
     {
-        $book = Buku::findOrFail($kode_buku);
+        $book = Buku::findOrFail($id_buku);
         
         // Check stock
         if ($book->stok_tersedia <= 0) {
@@ -57,7 +57,7 @@ class CatalogController extends Controller
         // Create borrow request (waiting admin approval)
         RequestPeminjaman::create([
             'id_user' => auth()->user()->id_user,
-            'kode_buku' => $kode_buku,
+            'id_buku' => $id_buku,
             'status' => 'pending',
             'tanggal_request' => now()
         ]);

@@ -72,7 +72,7 @@ class LoanController extends Controller
             'tanggal_kembali' => now(),
             'status_peminjaman' => $denda > 0 ? 'Terlambat' : 'Dikembalikan',
             'denda' => $denda,
-            'denda_lunas' => $denda == 0
+            // denda_lunas column removed - not in database
         ]);
 
         $peminjaman->asetBuku->update(['status_buku' => 'Tersedia']);

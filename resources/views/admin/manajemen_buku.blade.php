@@ -65,7 +65,7 @@
                             </div>
                         @endif
                     </td>
-                    <td>{{ $buku->kode_buku }}</td>
+                    <td>{{ $buku->id_buku }}</td>
                     <td><strong>{{ $buku->judul }}</strong></td>
                     <td>{{ $buku->nama_pengarang ?? '-' }}</td>
                     <td>{{ $buku->penerbit ?? '-' }}</td>
@@ -77,13 +77,13 @@
                     </td>
                     <td>
                         <div class="btn-group btn-group-sm">
-                            <button class="btn btn-info" onclick="viewBook('{{ $buku->kode_buku }}')" title="Detail">
+                            <button class="btn btn-info" onclick="viewBook('{{ $buku->id_buku }}')" title="Detail">
                                 <i class="fas fa-eye"></i>
                             </button>
-                            <button class="btn btn-warning" onclick="editBook('{{ $buku->kode_buku }}')" title="Edit">
+                            <button class="btn btn-warning" onclick="editBook('{{ $buku->id_buku }}')" title="Edit">
                                 <i class="fas fa-edit"></i>
                             </button>
-                            <button class="btn btn-danger" onclick="deleteBook('{{ $buku->kode_buku }}', '{{ $buku->judul }}')" title="Hapus">
+                            <button class="btn btn-danger" onclick="deleteBook('{{ $buku->id_buku }}', '{{ $buku->judul }}')" title="Hapus">
                                 <i class="fas fa-trash"></i>
                             </button>
                         </div>
@@ -114,11 +114,7 @@
                 </div>
                 <div class="modal-body">
                     <div class="row">
-                        <div class="col-md-6 mb-3">
-                            <label class="form-label">Kode Buku <span class="text-danger">*</span></label>
-                            <input type="text" class="form-control" name="kode_buku" required>
-                        </div>
-                        <div class="col-md-6 mb-3">
+                        <div class="col-md-12 mb-3">
                             <label class="form-label">Judul Buku <span class="text-danger">*</span></label>
                             <input type="text" class="form-control" name="judul" required>
                         </div>
@@ -259,9 +255,9 @@ function viewBook(kodeBuku) {
     alert('View detail buku: ' + kodeBuku);
 }
 
-function deleteBook(kodeBuku, judul) {
+function deleteBook(idBuku, judul) {
     document.getElementById('deleteBookTitle').innerText = judul;
-    document.getElementById('deleteForm').action = '/admin/books/' + kodeBuku;
+    document.getElementById('deleteForm').action = '/manajemen_buku/' + idBuku;
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 </script>

@@ -47,10 +47,21 @@ class LoginController extends Controller
             $request->session()->regenerate();
             $user = Auth::user();
 
-            // Determine role/level from common column names if present
+            // Determine role from tipe_anggota since database doesn't have 'role' column
             $role = null;
             if (Schema::hasColumn('users', 'role')) {
                 $role = $user->role;
+            } elseif (Schema::hasColumn('users', 'tipe_anggota')) {
+                // Map tipe_anggota to roles
+                $tipe = strtolower($user->tipe_anggota ?? '');
+                if ($tipe === 'admin') {
+                    $role = 'admin';
+                } elseif ($tipe === 'petugas') {
+                    $role = 'petugas'; 
+                } else {
+                    // Siswa, Guru, Kepala Sekolah, Staf, Umum = pengunjung
+                    $role = 'pengunjung';
+                }
             } elseif (Schema::hasColumn('users', 'level')) {
                 $role = $user->level;
             } elseif (Schema::hasColumn('users', 'is_admin')) {

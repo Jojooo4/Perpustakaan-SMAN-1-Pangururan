@@ -49,9 +49,9 @@ class BookController extends Controller
         return redirect()->route('admin.books.index')->with('success', 'Buku berhasil ditambahkan!');
     }
 
-    public function update(Request $request, $kode_buku)
+    public function update(Request $request, $id_buku)
     {
-        $buku = Buku::findOrFail($kode_buku);
+        $buku = Buku::findOrFail($id_buku);
         
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
@@ -77,28 +77,28 @@ class BookController extends Controller
         return redirect()->route('admin.books.index')->with('success', 'Buku berhasil diperbarui!');
     }
 
-    public function destroy($kode_buku)
+    public function destroy($id_buku)
     {
-        $buku = Buku::findOrFail($kode_buku);
+        $buku = Buku::findOrFail($id_buku);
         if ($buku->gambar) Storage::disk('public')->delete($buku->gambar);
         $buku->delete();
 
         return redirect()->route('admin.books.index')->with('success', 'Buku berhasil dihapus!');
     }
 
-    public function storeItem(Request $request, $kode_buku)
+    public function storeItem(Request $request, $id_buku)
     {
         $validated = $request->validate([
             'nomor_inventaris' => 'required|unique:aset_buku,nomor_inventaris',
-            'status_buku' => 'required|in:Tersedia,Dipinjam,Rusak,Hilang',
+             'status_buku' => 'required|in:Tersedia,Dipinjam,Rusak,Hilang',
             'kondisi_buku' => 'required|in:Baik,Rusak Ringan,Rusak Berat',
             'catatan' => 'nullable|string'
         ]);
 
-        $validated['kode_buku'] = $kode_buku;
+        $validated['id_buku'] = $id_buku;
         AsetBuku::create($validated);
         
-        $buku = Buku::find($kode_buku);
+        $buku = Buku::find($id_buku);
         if ($validated['status_buku'] === 'Tersedia') {
             $buku->increment('stok_tersedia');
         }

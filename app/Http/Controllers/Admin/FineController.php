@@ -14,16 +14,10 @@ class FineController extends Controller
     {
         $query = Peminjaman::with(['user', 'asetBuku.buku'])->where('denda', '>', 0);
         
-        if ($request->filled('status')) {
-            if ($request->status === 'lunas') {
-                $query->where('denda_lunas', true);
-            } else {
-                $query->where('denda_lunas', false);
-            }
-        }
+        // Fixed: denda_lunas column doesn't exist - cannot filter by status
         
         $denda = $query->latest('tanggal_kembali')->paginate(10);
-        $totalDendaBelumLunas = Peminjaman::where('denda', '>', 0)->where('denda_lunas', false)->sum('denda');
+        $totalDendaBelumLunas = Peminjaman::where('denda', '>', 0)->sum('denda');
         
         return view('admin.laporan_denda', compact('denda', 'totalDendaBelumLunas'));
     }
@@ -31,7 +25,8 @@ class FineController extends Controller
     public function markPaid($id_peminjaman)
     {
         $peminjaman = Peminjaman::findOrFail($id_peminjaman);
-        $peminjaman->update(['denda_lunas' => true]);
+        // Fixed: denda_lunas column doesn't exist - set denda to 0
+        $peminjaman->update(['denda' => 0]);
 
         return back()->with('success', 'Denda ditandai lunas!');
     }
@@ -40,9 +35,7 @@ class FineController extends Controller
     {
         $query = Peminjaman::with(['user', 'asetBuku.buku'])->where('denda', '>', 0);
         
-        if ($request->filled('status')) {
-            $query->where('denda_lunas', $request->status === 'lunas');
-        }
+        // Fixed: denda_lunas column doesn't exist - export all fines
         
         return Excel::download(new FineExport($query->get()), 'laporan_denda_' . date('YmdHis') . '.xlsx');
     }

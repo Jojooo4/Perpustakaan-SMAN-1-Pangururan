@@ -58,8 +58,24 @@
                         @endif
                     </td>
                     <td>
-                        @if($p->denda > 0)
-                            <span class="text-danger fw-bold">Rp {{ number_format($p->denda, 0, ',', '.') }}</span>
+                        @php
+                            // Calculate real-time fine for overdue books
+                            $displayDenda = $p->denda;
+                            
+                            if ($p->status_peminjaman == 'Dipinjam' && \Carbon\Carbon::parse($p->tanggal_jatuh_tempo)->isPast()) {
+                                $dendaPerHari = DB::table('aturan_perpustakaan')->where('nama_aturan', 'denda_per_hari')->value('isi_aturan') ?? 500;
+                                $hariTerlambat = max(0, now()->diffInDays($p->tanggal_jatuh_tempo, false) * -1);
+                                $displayDenda = $hariTerlambat * $dendaPerHari;
+                            }
+                        @endphp
+                        
+                        @if($displayDenda > 0)
+                            <span class="text-danger fw-bold">
+                                Rp {{ number_format($displayDenda, 0, ',', '.') }}
+                                @if($p->status_peminjaman == 'Dipinjam')
+                                    <small class="d-block text-muted">(Berjalan)</small>
+                                @endif
+                            </span>
                         @else
                             <span class="text-muted">-</span>
                         @endif
@@ -109,17 +125,27 @@
                             @endforeach
                         </select>
                     </div>
+                    
+                    <!-- STEP 1: Pilih Judul Buku -->
                     <div class="mb-3">
-                        <label class="form-label">Buku <span class="text-danger">*</span></label>
-                        <select class="form-select" name="id_aset_buku" required>
-                            <option value="">Pilih Buku</option>
-                            @foreach($asetTersedia ?? [] as $aset)
-                                <option value="{{ $aset->id_aset }}">
-                                    {{ $aset->buku->judul ?? '-' }} ({{ $aset->nomor_inventaris }})
-                                </option>
+                        <label class="form-label">Judul Buku <span class="text-danger">*</span></label>
+                        <select class="form-select" id="selectBuku" required>
+                            <option value="">Pilih Judul Buku</option>
+                            @foreach($bukus ?? [] as $buku)
+                                <option value="{{ $buku->id_buku }}">{{ $buku->judul }} - {{ $buku->nama_pengarang }}</option>
                             @endforeach
                         </select>
                     </div>
+                    
+                    <!-- STEP 2: Pilih Nomor Inventaris (Dynamic) -->
+                    <div class="mb-3" id="asetContainer" style="display:none;">
+                        <label class="form-label">Nomor Inventaris <span class="text-danger">*</span></label>
+                        <select class="form-select" name="id_aset" id="selectAset" required>
+                            <option value="">Pilih Nomor Inventaris</option>
+                        </select>
+                        <small class="text-muted">Pilih judul buku terlebih dahulu</small>
+                    </div>
+                    
                     <div class="mb-3">
                         <label class="form-label">Tanggal Pinjam <span class="text-danger">*</span></label>
                         <input type="date" class="form-control" name="tanggal_pinjam" value="{{ date('Y-m-d') }}" required>
@@ -144,6 +170,44 @@
 
 @push('scripts')
 <script>
+// 2-Step Book Selection
+document.getElementById('selectBuku').addEventListener('change', function() {
+    const bukuId = this.value;
+    const asetContainer = document.getElementById('asetContainer');
+    const selectAset = document.getElementById('selectAset');
+    
+    if (bukuId) {
+        // Show loading
+        selectAset.innerHTML = '<option value="">Loading...</option>';
+        asetContainer.style.display = 'block';
+        
+        // Fetch available assets
+        fetch(`/api/aset-buku/${bukuId}`)
+            .then(response => response.json())
+            .then(data => {
+                selectAset.innerHTML = '<option value="">Pilih Nomor Inventaris</option>';
+                
+                if (data.length > 0) {
+                    data.forEach(aset => {
+                        const option = document.createElement('option');
+                        option.value = aset.id_aset;
+                        option.textContent = `${aset.nomor_inventaris} - ${aset.kondisi_buku}`;
+                        selectAset.appendChild(option);
+                    });
+                } else {
+                    selectAset.innerHTML = '<option value="">Tidak ada aset tersedia</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                selectAset.innerHTML = '<option value="">Error loading aset</option>';
+            });
+    } else {
+        asetContainer.style.display = 'none';
+        selectAset.innerHTML = '<option value="">Pilih Nomor Inventaris</option>';
+    }
+});
+
 function returnBook(id) {
     if(confirm('Kembalikan buku ini? Denda akan dihitung otomatis jika terlambat.')) {
         let form = document.createElement('form');

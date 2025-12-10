@@ -19,8 +19,11 @@
         </select>
     </div>
     <div class="col-md-3">
-        <a href="{{ route('denda.export', request()->query()) }}" class="btn btn-success w-100">
+        <a href="{{ route('denda.export', request()->query()) }}" class="btn btn-success w-100 mb-2">
             <i class="fas fa-file-excel me-2"></i>Export Excel
+        </a>
+        <a href="{{ route('denda.export-pdf') }}" class="btn btn-danger w-100">
+            <i class="fas fa-file-pdf me-2"></i>Export PDF
         </a>
     </div>
 </div>

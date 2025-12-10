@@ -21,12 +21,13 @@ class User extends Authenticatable
         'username',
         'nama',
         'password',
-        'role',
+        // Fixed: Match ACTUAL database structure from phpMyAdmin
+        'tipe_anggota',      // enum('Siswa', 'Guru', 'Kepala Sekolah', 'Staf', 'Umum')
+        'kelas',             // varchar(20)
+        'status_keanggotaan', // enum('Aktif', 'Tidak Aktif', 'Dibekukan')
+        // NOTE: database does NOT have 'role' column!
         'foto_profil',
-        // Merged from pengunjung table
-        'tipe_anggota',
-        'kelas',
-        'status_keanggotaan',
+        // NOTE: id_user is NOT in fillable because it's AUTO_INCREMENT
     ];
 
     /**
@@ -56,6 +57,13 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
+    /**
+     * Default attribute values.
+     */
+    protected $attributes = [
+        'status_keanggotaan' => 'Aktif',
+    ];
+
     // Relationships
     public function peminjaman()
     {
@@ -68,18 +76,35 @@ class User extends Authenticatable
     }
 
     // Role Helpers
+    // NOTE: Database doesn't have 'role' column, using tipe_anggota instead
+    // Assuming: 'Admin'/'Petugas' in tipe_anggota, while Siswa/Guru/etc are regular users
     public function isAdmin()
     {
-        return $this->role === 'admin';
+        // Check if there's a column that indicates admin status
+        if (isset($this->attributes['role'])) {
+            return $this->attributes['role'] === 'admin';
+        }
+        // Fallback: maybe admin is indicated by tipe_anggota
+        return isset($this->attributes[' tipe_anggota']) && 
+               in_array($this->attributes['tipe_anggota'], ['Admin']);
     }
 
     public function isPetugas()
     {
-        return $this->role === 'petugas';
+        if (isset($this->attributes['role'])) {
+            return $this->attributes['role'] === 'petugas';
+        }
+        return isset($this->attributes['tipe_anggota']) && 
+               in_array($this->attributes['tipe_anggota'], ['Petugas']);
     }
 
     public function isPengunjung()
     {
-        return $this->role === 'pengunjung';
+        if (isset($this->attributes['role'])) {
+            return $this->attributes['role'] === 'pengunjung';
+        }
+        // Siswa, Guru, dll are regular pengunjung/visitors
+        return isset($this->attributes['tipe_anggota']) && 
+               in_array($this->attributes['tipe_anggota'], ['Siswa', 'Guru', 'Kepala Sekolah', 'Staf', 'Umum']);
     }
 }

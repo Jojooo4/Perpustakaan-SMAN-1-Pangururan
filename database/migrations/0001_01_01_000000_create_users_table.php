@@ -11,13 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // IMPORTANT: This migration matches the ACTUAL database schema from dbsma1_pangururan.sql
+        // DO NOT run migrate:fresh as it will destroy existing data!
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->integer('id_user')->autoIncrement(); // NOT id() - database uses id_user
+            $table->string('username', 50)->unique();     // NOT email
             $table->string('password');
-            $table->rememberToken();
+            $table->string('nama', 100);                  // NOT name
+            $table->enum('role', ['admin', 'petugas', 'pengunjung', 'non aktif']);
+            $table->string('foto_profil')->nullable();    // NOT foto_profil
             $table->timestamps();
         });
 

@@ -1,0 +1,9 @@
+    // API: Get available assets by book
+    public function getAsetByBuku($id_buku)
+    {
+        $asets = \App\Models\AsetBuku::where('id_buku', $id_buku)
+            ->with('buku')
+            ->get();
+        
+        return response()->json($asets);
+    }

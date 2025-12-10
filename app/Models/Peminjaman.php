@@ -10,20 +10,24 @@ class Peminjaman extends Model
     protected $table = 'peminjaman';
     protected $primaryKey = 'id_peminjaman';
     
-    public $timestamps = false; // Disable timestamps if table doesn't have created_at/updated_at
+    // Database only has created_at, NOT updated_at
+    public $timestamps = false;
+    const CREATED_AT = 'created_at';
+    const UPDATED_AT = null;
     
-    protected $fillable = ['id_user', 'id_aset_buku', 'tanggal_pinjam', 'tanggal_jatuh_tempo', 'tanggal_kembali', 'status_peminjaman', 'denda', 'denda_lunas'];
+    // Database columns: id_user, id_aset_buku (NOT id_aset!)
+    protected $fillable = ['id_user', 'id_aset_buku', 'tanggal_pinjam', 'tanggal_jatuh_tempo', 'tanggal_kembali', 'status_peminjaman', 'denda'];
 
     protected $casts = [
         'tanggal_pinjam' => 'date',
         'tanggal_jatuh_tempo' => 'date',
         'tanggal_kembali' => 'date',
-        'denda' => 'decimal:2',
-        'denda_lunas' => 'boolean'
+        'denda' => 'integer',
     ];
 
     public function user()
     {
+        // peminjaman.id_user -> users.id_user
         return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
@@ -55,17 +59,20 @@ class Peminjaman extends Model
 
     public function hitungDenda()
     {
+        // Fixed: use denda_per_hari from aturan_perpustakaan (default 500 from schema)
+        $dendaPerHari = \DB::table('aturan_perpustakaan')->where('nama_aturan', 'denda_per_hari')->value('isi_aturan') ?? 500;
+        
         if ($this->tanggal_kembali && $this->tanggal_jatuh_tempo) {
             $jatuhTempo = Carbon::parse($this->tanggal_jatuh_tempo);
             $kembali = Carbon::parse($this->tanggal_kembali);
             $hariTerlambat = max(0, $kembali->diffInDays($jatuhTempo, false) * -1);
-            return $hariTerlambat * 1000;
+            return $hariTerlambat * $dendaPerHari;
         }
         
         if ($this->status_peminjaman === 'Dipinjam') {
             $jatuhTempo = Carbon::parse($this->tanggal_jatuh_tempo);
             $hariTerlambat = max(0, now()->diffInDays($jatuhTempo, false) * -1);
-            return $hariTerlambat * 1000;
+            return $hariTerlambat * $dendaPerHari;
         }
         
         return 0;

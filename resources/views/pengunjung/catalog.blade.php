@@ -78,7 +78,7 @@
                     </div>
                 @endif
                 
-                <a href="{{ route('pengunjung.catalog.show', $book->kode_buku) }}" class="btn-detail">
+                <a href="{{ route('pengunjung.catalog.show', $book->id_buku) }}" class="btn-detail">
                     <i class="fas fa-eye me-1"></i>Lihat Detail
                 </a>
             </div>

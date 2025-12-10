@@ -260,6 +260,18 @@
             <a href="{{ route('pengelolaan.review') }}" class="menu-item {{ request()->routeIs('pengelolaan.review') ? 'active' : '' }}">
                 <i class="fas fa-star"></i> Review Ulasan
             </a>
+            <a href="{{ route('admin.request-peminjaman.index') }}" class="menu-item {{ request()->routeIs('admin.request-peminjaman.*') ? 'active' : '' }}">
+                <i class="fas fa-clipboard-check"></i> Request Peminjaman
+                @php
+                    $pendingCount = \App\Models\RequestPeminjaman::where('status', 'pending')->count();
+                @endphp
+                @if($pendingCount > 0)
+                    <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">{{ $pendingCount }}</span>
+                @endif
+            </a>
+            <a href="{{ route('admin.log-aktivitas') }}" class="menu-item {{ request()->routeIs('admin.log-aktivitas') ? 'active' : '' }}">
+                <i class="fas fa-history"></i> Log Aktivitas
+            </a>
             <a href="{{ route('profil.index') }}" class="menu-item {{ request()->routeIs('profil.*') ? 'active' : '' }}">
                 <i class="fas fa-user-cog"></i> Pengaturan Profil
             </a>
