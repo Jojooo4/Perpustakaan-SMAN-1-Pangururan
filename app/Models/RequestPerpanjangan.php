@@ -9,11 +9,13 @@ class RequestPerpanjangan extends Model
     protected $table = 'request_perpanjangan';
     protected $primaryKey = 'id_request';
     
-    protected $fillable = ['id_peminjaman', 'tanggal_request', 'tanggal_kembali_baru', 'alasan', 'status', 'catatan_admin', 'diproses_oleh'];
+    public $timestamps = false; // No created_at/updated_at in table
+    
+    protected $fillable = ['id_peminjaman', 'tanggal_request', 'tanggal_perpanjangan_baru', 'catatan', 'status', 'diproses_oleh'];
 
     protected $casts = [
         'tanggal_request' => 'datetime',
-        'tanggal_kembali_baru' => 'date'
+        'tanggal_perpanjangan_baru' => 'date'
     ];
 
     public function peminjaman()

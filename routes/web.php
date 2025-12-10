@@ -47,9 +47,9 @@ Route::middleware(['auth'])->group(function () {
     // MANAJEMEN BUKU
     Route::get('/manajemen_buku', [BukuController::class, 'index'])->name('buku.index');
     Route::post('/manajemen_buku', [BukuController::class, 'store'])->name('buku.store');
-    Route::put('/manajemen_buku/{kode_buku}', [BukuController::class, 'update'])->name('buku.update');
-    Route::delete('/manajemen_buku/{kode_buku}', [BukuController::class, 'destroy'])->name('buku.destroy');
-    Route::get('/manajemen_buku/{kode_buku}', [BukuController::class, 'show'])->name('buku.show');
+    Route::put('/manajemen_buku/{id_buku}', [BukuController::class, 'update'])->name('buku.update');
+    Route::delete('/manajemen_buku/{id_buku}', [BukuController::class, 'destroy'])->name('buku.destroy');
+    Route::get('/manajemen_buku/{id_buku}', [BukuController::class, 'show'])->name('buku.show');
     
     // MANAJEMEN PENGGUNA (ADMIN ONLY)
     Route::get('/manajemen-pengguna', [PengelolaanController::class, 'pengguna'])->name('pengelolaan.pengguna');
@@ -58,8 +58,9 @@ Route::middleware(['auth'])->group(function () {
     Route::delete('/manajemen-pengguna/{id_user}', [PengelolaanController::class, 'destroyUser'])->name('pengelolaan.pengguna.destroy');
     
     // PEMINJAMAN & PENGEMBALIAN
-    Route::get('/pinjam_kembali', [TransaksiController::class, 'index'])->name('transaksi.index');
-    Route::post('/pinjam_kembali', [TransaksiController::class, 'store'])->name('transaksi.store');
+    Route::get('/pinjam_kembali', [TransaksiController::class, 'index'])->name('transaksi.index');  
+    Route::post('/pinjam_kembali', [TransaksiController::class, 'store'])->name('admin.loans.store');
+    Route::get('/api/aset-buku/{id_buku}', [TransaksiController::class, 'getAsetByBuku']); // API for dynamic dropdown
     Route::post('/pinjam_kembali/{id}/kembali', [TransaksiController::class, 'return'])->name('transaksi.return');
     Route::delete('/pinjam_kembali/{id}', [TransaksiController::class, 'destroy'])->name('transaksi.destroy');
     
@@ -72,10 +73,20 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/laporan-denda', [TransaksiController::class, 'laporanDenda'])->name('denda.index');
     Route::post('/laporan-denda/{id}/lunas', [TransaksiController::class, 'markPaid'])->name('denda.mark-paid');
     Route::get('/denda/export', [TransaksiController::class, 'exportDenda'])->name('denda.export');
+    Route::get('/denda/export-pdf', [TransaksiController::class, 'exportDendaPdf'])->name('denda.export-pdf');
     
     // REVIEW ULASAN  
     Route::get('/review-ulasan', [PengelolaanController::class, 'review'])->name('pengelolaan.review');
+    Route::get('/api/reviews/{id_buku}', [PengelolaanController::class, 'getBookReviews']);
     Route::delete('/review-ulasan/{id}', [PengelolaanController::class, 'destroyReview'])->name('pengelolaan.review.destroy');
+    
+    // REQUEST PEMINJAMAN
+    Route::get('/request-peminjaman', [\App\Http\Controllers\Admin\RequestPeminjamanController::class, 'index'])->name('admin.request-peminjaman.index');
+    Route::post('/request-peminjaman/{id}/approve', [\App\Http\Controllers\Admin\RequestPeminjamanController::class, 'approve'])->name('admin.request-peminjaman.approve');
+    Route::post('/request-peminjaman/{id}/reject', [\App\Http\Controllers\Admin\RequestPeminjamanController::class, 'reject'])->name('admin.request-peminjaman.reject');
+    
+    // LOG AKTIVITAS
+    Route::get('/log-aktivitas', [\App\Http\Controllers\Admin\LogAktivitasController::class, 'index'])->name('admin.log-aktivitas');
     
     // PENGATURAN PROFIL (ADMIN)
     Route::get('/pengaturan-profil', [ProfilController::class, 'index'])->name('profil.index');
@@ -92,11 +103,15 @@ Route::middleware(['auth'])->group(function () {
         
         // Catalog & Borrow
         Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog');
-        Route::get('/catalog/{kode_buku}', [CatalogController::class, 'show'])->name('catalog.show');
-        Route::post('/catalog/{kode_buku}/borrow', [CatalogController::class, 'borrow'])->name('catalog.borrow');
+        Route::get('/catalog/{id_buku}', [CatalogController::class, 'show'])->name('catalog.show');
+        Route::post('/catalog/{id_buku}/borrow', [CatalogController::class, 'borrow'])->name('catalog.borrow');
+        
+        // My Requests
+        Route::get('/my-requests', [PengunjungDashboardController::class, 'myRequests'])->name('my-requests');
+        Route::delete('/my-requests/{id}/cancel', [PengunjungDashboardController::class, 'cancelRequest'])->name('my-requests.cancel');
         
         // Reviews
-        Route::get('/reviews/{kode_buku}/create', [ReviewController::class, 'create'])->name('reviews.create');
+        Route::get('/reviews/{id_buku}/create', [ReviewController::class, 'create'])->name('reviews.create');
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         
         // Extensions

@@ -95,7 +95,7 @@
                         <i class="fas fa-star me-2"></i>Ulasan Buku
                     </h5>
                     @if($userHasBorrowed)
-                    <a href="{{ route('pengunjung.reviews.create', $book->kode_buku) }}" class="btn btn-sm btn-primary">
+                    <a href="{{ route('pengunjung.reviews.create', $book->id_buku) }}" class="btn btn-sm btn-primary">
                         <i class="fas fa-plus me-1"></i>Tulis Review
                     </a>
                     @endif
@@ -165,7 +165,7 @@
                 
                 <!-- Borrow Form -->
                 @if($book->stok_tersedia > 0)
-                <form action="{{ route('pengunjung.catalog.borrow', $book->kode_buku) }}" method="POST">
+                <form action="{{ route('pengunjung.catalog.borrow', $book->id_buku) }}" method="POST">
                     @csrf
                     <button type="submit" class="btn-borrow">
                         <i class="fas fa-book-reader me-2"></i>Ajukan Peminjaman

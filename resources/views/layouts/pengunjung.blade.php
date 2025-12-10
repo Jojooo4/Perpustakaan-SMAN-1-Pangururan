@@ -168,6 +168,11 @@
                         </a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link {{ request()->routeIs('pengunjung.my-requests') ? 'active' : '' }}" href="{{ route('pengunjung.my-requests') }}">
+                            <i class="fas fa-clipboard-list me-1"></i>Request Saya
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {{ request()->routeIs('pengunjung.extensions*') ? 'active' : '' }}" href="{{ route('pengunjung.extensions') }}">
                             <i class="fas fa-clock me-1"></i>Perpanjangan
                         </a>

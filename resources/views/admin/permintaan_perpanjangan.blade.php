@@ -27,8 +27,8 @@
                     <td><strong>{{ $req->peminjaman->user->nama ?? '-' }}</strong></td>
                     <td>{{ $req->peminjaman->asetBuku->buku->judul ?? '-' }}</td>
                     <td>{{ $req->peminjaman->tanggal_jatuh_tempo ? \Carbon\Carbon::parse($req->peminjaman->tanggal_jatuh_tempo)->format('d/m/Y') : '-' }}</td>
-                    <td>{{ $req->tanggal_kembali_baru ? \Carbon\Carbon::parse($req->tanggal_kembali_baru)->format('d/m/Y') : '-' }}</td>
-                    <td>{{ $req->alasan }}</td>
+                    <td>{{ $req->tanggal_perpanjangan_baru ? \Carbon\Carbon::parse($req->tanggal_perpanjangan_baru)->format('d/m/Y') : '-' }}</td>
+                    <td>{{ $req->catatan ?? '-' }}</td>
                     <td>{{ $req->tanggal_request ? \Carbon\Carbon::parse($req->tanggal_request)->format('d/m/Y H:i') : '-' }}</td>
                     <td>
                         @if($req->status == 'pending')
@@ -74,7 +74,7 @@ function approve(id) {
     if(confirm('Setujui permintaan perpanjangan ini?')) {
         let form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/extensions/${id}/approve`;
+        form.action = `/permintaan_perpanjangan/${id}/approve`;
         
         let csrf = document.createElement('input');
         csrf.type = 'hidden';
@@ -92,7 +92,7 @@ function reject(id) {
     if(reason !== null) {
         let form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/extensions/${id}/reject`;
+        form.action = `/permintaan_perpanjangan/${id}/reject`;
         
         let csrf = document.createElement('input');
         csrf.type = 'hidden';

@@ -35,11 +35,14 @@ class PengelolaanController extends Controller
 
     public function storeUser(Request $request)
     {
+        // Fixed: Match ACTUAL database schema (from phpMyAdmin screenshot)
         $validated = $request->validate([
             'username' => 'required|unique:users,username',
             'nama' => 'required|string|max:100',
             'password' => 'required|min:6',
-            'role' => 'required|in:admin,petugas,pengunjung',
+            'tipe_anggota' => 'required|in:Siswa,Guru,Kepala Sekolah,Staf,Umum,Admin,Petugas',
+            'kelas' => 'nullable|string|max:20',
+            'status_keanggotaan' => 'nullable|in:Aktif,Tidak Aktif,Dibekukan',
             'foto_profil' => 'nullable|image|max:2048'
         ]);
 
@@ -51,7 +54,21 @@ class PengelolaanController extends Controller
             $validated['foto_profil'] = $request->file('foto_profil')->store('profiles', 'public');
         }
 
-        User::create($validated);
+        // Set default status if not provided
+        $validated['status_keanggotaan'] = $validated['status_keanggotaan'] ?? 'Aktif';
+
+        // Database users table columns: id_user, username, password, nama, tipe_anggota, kelas, status_keanggotaan, foto_profil
+        \DB::table('users')->insert([
+            'username' => $validated['username'],
+            'nama' => $validated['nama'],
+            'password' => $validated['password'],
+            'tipe_anggota' => $validated['tipe_anggota'],
+            'kelas' => $validated['kelas'] ?? null,
+            'status_keanggotaan' => $validated['status_keanggotaan'],
+            'foto_profil' => $validated['foto_profil'] ?? null,
+            'created_at' => now(),
+            'updated_at' => now()
+        ]);
 
         return redirect()->route('pengelolaan.pengguna')->with('success', 'Pengguna berhasil ditambahkan!');
     }
@@ -102,20 +119,37 @@ class PengelolaanController extends Controller
         return redirect()->route('pengelolaan.pengguna')->with('success', 'Pengguna berhasil dihapus!');
     }
 
-    // REVIEW MANAGEMENT
+    // REVIEW MANAGEMENT - Grouped by Book
     public function review(Request $request)
     {
-        $query = UlasanBuku::with(['user', 'buku']);
+        // Get books that have reviews with review count and average rating
+        // Fixed: ulasan_buku uses id_buku not kode_buku
+        $booksWithReviews = \DB::table('ulasan_buku')
+            ->join('buku', 'ulasan_buku.id_buku', '=', 'buku.id_buku')
+            ->select(
+                'buku.id_buku',
+                'buku.judul',
+                'buku.nama_pengarang',
+                'buku.gambar',
+                \DB::raw('COUNT(ulasan_buku.id_ulasan) as total_reviews'),
+                \DB::raw('ROUND(AVG(ulasan_buku.rating), 1) as avg_rating')
+            )
+            ->groupBy('buku.id_buku', 'buku.judul', 'buku.nama_pengarang', 'buku.gambar')
+            ->paginate(10);
         
-        if ($request->filled('search')) {
-            $query->whereHas('buku', function($q) use ($request) {
-                $q->where('judul', 'like', "%{$request->search}%");
-            });
-        }
-        
-        $reviews = $query->latest('id_ulasan')->paginate(10); // FIX: use id_ulasan
-        
-        return view('admin.review_ulasan', compact('reviews'));
+        return view('admin.review_ulasan', compact('booksWithReviews'));
+    }
+    
+    // API: Get reviews for specific book
+    public function getBookReviews($id_buku)
+    {
+        // Fixed: ulasan_buku uses id_buku not kode_buku
+        $reviews = UlasanBuku::where('id_buku', $id_buku)
+            ->with(['buku'])
+            ->latest('created_at')
+            ->get();
+            
+        return response()->json($reviews);
     }
 
     public function destroyReview($id_ulasan)

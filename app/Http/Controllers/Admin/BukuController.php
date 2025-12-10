@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Buku, Genre};
+use App\Models\{Buku, Genre, AsetBuku};
 use Illuminate\Support\Facades\Storage;
 
 class BukuController extends Controller
@@ -30,7 +30,6 @@ class BukuController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode_buku' => 'required|unique:buku,kode_buku',
             'judul' => 'required|string|max:255',
             'nama_pengarang' => 'nullable|string|max:100',
             'penerbit' => 'nullable|string|max:100',
@@ -57,18 +56,34 @@ class BukuController extends Controller
             $buku->genres()->sync($request->genres);
         }
 
-        return redirect()->route('buku.index')->with('success', 'Buku berhasil ditambahkan!');
+        // AUTO-CREATE ASET BUKU based on stok_tersedia
+        $stok = $validated['stok_tersedia'];
+        if ($stok > 0) {
+            for ($i = 1; $i <= $stok; $i++) {
+                // Generate nomor inventaris: BK-{id_buku}-{nomor_urut}
+                $nomorInventaris = sprintf('BK-%03d-%03d', $buku->id_buku, $i);
+                
+                AsetBuku::create([
+                    'id_buku' => $buku->id_buku,
+                    'nomor_inventaris' => $nomorInventaris,
+                    'kondisi_buku' => 'Baik',
+                    'catatan' => 'Auto-generated from stok awal'
+                ]);
+            }
+        }
+
+        return redirect()->route('buku.index')->with('success', "Buku berhasil ditambahkan! $stok aset buku telah dibuat otomatis.");
     }
 
-    public function show($kode_buku)
+    public function show($id_buku)
     {
-        $buku = Buku::with(['genres', 'asetBuku'])->findOrFail($kode_buku);
+        $buku = Buku::with(['genres', 'asetBuku'])->findOrFail($id_buku);
         return view('admin.detail_buku', compact('buku'));
     }
 
-    public function update(Request $request, $kode_buku)
+    public function update(Request $request, $id_buku)
     {
-        $buku = Buku::findOrFail($kode_buku);
+        $buku = Buku::findOrFail($id_buku);
         
         $validated = $request->validate([
             'judul' => 'required|string|max:255',
@@ -101,9 +116,9 @@ class BukuController extends Controller
         return redirect()->route('buku.index')->with('success', 'Buku berhasil diperbarui!');
     }
 
-    public function destroy($kode_buku)
+    public function destroy($id_buku)
     {
-        $buku = Buku::findOrFail($kode_buku);
+        $buku = Buku::findOrFail($id_buku);
         
         // Delete image if exists
         if ($buku->gambar) {

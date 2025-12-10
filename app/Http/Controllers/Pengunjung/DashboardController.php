@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Pengunjung;
 
 use App\Http\Controllers\Controller;
-use App\Models\Peminjaman;
+use App\Models\{Peminjaman, RequestPeminjaman};
 
 class DashboardController extends Controller
 {
@@ -20,7 +20,7 @@ class DashboardController extends Controller
         
         $dendaBelumLunas = Peminjaman::where('id_user', auth()->user()->id_user)
             ->where('denda', '>', 0)
-            ->where('denda_lunas', false)
+            // Fixed: denda_lunas column doesn't exist
             ->sum('denda');
         
         // Active loans
@@ -45,5 +45,28 @@ class DashboardController extends Controller
             'peminjamanAktifList',
             'riwayatPeminjaman'
         ));
+    }
+    
+    public function myRequests()
+    {
+        $requests = RequestPeminjaman::with(['buku'])
+            ->where('id_user', auth()->user()->id_user)
+            ->latest('tanggal_request')
+            ->paginate(10);
+        
+        return view('pengunjung.my_requests', compact('requests'));
+    }
+    
+    public function cancelRequest($id_request)
+    {
+        $request = RequestPeminjaman::where('id_user', auth()->user()->id_user)
+            ->where('id_request', $id_request)
+            ->where('status', 'pending')
+            ->firstOrFail();
+        
+        $request->delete();
+        
+        return redirect()->route('pengunjung.my-requests')
+            ->with('success', 'Request peminjaman berhasil dibatalkan.');
     }
 }

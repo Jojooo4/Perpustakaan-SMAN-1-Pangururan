@@ -96,12 +96,29 @@
                         <input type="password" class="form-control" name="password" required>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label">Role <span class="text-danger">*</span></label>
-                        <select class="form-select" name="role" required>
-                            <option value="">Pilih Role</option>
-                            <option value="admin">Admin</option>
-                            <option value="petugas">Petugas</option>
-                            <option value="pengunjung">Pengunjung</option>
+                        <label class="form-label">Tipe Anggota <span class="text-danger">*</span></label>
+                        <select class="form-select" name="tipe_anggota" required>
+                            <option value="">Pilih Tipe Anggota</option>
+                            <option value="Admin">Admin</option>
+                            <option value="Petugas">Petugas</option>
+                            <option value="Siswa">Siswa</option>
+                            <option value="Guru">Guru</option>
+                            <option value="Kepala Sekolah">Kepala Sekolah</option>
+                            <option value="Staf">Staf</option>
+                            <option value="Umum">Umum</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Kelas</label>
+                        <input type="text" class="form-control" name="kelas" placeholder="Contoh: XII IPA 1">
+                        <small class="text-muted">Opsional, untuk siswa</small>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Status Keanggotaan</label>
+                        <select class="form-select" name="status_keanggotaan">
+                            <option value="Aktif" selected>Aktif</option>
+                            <option value="Tidak Aktif">Tidak Aktif</option>
+                            <option value="Dibekukan">Dibekukan</option>
                         </select>
                     </div>
                 </div>

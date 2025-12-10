@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{Peminjaman, User, AsetBuku, RequestPerpanjangan};
+use App\Models\{Peminjaman, User, AsetBuku, Buku, RequestPerpanjangan, LogAktivitas};
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\FineExport;
 use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class TransaksiController extends Controller
 {
@@ -23,17 +24,33 @@ class TransaksiController extends Controller
         $peminjaman = $query->latest('tanggal_pinjam')->paginate(10);
         $users = User::where('role', 'pengunjung')->get();
         
-        // Get all available book assets (without status check since column may not exist)
-        $asetTersedia = AsetBuku::with('buku')->get();
+        // Get all books for 2-step selection (title -> inventory)
+        $bukus = Buku::where('stok_tersedia', '>', 0)->get();
         
-        return view('admin.pinjam_kembali', compact('peminjaman', 'users', 'asetTersedia'));
+        return view('admin.pinjam_kembali', compact('peminjaman', 'users', 'bukus'));
+    }
+    
+    // API: Get available assets by book (exclude borrowed ones)
+    public function getAsetByBuku($id_buku)
+    {
+        // Get IDs of currently borrowed assets
+        $borrowedAsetIds = Peminjaman::where('status_peminjaman', 'Dipinjam')
+            ->pluck('id_aset_buku')
+            ->toArray();
+        
+        // Get assets that are NOT currently borrowed
+        $asets = AsetBuku::where('id_buku', $id_buku)
+            ->whereNotIn('id_aset', $borrowedAsetIds)
+            ->get();
+            
+        return response()->json($asets);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'id_user' => 'required|exists:users,id_user',
-            'id_aset' => 'required|exists:aset_buku,id_aset', // FIX: id_aset not id_aset_buku
+            'id_aset' => 'required|exists:aset_buku,id_aset', // Form sends id_aset
             'tanggal_pinjam' => 'required|date',
             'lama_pinjam' => 'required|integer|min:1|max:14'
         ]);
@@ -45,13 +62,13 @@ class TransaksiController extends Controller
         //     return back()->withErrors(['id_aset' => 'Buku tidak tersedia!']);
         // }
 
-        // Calculate due date
-        $tanggalJatuhTempo = Carbon::parse($validated['tanggal_pinjam'])->addDays($validated['lama_pinjam']);
+        // Calculate due date - cast to int for Carbon
+        $tanggalJatuhTempo = Carbon::parse($validated['tanggal_pinjam'])->addDays((int)$validated['lama_pinjam']);
 
-        // Create loan
+        // Create loan - map id_aset from form to id_aset_buku in database
         Peminjaman::create([
             'id_user' => $validated['id_user'],
-            'id_aset' => $validated['id_aset'], // FIX
+            'id_aset_buku' => $validated['id_aset'], // Map form field to DB column
             'tanggal_pinjam' => $validated['tanggal_pinjam'],
             'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
             'status_peminjaman' => 'Dipinjam',
@@ -61,6 +78,17 @@ class TransaksiController extends Controller
         // Update book status and stock (comment if no status column)
         // $aset->update(['status_buku' => 'Dipinjam']);
         $aset->buku->decrement('stok_tersedia');
+        
+        // Log activity
+        $user = User::find($validated['id_user']);
+        LogAktivitas::create([
+            'id_user' => auth()->user()->id_user,
+            'username' => auth()->user()->username ?? auth()->user()->nama,
+            'nama_tabel' => 'peminjaman',
+            'operasi' => 'insert',
+            'deskripsi' => "Create peminjaman - User: {$user->nama}, Buku: {$aset->buku->judul}",
+            'id_terkait' => $validated['id_aset']
+        ]);
 
         return redirect()->route('transaksi.index')->with('success', 'Peminjaman berhasil dibuat!');
     }
@@ -69,23 +97,42 @@ class TransaksiController extends Controller
     {
         $peminjaman = Peminjaman::findOrFail($id_peminjaman);
         
-        // Calculate fine
+        // Calculate fine - get rate from aturan_perpustakaan
+        $dendaPerHari = \DB::table('aturan_perpustakaan')
+            ->where('nama_aturan', 'denda_per_hari')
+            ->value('isi_aturan') ?? 500;
+        
         $jatuhTempo = Carbon::parse($peminjaman->tanggal_jatuh_tempo);
         $kembali = now();
-        $hariTerlambat = max(0, $kembali->diffInDays($jatuhTempo, false) * -1);
-        $denda = $hariTerlambat * 1000; // Rp 1000 per hari
+        
+        // Only charge fine if returned AFTER due date
+        $denda = 0;
+        if ($kembali->isAfter($jatuhTempo)) {
+            $hariTerlambat = $kembali->diffInDays($jatuhTempo);
+            $denda = $hariTerlambat * $dendaPerHari;
+        }
         
         // Update loan
         $peminjaman->update([
             'tanggal_kembali' => $kembali,
             'status_peminjaman' => $denda > 0 ? 'Terlambat' : 'Dikembalikan',
             'denda' => $denda,
-            'denda_lunas' => $denda == 0
+            // Fixed: denda_lunas column doesn't exist
         ]);
 
         // Update book status and stock (comment if no status column)
         // $peminjaman->asetBuku->update(['status_buku' => 'Tersedia']);
         $peminjaman->asetBuku->buku->increment('stok_tersedia');
+        
+        // Log activity
+        LogAktivitas::create([
+            'id_user' => auth()->user()->id_user,
+            'username' => auth()->user()->username ?? auth()->user()->nama,
+            'nama_tabel' => 'peminjaman',
+            'operasi' => 'update',
+            'deskripsi' => "Return buku - Peminjaman #{$id_peminjaman}, Buku: {$peminjaman->asetBuku->buku->judul}, Denda: Rp " . number_format($denda, 0, ',', '.'),
+            'id_terkait' => $id_peminjaman
+        ]);
 
         $message = $denda > 0 
             ? "Buku dikembalikan! Denda: Rp " . number_format($denda, 0, ',', '.')
@@ -137,7 +184,17 @@ class TransaksiController extends Controller
         ]);
         
         $request->peminjaman->update([
-            'tanggal_jatuh_tempo' => $request->tanggal_kembali_baru
+            'tanggal_jatuh_tempo' => $request->tanggal_perpanjangan_baru
+        ]);
+        
+        // Log activity
+        LogAktivitas::create([
+            'id_user' => auth()->user()->id_user,
+            'username' => auth()->user()->username ?? auth()->user()->nama,
+            'nama_tabel' => 'request_perpanjangan',
+            'operasi' => 'update',
+            'deskripsi' => "Approve perpanjangan #{$id_request} - User: {$request->peminjaman->user->nama}, Buku: {$request->peminjaman->asetBuku->buku->judul}",
+            'id_terkait' => $id_request
         ]);
 
         return redirect()->route('perpanjangan.index')->with('success', 'Perpanjangan disetujui!');
@@ -156,6 +213,16 @@ class TransaksiController extends Controller
             'catatan_admin' => $request->catatan_admin ?? 'Ditolak',
             'diproses_oleh' => auth()->id()
         ]);
+        
+        // Log activity
+        LogAktivitas::create([
+            'id_user' => auth()->user()->id_user,
+            'username' => auth()->user()->username ?? auth()->user()->nama,
+            'nama_tabel' => 'request_perpanjangan',
+            'operasi' => 'update',
+            'deskripsi' => "Reject perpanjangan #{$id_request} - Alasan: " . ($request->catatan_admin ?? 'Ditolak'),
+            'id_terkait' => $id_request
+        ]);
 
         return redirect()->route('perpanjangan.index')->with('success', 'Perpanjangan ditolak!');
     }
@@ -163,18 +230,14 @@ class TransaksiController extends Controller
     // LAPORAN DENDA
     public function laporanDenda(Request $request)
     {
+        // Fixed: denda_lunas column doesn't exist in database
         $query = Peminjaman::with(['user', 'asetBuku.buku'])->where('denda', '>', 0);
         
-        if ($request->filled('status')) {
-            if ($request->status === 'lunas') {
-                $query->where('denda_lunas', true);
-            } else {
-                $query->where('denda_lunas', false);
-            }
-        }
+        // Note: Cannot filter by lunas status since denda_lunas column doesn't exist
+        // All records with denda > 0 will be shown
         
         $denda = $query->latest('tanggal_kembali')->paginate(10);
-        $totalDendaBelumLunas = Peminjaman::where('denda', '>', 0)->where('denda_lunas', false)->sum('denda');
+        $totalDendaBelumLunas = Peminjaman::where('denda', '>', 0)->sum('denda');
         
         return view('admin.laporan_denda', compact('denda', 'totalDendaBelumLunas'));
     }
@@ -182,7 +245,8 @@ class TransaksiController extends Controller
     public function markPaid($id_peminjaman)
     {
         $peminjaman = Peminjaman::findOrFail($id_peminjaman);
-        $peminjaman->update(['denda_lunas' => true]);
+        // Fixed: denda_lunas column doesn't exist - just set denda to 0 to mark as paid
+        $peminjaman->update(['denda' => 0]);
 
         return back()->with('success', 'Denda ditandai lunas!');
     }
@@ -191,10 +255,23 @@ class TransaksiController extends Controller
     {
         $query = Peminjaman::with(['user', 'asetBuku.buku'])->where('denda', '>', 0);
         
-        if ($request->filled('status')) {
-            $query->where('denda_lunas', $request->status === 'lunas');
-        }
+        // Fixed: denda_lunas column doesn't exist - export all
         
         return Excel::download(new FineExport($query->get()), 'laporan_denda_' . date('YmdHis') . '.xlsx');
+    }
+    
+    public function exportDendaPdf()
+    {
+        $denda = Peminjaman::with(['user', 'asetBuku.buku'])
+            ->where('denda', '>', 0)
+            ->latest('tanggal_kembali')
+            ->get();
+        
+        $totalDenda = $denda->sum('denda');
+        
+        $pdf = Pdf::loadView('admin.pdf.laporan_denda', compact('denda', 'totalDenda'));
+        $pdf->setPaper('A4', 'portrait');
+        
+        return $pdf->download('laporan_denda_' . date('Ymd_His') . '.pdf');
     }
 }

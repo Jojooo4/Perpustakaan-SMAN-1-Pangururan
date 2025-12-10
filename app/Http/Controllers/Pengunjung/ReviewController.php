@@ -8,9 +8,9 @@ use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
-    public function create($kode_buku)
+    public function create($id_buku)
     {
-        $book = Buku::findOrFail($kode_buku);
+        $book = Buku::findOrFail($id_buku);
         
         // Temporarily disable borrow verification (schema mismatch)
         // TODO: Fix when database schema is confirmed
@@ -22,7 +22,7 @@ class ReviewController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'kode_buku' => 'required|exists:buku,kode_buku',
+            'id_buku' => 'required|exists:buku,id_buku',
             'rating' => 'required|integer|min:1|max:5',
             'ulasan' => 'required|string|max:1000'
         ]);
@@ -33,13 +33,13 @@ class ReviewController extends Controller
         
         // Create review - use 'komentar' column directly
         UlasanBuku::create([
-            'kode_buku' => $validated['kode_buku'],
+            'id_buku' => $validated['id_buku'],
             'id_user' => auth()->user()->id_user,
             'rating' => $validated['rating'],
             'komentar' => $validated['ulasan'] // Map form field 'ulasan' to DB column 'komentar'
         ]);
         
-        return redirect()->route('pengunjung.catalog.show', $validated['kode_buku'])
+        return redirect()->route('pengunjung.catalog.show', $validated['id_buku'])
             ->with('success', 'Review berhasil ditambahkan!');
     }
 }

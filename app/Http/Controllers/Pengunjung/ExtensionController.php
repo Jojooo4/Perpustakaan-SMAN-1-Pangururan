@@ -35,13 +35,13 @@ class ExtensionController extends Controller
         $validated = $request->validate([
             'id_peminjaman' => 'required|exists:peminjaman,id_peminjaman',
             'hari_perpanjangan' => 'required|integer|min:1|max:7',
-            'alasan' => 'nullable|string|max:500'
+            'catatan' => 'nullable|string|max:500'
         ]);
         
         $peminjaman = Peminjaman::findOrFail($validated['id_peminjaman']);
         
         // Verify ownership
-        if ($peminjaman->id_user != auth()->id()) {
+        if ($peminjaman->id_user != auth()->user()->id_user) {
             return back()->withErrors(['error' => 'Unauthorized!']);
         }
         
@@ -55,16 +55,21 @@ class ExtensionController extends Controller
             return back()->withErrors(['error' => 'Anda sudah mengajukan perpanjangan untuk buku ini!']);
         }
         
-        // Calculate new due date
-        $tanggalKembaliBaru = Carbon::parse($peminjaman->tanggal_jatuh_tempo)
-            ->addDays($validated['hari_perpanjangan']);
+        // Validate due date exists
+        if (!$peminjaman->tanggal_jatuh_tempo) {
+            return back()->withErrors(['error' => 'Data tanggal jatuh tempo tidak valid!']);
+        }
+        
+        // Calculate new due date - ensure integer casting
+        $hariPerpanjangan = (int) $validated['hari_perpanjangan'];
+        $tanggalKembaliBaru = Carbon::parse($peminjaman->tanggal_jatuh_tempo)->addDays($hariPerpanjangan);
         
         // Create extension request
         RequestPerpanjangan::create([
             'id_peminjaman' => $validated['id_peminjaman'],
             'tanggal_request' => now(),
-            'tanggal_kembali_baru' => $tanggalKembaliBaru,
-            'alasan' => $validated['alasan'],
+            'tanggal_perpanjangan_baru' => $tanggalKembaliBaru,
+            'catatan' => $validated['catatan'] ?? null,
             'status' => 'pending'
         ]);
         
