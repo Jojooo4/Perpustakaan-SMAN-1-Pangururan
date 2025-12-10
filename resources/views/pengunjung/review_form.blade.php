@@ -10,7 +10,7 @@
             
             <form action="{{ route('pengunjung.reviews.store') }}" method="POST">
                 @csrf
-                <input type="hidden" name="kode_buku" value="{{ $book->kode_buku }}">
+                <input type="hidden" name="id_buku" value="{{ $book->id_buku }}">
                 
                 <div class="mb-3">
                     <label class="form-label">Rating <span class="text-danger">*</span></label>
@@ -33,7 +33,7 @@
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save me-2"></i>Simpan Review
                     </button>
-                    <a href="{{ route('pengunjung.catalog.show', $book->kode_buku) }}" class="btn btn-secondary">
+                    <a href="{{ route('pengunjung.catalog.show', $book->id_buku) }}" class="btn btn-secondary">
                         Batal
                     </a>
                 </div>

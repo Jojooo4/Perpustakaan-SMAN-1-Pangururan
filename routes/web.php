@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Auth\{LoginController, ForgotPasswordController};
 use App\Http\Controllers\Admin\{
     DashboardController,
@@ -24,6 +25,16 @@ use App\Http\Controllers\Pengunjung\{
 // PUBLIC ROUTES
 Route::get('/', function () {
     return view('index');
+});
+
+// API: jumlah pengunjung login hari ini (dipakai oleh homepage fetch)
+Route::get('/pengunjung/hari-ini', function() {
+    try {
+        $count = DB::table('view_total_login_hari_ini')->value('total_login_hari_ini');
+        return response()->json(['count' => (int)($count ?? 0)]);
+    } catch (\Throwable $e) {
+        return response()->json(['count' => 0], 200);
+    }
 });
 
 // AUTHENTICATION
@@ -93,9 +104,38 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/pengaturan-profil', [ProfilController::class, 'update'])->name('profil.update');
     
     // ========== PETUGAS ROUTES ==========
-    Route::get('/petugas', [PetugasDashboardController::class, 'index'])->name('petugas.dashboard');
-    Route::get('/petugas/profile', [PetugasProfileController::class, 'index'])->name('petugas.profile');
-    Route::post('/petugas/profile', [PetugasProfileController::class, 'update'])->name('petugas.profile.update');
+    Route::prefix('petugas')->name('petugas.')->group(function() {
+        Route::get('/', [PetugasDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/profile', [PetugasProfileController::class, 'index'])->name('profile');
+        Route::post('/profile', [PetugasProfileController::class, 'update'])->name('profile.update');
+        
+        // Petugas can access these features (using admin controllers)
+        Route::get('/buku', [BukuController::class, 'index'])->name('buku.index');
+        Route::post('/buku', [BukuController::class, 'store'])->name('buku.store');
+        Route::put('/buku/{id_buku}', [BukuController::class, 'update'])->name('buku.update');
+        Route::delete('/buku/{id_buku}', [BukuController::class, 'destroy'])->name('buku.destroy');
+        Route::get('/buku/{id_buku}', [BukuController::class, 'show'])->name('buku.show');
+        
+        Route::get('/transaksi', [TransaksiController::class, 'index'])->name('transaksi.index');
+        Route::post('/transaksi', [TransaksiController::class, 'store'])->name('transaksi.store');
+        Route::post('/transaksi/{id}/kembali', [TransaksiController::class, 'return'])->name('transaksi.return');
+        Route::delete('/transaksi/{id}', [TransaksiController::class, 'destroy'])->name('transaksi.destroy');
+        
+        Route::get('/perpanjangan', [TransaksiController::class, 'perpanjangan'])->name('perpanjangan.index');
+        Route::post('/perpanjangan/{id}/approve', [TransaksiController::class, 'approve'])->name('perpanjangan.approve');
+        Route::post('/perpanjangan/{id}/reject', [TransaksiController::class, 'reject'])->name('perpanjangan.reject');
+        
+        Route::get('/denda', [TransaksiController::class, 'laporanDenda'])->name('denda.index');
+        Route::post('/denda/{id}/lunas', [TransaksiController::class, 'markPaid'])->name('denda.mark-paid');
+        
+        Route::get('/review', [PengelolaanController::class, 'review'])->name('pengelolaan.review');
+        Route::delete('/review/{id}', [PengelolaanController::class, 'destroyReview'])->name('pengelolaan.review.destroy');
+        
+        // Request Peminjaman
+        Route::get('/request-peminjaman', [\App\Http\Controllers\Petugas\RequestPeminjamanController::class, 'index'])->name('request-peminjaman.index');
+        Route::post('/request-peminjaman/{id}/approve', [\App\Http\Controllers\Petugas\RequestPeminjamanController::class, 'approve'])->name('request-peminjaman.approve');
+        Route::post('/request-peminjaman/{id}/reject', [\App\Http\Controllers\Petugas\RequestPeminjamanController::class, 'reject'])->name('request-peminjaman.reject');
+    });
     
     // ========== PENGUNJUNG ROUTES ==========
     Route::prefix('pengunjung')->name('pengunjung.')->group(function() {

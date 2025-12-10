@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Petugas;
 
 use App\Http\Controllers\Controller;
 use App\Models\{RequestPeminjaman, Peminjaman, AsetBuku, Buku, LogAktivitas};
@@ -21,7 +21,7 @@ class RequestPeminjamanController extends Controller
         $requests = $query->latest('tanggal_request')->paginate(15);
         $pendingCount = RequestPeminjaman::where('status', 'pending')->count();
         
-        return view('admin.request_peminjaman', compact('requests', 'pendingCount'));
+        return view('petugas.request_peminjaman', compact('requests', 'pendingCount'));
     }
     
     public function approve($id_request)
@@ -97,7 +97,7 @@ class RequestPeminjamanController extends Controller
                 ]);
             }
             
-            return redirect()->route('admin.request-peminjaman.index')
+            return redirect()->route('petugas.request-peminjaman.index')
                 ->with('success', "Request peminjaman dari {$request->user->nama} untuk buku '{$book->judul}' berhasil disetujui!");
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
@@ -141,7 +141,7 @@ class RequestPeminjamanController extends Controller
                 ]);
             }
             
-            return redirect()->route('admin.request-peminjaman.index')
+            return redirect()->route('petugas.request-peminjaman.index')
                 ->with('success', "Request peminjaman dari {$requestPeminjaman->user->nama} berhasil ditolak.");
         } catch (\Exception $e) {
             return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());

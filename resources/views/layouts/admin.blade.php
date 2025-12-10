@@ -15,10 +15,13 @@
     
     <style>
         :root {
-            --primary: #EB455F;
-            --secondary: #BAD7E9;
-            --dark: #2B3467;
-            --light: #FCFFE7;
+            --primary: #2b3458;      /* Navy - matches homepage */
+            --primary-dark: #232a4a;  /* Darker navy */
+            --accent: #4aa0c9;        /* Blue accent */
+            --accent-dark: #2b7cae;   /* Deeper blue */
+            --light: #fbf9e7;         /* Cream */
+            --light-blue: #c7e1f2;    /* Light blue */
+            --dark: #2b3458;
             --sidebar-width: 260px;
         }
         
@@ -166,8 +169,8 @@
             font-size: 1.5rem;
         }
         
-        .icon-primary { background: rgba(235, 69, 95, 0.1); color: var(--primary); }
-        .icon-secondary { background: rgba(186, 215, 233, 0.3); color: #5a9cc2; }
+        .icon-primary { background: rgba(74, 160, 201, 0.1); color: var(--accent); }
+        .icon-secondary { background: rgba(199, 225, 242, 0.3); color: var(--accent-dark); }
         .icon-success { background: rgba(40, 167, 69, 0.1); color: #28a745; }
         .icon-warning { background: rgba(255, 193, 7, 0.1); color: #ffc107; }
         
@@ -178,8 +181,8 @@
         }
         
         .btn-primary:hover {
-            background: #c93551;
-            border-color: #c93551;
+            background: var(--accent-dark);
+            border-color: var(--accent-dark);
         }
         
         /* Table */

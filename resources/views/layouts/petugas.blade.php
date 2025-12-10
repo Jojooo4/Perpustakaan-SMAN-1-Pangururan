@@ -15,10 +15,13 @@
     
     <style>
         :root {
-            --primary: #EB455F;
-            --secondary: #BAD7E9;
-            --dark: #2B3467;
-            --light: #FCFFE7;
+            --primary: #2b3458;      /* Navy - matches homepage */
+            --primary-dark: #232a4a;  /* Darker navy */
+            --accent: #4aa0c9;        /* Blue accent */
+            --accent-dark: #2b7cae;   /* Deeper blue */
+            --light: #fbf9e7;         /* Cream */
+            --light-blue: #c7e1f2;    /* Light blue */
+            --dark: #2b3458;
             --sidebar-width: 260px;
         }
         
@@ -216,20 +219,23 @@
             <a href="{{ route('petugas.dashboard') }}" class="menu-item {{ request()->routeIs('petugas.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-home"></i> Dashboard
             </a>
-            <a href="{{ route('buku.index') }}" class="menu-item {{ request()->routeIs('buku.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.buku.index') }}" class="menu-item {{ request()->routeIs('petugas.buku.*') ? 'active' : '' }}">
                 <i class="fas fa-book"></i> Manajemen Buku
             </a>
-            <a href="{{ route('transaksi.index') }}" class="menu-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.transaksi.index') }}" class="menu-item {{ request()->routeIs('petugas.transaksi.*') ? 'active' : '' }}">
                 <i class="fas fa-exchange-alt"></i> Pinjam & Kembali
             </a>
-            <a href="{{ route('perpanjangan.index') }}" class="menu-item {{ request()->routeIs('perpanjangan.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.perpanjangan.index') }}" class="menu-item {{ request()->routeIs('petugas.perpanjangan.*') ? 'active' : '' }}">
                 <i class="fas fa-clock"></i> Perpanjangan
             </a>
-            <a href="{{ route('denda.index') }}" class="menu-item {{ request()->routeIs('denda.*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.denda.index') }}" class="menu-item {{ request()->routeIs('petugas.denda.*') ? 'active' : '' }}">
                 <i class="fas fa-money-bill-wave"></i> Laporan Denda
             </a>
-            <a href="{{ route('pengelolaan.review') }}" class="menu-item {{ request()->routeIs('pengelolaan.review') ? 'active' : '' }}">
+            <a href="{{ route('petugas.pengelolaan.review') }}" class="menu-item {{ request()->routeIs('petugas.pengelolaan.review') ? 'active' : '' }}">
                 <i class="fas fa-star"></i> Review Ulasan
+            </a>
+            <a href="{{ route('petugas.request-peminjaman.index') }}" class="menu-item {{ request()->routeIs('petugas.request-peminjaman.*') ? 'active' : '' }}">
+                <i class="fas fa-clipboard-list"></i> Request Peminjaman
             </a>
             <a href="{{ route('petugas.profile') }}" class="menu-item {{ request()->routeIs('petugas.profile') ? 'active' : '' }}">
                 <i class="fas fa-user-cog"></i> Pengaturan Profil

@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('layouts.petugas')
 
 @section('title', 'Request Peminjaman')
 @section('page-title', 'Request Peminjaman Buku')
@@ -206,13 +206,13 @@ function showApproveModal(id, borrowerName, bookTitle, requestDate) {
     document.getElementById('approveBorrowerName').textContent = borrowerName;
     document.getElementById('approveBookTitle').textContent = bookTitle;
     document.getElementById('approveRequestDate').textContent = requestDate;
-    document.getElementById('approveForm').action = `/request-peminjaman/${id}/approve`;
+    document.getElementById('approveForm').action = `/petugas/request-peminjaman/${id}/approve`;
     new bootstrap.Modal(document.getElementById('approveModal')).show();
 }
 
 function showRejectModal(id, bookTitle) {
     document.getElementById('rejectBookTitle').textContent = bookTitle;
-    document.getElementById('rejectForm').action = `/request-peminjaman/${id}/reject`;
+    document.getElementById('rejectForm').action = `/petugas/request-peminjaman/${id}/reject`;
     new bootstrap.Modal(document.getElementById('rejectModal')).show();
 }
 
