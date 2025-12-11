@@ -137,7 +137,8 @@ class PengelolaanController extends Controller
             ->groupBy('buku.id_buku', 'buku.judul', 'buku.nama_pengarang', 'buku.gambar')
             ->paginate(10);
         
-        return view('admin.review_ulasan', compact('booksWithReviews'));
+        $view = request()->routeIs('petugas.*') ? 'petugas.review_ulasan' : 'admin.review_ulasan';
+        return view($view, compact('booksWithReviews'));
     }
     
     // API: Get reviews for specific book

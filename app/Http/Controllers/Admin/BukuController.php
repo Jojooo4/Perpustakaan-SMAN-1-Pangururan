@@ -24,7 +24,8 @@ class BukuController extends Controller
         $bukus = $query->paginate(10);
         $genres = Genre::all();
         
-        return view('admin.manajemen_buku', compact('bukus', 'genres'));
+        $view = request()->routeIs('petugas.*') ? 'petugas.manajemen_buku' : 'admin.manajemen_buku';
+        return view($view, compact('bukus', 'genres'));
     }
 
     public function store(Request $request)
