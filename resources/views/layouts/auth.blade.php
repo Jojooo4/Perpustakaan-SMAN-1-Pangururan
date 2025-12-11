@@ -5,6 +5,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>@yield('title', 'Sistem Perpustakaan SMAN 1 Pangururan')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -284,6 +287,21 @@
 <body>
     @yield('content')
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Force a hard reload when arriving at the login page via navigation
+        // to avoid showing any cached authenticated content when pressing back/forward.
+        if (performance && performance.navigation && performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+            // For older Navigation Timing API
+            location.reload(true);
+        }
+        // For newer PerformanceNavigationTiming entries
+        try {
+            const entries = performance.getEntriesByType('navigation');
+            if (entries && entries.length && entries[0].type === 'back_forward') {
+                location.reload();
+            }
+        } catch (e) {}
+    </script>
     @stack('scripts')
 </body>
 
