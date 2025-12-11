@@ -6,7 +6,17 @@
 @section('content')
 <div class="dashboard-shell">
     <section class="dashboard-hero">
-        <div class="hero-top"></div>
+        @php
+            $adminName = auth()->user()->nama ?? 'Admin';
+            $adminFirstName = trim(explode(' ', $adminName)[0] ?? $adminName);
+        @endphp
+        <div class="hero-top hero-top-welcome">
+            <div class="hero-welcome-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <h2 class="hero-welcome-title">Selamat Datang, {{ $adminFirstName }}!</h2>
+            <p class="hero-welcome-subtitle">Gunakan menu navigasi untuk mengelola perpustakaan</p>
+        </div>
 
         @php
             $heroStats = [
@@ -77,7 +87,7 @@
                 </div>
             </div>
             <div class="row gy-4 mt-3">
-                <div class="col-12">
+                <div class="col-12 col-lg-6">
                     <div class="hero-table">
                         <div class="hero-table-header d-flex align-items-center justify-content-between">
                             <div>
@@ -104,7 +114,7 @@
                     </div>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12 col-lg-6">
                     <div class="hero-graph">
                         <div class="d-flex align-items-center justify-content-between">
                             <div>
@@ -140,8 +150,8 @@
                             @foreach($reviewTerbaru->take(3) as $review)
                                 <div class="hero-review-row">
                                     <div>
-                                        <strong>{{ $review->user->nama ?? '-' }}</strong>
-                                        <p class="mb-0 small">{{ $review->buku->judul ?? '-' }}</p>
+                                        <span class="hero-review-name">{{ $review->user->nama ?? '-' }}</span>
+                                        <p class="mb-0 small hero-review-book">{{ $review->buku->judul ?? '-' }}</p>
                                     </div>
                                     <div class="hero-review-rating">
                                         @for($i = 1; $i <= 5; $i++)
@@ -183,6 +193,9 @@
 @push('styles')
 <style>
     .dashboard-shell {
+        max-width: 1180px;
+        margin: 2.4rem auto 2.5rem;
+        padding: 0 0 2.4rem;
         display: flex;
         flex-direction: column;
         gap: 1.75rem;
@@ -191,15 +204,50 @@
 
     .dashboard-hero {
         border-radius: 28px;
-        padding: 2.5rem;
-        background: linear-gradient(145deg, #4c5cff, #7a84ff 60%, #c3cafe);
-        color: #0b1a4a;
-        box-shadow: 0 30px 60px rgba(15, 23, 85, 0.25);
-        border: 1px solid rgba(42, 58, 123, 0.2);
+        padding: 2.4rem 2.5rem 2.4rem;
+        background: linear-gradient(135deg, #f7fbff 0%, #eaf4ff 50%, #dbeeff 100%);
+        color: #0b1f3d;
+        box-shadow: 0 32px 80px rgba(9, 22, 54, 0.35);
+        border: 1px solid rgba(255, 255, 255, 0.9);
     }
 
     .hero-top {
         width: 100%;
+        margin-bottom: 1.6rem;
+    }
+
+    .hero-top-welcome {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 0.5rem;
+    }
+
+    .hero-welcome-icon {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        background: rgba(74, 160, 201, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 0.3rem;
+        color: #4aa0c9;
+        font-size: 2rem;
+    }
+
+    .hero-welcome-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 0;
+        color: #0b1f3d;
+    }
+
+    .hero-welcome-subtitle {
+        margin: 0;
+        font-size: 0.95rem;
+        color: #607096;
     }
 
 
@@ -219,6 +267,9 @@
     .hero-stats-row.hero-stats-bottom {
         justify-content: center;
         margin-top: 0.25rem;
+        max-width: 540px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .hero-stat-wrapper {
@@ -227,8 +278,8 @@
     }
 
     .hero-stat-wrapper--sm {
-        flex: 0 0 210px;
-        max-width: 220px;
+        flex: 0 0 250px;
+        max-width: 250px;
     }
 
     @media (max-width: 1180px) {
@@ -247,7 +298,7 @@
     }
 
     .hero-stat-card {
-        background: rgba(255,255,255,0.95);
+        background: rgba(255,255,255,0.96);
         border-radius: 18px;
         padding: 1rem 1.2rem;
         display: flex;
@@ -255,8 +306,9 @@
         align-items: center;
         border: 1px solid rgba(31, 52, 135, 0.1);
         min-height: 100px;
-        box-shadow: 0 8px 18px rgba(15, 27, 77, 0.06);
+        box-shadow: 0 10px 26px rgba(5, 13, 40, 0.14);
         flex: 1;
+        color: #0b1f3d;
     }
 
     .hero-stat-card .stat-label {
@@ -264,7 +316,11 @@
         text-transform: uppercase;
         letter-spacing: 0.08em;
         margin-bottom: 0.1rem;
-        color: #5163c9;
+        color: #0b1f3d;
+    }
+
+    .hero-stat-card small {
+        color: #0b1f3d;
     }
 
     .hero-stat-card h4 {
@@ -274,9 +330,10 @@
     .hero-stat-card .stat-icon {
         width: 44px;
         height: 44px;
-        border-radius: 12px;
-        background: rgba(63, 108, 255, 0.12);
-        color: #1e3dc4;
+        border-radius: 14px;
+        background: linear-gradient(140deg, #2f8fd0, #1f6fb2);
+        color: #ffffff;
+        box-shadow: 0 10px 22px rgba(7, 54, 109, 0.5);
     }
 
     .hero-content {
@@ -290,11 +347,11 @@
     }
 
     .hero-quick-stack .stat-card {
-        background: #ffffff;
+        background: linear-gradient(135deg, #d0e4ff, #c0dbff);
         border-radius: 20px;
         padding: 1.5rem;
-        border: 1px solid rgba(31, 45, 107, 0.08);
-        box-shadow: 0 20px 40px rgba(9, 19, 74, 0.08);
+        border: 1px solid rgba(111, 146, 205, 0.7);
+        box-shadow: 0 24px 60px rgba(3, 13, 40, 0.16);
     }
 
     .quick-actions-header {
@@ -323,9 +380,9 @@
 
     .quick-action-btn {
         flex: 1 1 calc(25% - 0.75rem);
-        border-radius: 12px;
-        border: 1px solid #1e2665;
-        background: #1e2665;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.4);
+        background: linear-gradient(135deg, #1d3d6d, #255588);
         color: #ffffff;
         font-weight: 600;
         padding: 0.85rem 1rem;
@@ -335,12 +392,13 @@
         gap: 0.5rem;
         text-decoration: none;
         min-width: 180px;
-        box-shadow: 0 8px 18px rgba(23, 32, 112, 0.2);
+        box-shadow: 0 18px 38px rgba(4, 11, 35, 0.45);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .quick-action-btn:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        box-shadow: 0 22px 46px rgba(4, 11, 35, 0.55);
     }
 
     .dashboard-activity {
@@ -379,7 +437,14 @@
     }
 
     .hero-table-header strong {
-        font-size: 1.1rem;
+        font-size: 1.05rem;
+        color: #0b1f3d;
+    }
+
+    .hero-table-header p {
+        letter-spacing: 0.18em;
+        font-size: 0.7rem;
+        color: #8a9ab8 !important;
     }
 
     .hero-table-body {
@@ -390,12 +455,13 @@
     }
 
     .hero-table-row {
-        background: #f4f6ff;
-        border-radius: 14px;
+        background: linear-gradient(90deg, #f4f6ff, #eef3ff);
+        border-radius: 16px;
         padding: 0.9rem 1rem;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        border-left: 3px solid #2f8fd0;
     }
 
     .hero-table-row p {
@@ -404,18 +470,20 @@
 
     .badge-status {
         padding: 0.35rem 0.8rem;
-        border-radius: 12px;
-        background: rgba(63, 108, 255, 0.2);
+        border-radius: 999px;
+        background: rgba(63, 108, 255, 0.12);
         color: #1e3dc4;
         font-weight: 600;
+        font-size: 0.75rem;
     }
 
     .hero-graph {
-        background: white;
-        border-radius: 18px;
-        padding: 1.4rem;
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 1.4rem 1.6rem 1.5rem;
         color: #0a1a4e;
-        box-shadow: 0 25px 50px rgba(5, 11, 65, 0.15);
+        box-shadow: 0 25px 55px rgba(5, 11, 65, 0.18);
+        border: 1px solid rgba(31, 45, 107, 0.08);
     }
 
     .graph-bars {
@@ -439,7 +507,7 @@
 
     .graph-bar .bar-track {
         flex: 1;
-        background: linear-gradient(90deg, #d5d9ff, #e7ecff);
+        background: linear-gradient(90deg, #d4e6ff, #e4f0ff);
         border-radius: 999px;
         overflow: hidden;
         position: relative;
@@ -450,9 +518,10 @@
 
     .graph-bar .bar-fill {
         width: 100%;
-        background: linear-gradient(90deg, #3a50f4, #5b6fff);
+        background: linear-gradient(90deg, #2f8fd0, #1f6fb2);
         border-radius: 999px;
         height: 100%;
+        box-shadow: 0 8px 18px rgba(14, 71, 132, 0.45);
     }
 
     .graph-bar strong {
@@ -486,6 +555,15 @@
     .hero-review-rating i {
         margin-left: 0.1rem;
         font-size: 0.7rem;
+    }
+
+    .hero-review-name {
+        font-weight: 600;
+        color: #0b1f3d;
+    }
+
+    .hero-review-book {
+        color: rgba(11, 26, 74, 0.7);
     }
 
     .quick-actions .quick-btn {

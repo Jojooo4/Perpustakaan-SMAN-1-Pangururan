@@ -82,7 +82,7 @@
                     </td>
                     <td>
                         @if($p->status_peminjaman == 'Dipinjam')
-                            <button class="btn btn-success btn-sm" onclick="returnBook({{ $p->id_peminjaman }})">
+                            <button type="button" class="btn btn-success btn-sm" onclick="returnBook({{ $p->id_peminjaman }})">
                                 <i class="fas fa-check me-1"></i>Kembalikan
                             </button>
                         @else
@@ -166,6 +166,33 @@
         </div>
     </div>
 </div>
+
+<!-- Return Book Confirm Modal -->
+<div class="modal fade" id="returnConfirmModal" tabindex="-1" aria-labelledby="returnConfirmLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="returnConfirmForm" method="POST">
+                @csrf
+                <div class="modal-header" style="background: var(--dark); color: white;">
+                    <h5 class="modal-title" id="returnConfirmLabel">
+                        <i class="fas fa-undo me-2"></i>Konfirmasi Pengembalian Buku
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p class="mb-1">Yakin ingin mengembalikan buku ini?</p>
+                    <small class="text-muted">Denda akan dihitung otomatis jika peminjaman terlambat.</small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check me-1"></i>Ya, Kembalikan
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -209,20 +236,12 @@ document.getElementById('selectBuku').addEventListener('change', function() {
 });
 
 function returnBook(id) {
-    if(confirm('Kembalikan buku ini? Denda akan dihitung otomatis jika terlambat.')) {
-        let form = document.createElement('form');
-        form.method = 'POST';
-        form.action = `/pinjam_kembali/${id}/kembali`;
-        
-        let csrf = document.createElement('input');
-        csrf.type = 'hidden';
-        csrf.name = '_token';
-        csrf.value = '{{ csrf_token() }}';
-        form.appendChild(csrf);
-        
-        document.body.appendChild(form);
-        form.submit();
-    }
+    const form = document.getElementById('returnConfirmForm');
+    form.action = `/pinjam_kembali/${id}/kembali`;
+
+    const modalElement = document.getElementById('returnConfirmModal');
+    const modal = new bootstrap.Modal(modalElement);
+    modal.show();
 }
 </script>
 @endpush
