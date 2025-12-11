@@ -27,7 +27,8 @@ class TransaksiController extends Controller
         // Get all books for 2-step selection (title -> inventory)
         $bukus = Buku::where('stok_tersedia', '>', 0)->get();
         
-        return view('admin.pinjam_kembali', compact('peminjaman', 'users', 'bukus'));
+        $view = request()->routeIs('petugas.*') ? 'petugas.pinjam_kembali' : 'admin.pinjam_kembali';
+        return view($view, compact('peminjaman', 'users', 'bukus'));
     }
     
     // API: Get available assets by book (exclude borrowed ones)
@@ -167,7 +168,8 @@ class TransaksiController extends Controller
         
         $requests = $query->latest('tanggal_request')->paginate(10);
         
-        return view('admin.permintaan_perpanjangan', compact('requests'));
+        $view = request()->routeIs('petugas.*') ? 'petugas.permintaan_perpanjangan' : 'admin.permintaan_perpanjangan';
+        return view($view, compact('requests'));
     }
 
     public function approve($id_request)
@@ -239,7 +241,8 @@ class TransaksiController extends Controller
         $denda = $query->latest('tanggal_kembali')->paginate(10);
         $totalDendaBelumLunas = Peminjaman::where('denda', '>', 0)->sum('denda');
         
-        return view('admin.laporan_denda', compact('denda', 'totalDendaBelumLunas'));
+        $view = request()->routeIs('petugas.*') ? 'petugas.laporan_denda' : 'admin.laporan_denda';
+        return view($view, compact('denda', 'totalDendaBelumLunas'));
     }
 
     public function markPaid($id_peminjaman)

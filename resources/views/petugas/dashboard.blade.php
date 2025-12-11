@@ -9,19 +9,19 @@
     <h2>Dashboard Operasional</h2>
     <p>Pantau statistik utama perpustakaan dan jalankan proses transaksi dengan akses cepat dari satu layar.</p>
     <div class="hero-actions">
-        <a href="{{ route('transaksi.index') }}" class="btn btn-accent">
+        <a href="{{ route('petugas.transaksi.index') }}" class="btn btn-accent">
             <i class="fas fa-plus"></i>
             Pinjam Buku
         </a>
-        <a href="{{ route('transaksi.index') }}" class="btn btn-accent-outline">
+        <a href="{{ route('petugas.transaksi.index') }}" class="btn btn-accent-outline">
             <i class="fas fa-undo"></i>
             Kembalikan Buku
         </a>
-        <a href="{{ route('buku.index') }}" class="btn btn-accent-outline">
+        <a href="{{ route('petugas.buku.index') }}" class="btn btn-accent-outline">
             <i class="fas fa-book"></i>
             Lihat Buku
         </a>
-        <a href="{{ route('perpanjangan.index') }}" class="btn btn-accent-outline">
+        <a href="{{ route('petugas.perpanjangan.index') }}" class="btn btn-accent-outline">
             <i class="fas fa-clock"></i>
             Perpanjangan
         </a>
