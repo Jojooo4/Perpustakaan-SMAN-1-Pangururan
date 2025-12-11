@@ -50,7 +50,7 @@ Route::get('/password/sent', [ForgotPasswordController::class, 'sent'])->name('p
 // ============================================
 // PROTECTED ROUTES (AUTH)
 // ============================================
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     
     // ========== ADMIN ROUTES ==========
     Route::get('/admin', [DashboardController::class, 'index'])->name('admin.dashboard');
@@ -150,8 +150,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/my-requests', [PengunjungDashboardController::class, 'myRequests'])->name('my-requests');
         Route::delete('/my-requests/{id}/cancel', [PengunjungDashboardController::class, 'cancelRequest'])->name('my-requests.cancel');
         
-        // Reviews
-        Route::get('/reviews/{id_buku}/create', [ReviewController::class, 'create'])->name('reviews.create');
+        // Reviews     Route::get('/reviews/{id_buku}/create', [ReviewController::class, 'create'])->name('reviews.create');
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         
         // Extensions

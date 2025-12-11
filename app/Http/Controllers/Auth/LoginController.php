@@ -12,7 +12,19 @@ class LoginController extends Controller
 {
     public function show()
     {
-        return view('auth.login');
+        // If user is already authenticated and navigates to login (e.g., via browser navigation),
+        // force logout so the session cannot be reused by pressing back/forward.
+        if (\Illuminate\Support\Facades\Auth::check()) {
+            \Illuminate\Support\Facades\Auth::logout();
+            request()->session()->invalidate();
+            request()->session()->regenerateToken();
+        }
+
+        $response = response()->view('auth.login');
+        $response->headers->set('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+        $response->headers->set('Pragma', 'no-cache');
+        $response->headers->set('Expires', 'Sat, 01 Jan 2000 00:00:00 GMT');
+        return $response;
     }
 
     public function login(Request $request)
