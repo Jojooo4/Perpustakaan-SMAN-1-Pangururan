@@ -12,10 +12,13 @@
     
     <style>
         :root {
-            --primary: #EB455F;
-            --secondary: #BAD7E9;
-            --dark: #2B3467;
-            --light: #FCFFE7;
+            --primary: #2b3458;      /* Navy - matches homepage */
+            --primary-dark: #232a4a;  /* Darker navy */
+            --accent: #4aa0c9;        /* Blue accent */
+            --accent-dark: #2b7cae;   /* Deeper blue */
+            --light: #fbf9e7;         /* Cream */
+            --light-blue: #c7e1f2;    /* Light blue */
+            --dark: #2b3458;
         }
         
         * {
