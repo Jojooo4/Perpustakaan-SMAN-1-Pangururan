@@ -4,6 +4,11 @@
 @section('page-title', 'Pengaturan Profil')
 
 @section('content')
+@php
+    use Illuminate\Support\Facades\Storage;
+    $profileUser = auth()->user();
+    $profilePhotoUrl = $profileUser->foto_profil ? Storage::url($profileUser->foto_profil) : null;
+@endphp
 <div class="row">
     <div class="col-md-8 mx-auto">
         <div class="stat-card">
@@ -12,11 +17,13 @@
                 @method('POST')
                 
                 <div class="text-center mb-4">
-                    <div class="user-avatar mx-auto" style="width: 100px; height: 100px; font-size: 2rem;">
-                        {{ strtoupper(substr(auth()->user()->nama ?? 'A', 0, 1)) }}
+                    <div class="user-avatar mx-auto" style="width: 100px; height: 100px; font-size: 2rem; {{ $profilePhotoUrl ? 'background-image: url(' . $profilePhotoUrl . ');' : '' }}">
+                        @unless($profilePhotoUrl)
+                            {{ strtoupper(substr($profileUser->nama ?? 'A', 0, 1)) }}
+                        @endunless
                     </div>
-                    <h5 class="mt-3">{{ auth()->user()->nama }}</h5>
-                    <p class="text-muted">{{ auth()->user()->role }}</p>
+                    <h5 class="mt-3">{{ $profileUser->nama }}</h5>
+                    <p class="text-muted">{{ $profileUser->role ?? $profileUser->tipe_anggota ?? 'Admin' }}</p>
                 </div>
                 
                 <hr>

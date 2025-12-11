@@ -15,10 +15,10 @@
     
     <style>
         :root {
-            --primary: #EB455F;
-            --secondary: #BAD7E9;
-            --dark: #2B3467;
-            --light: #FCFFE7;
+            --primary: #3f6bff;
+            --secondary: #dbe4ff;
+            --dark: #0b1b4c;
+            --light: #f7f8ff;
             --sidebar-width: 260px;
         }
         
@@ -30,7 +30,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--light);
+            background: linear-gradient(180deg, #f6f7ff 0%, #eef2ff 60%, #dfe7ff 100%);
             overflow-x: hidden;
         }
         
@@ -41,54 +41,68 @@
             left: 0;
             height: 100vh;
             width: var(--sidebar-width);
-            background: var(--dark);
+            background: linear-gradient(180deg, #0d1f4c, #14245d 70%, #16286f);
             z-index: 1000;
             transition: all 0.3s;
             overflow-y: auto;
         }
         
-        .sidebar-header {
-            padding: 1.5rem 1rem;
-            background: linear-gradient(135deg, var(--primary), #c93551);
-            color: white;
-            text-align: center;
-        }
-        
-        .sidebar-header h4 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin: 0;
-        }
-        
-        .sidebar-header p {
-            font-size: 0.75rem;
-            margin: 0;
-            opacity: 0.9;
-        }
+            .sidebar-header {
+                padding: 1.75rem 1rem;
+                background: linear-gradient(135deg, #3f6bff, #5f84ff 60%, #2d3f94);
+                color: white;
+                text-align: center;
+                border-bottom: 1px solid rgba(255,255,255,0.3);
+            }
+
+            .sidebar-header h4 {
+                font-size: 1rem;
+                font-weight: 700;
+                margin: 0;
+            }
+
+            .sidebar-header p {
+                font-size: 0.8rem;
+                margin: 0;
+                opacity: 0.85;
+            }
         
         .sidebar-menu {
             padding: 1rem 0;
         }
         
+        .menu-section {
+            padding: 0.75rem 1.75rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.6);
+            margin-top: 1rem;
+        }
+
+        .menu-spacer {
+            height: 0.5rem;
+        }
+
         .menu-item {
             display: block;
             padding: 0.9rem 1.5rem;
-            color: rgba(255,255,255,0.8);
+            color: rgba(255,255,255,0.85);
             text-decoration: none;
             transition: all 0.3s;
             border-left: 3px solid transparent;
         }
-        
+
         .menu-item:hover {
             background: rgba(255,255,255,0.1);
             color: white;
-            border-left-color: var(--primary);
+            border-left-color: rgba(255,255,255,0.5);
         }
-        
+
         .menu-item.active {
-            background: rgba(235, 69, 95, 0.2);
+            background: rgba(255,255,255,0.25);
             color: white;
-            border-left-color: var(--primary);
+            border-left-color: rgba(255,255,255,0.9);
         }
         
         .menu-item i {
@@ -101,45 +115,100 @@
             margin-left: var(--sidebar-width);
             min-height: 100vh;
             padding: 0;
+            background: transparent;
         }
         
         /* Top Navbar */
         .top-navbar {
-            background: white;
+            background: transparent;
             padding: 1rem 2rem;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .top-navbar-pill {
+            background: linear-gradient(135deg, #3672ff, #5e95ff 70%, #849dff);
+            border-radius: 28px;
+            padding: 0.9rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            gap: 1.25rem;
+            color: #fff;
+            box-shadow: 0 20px 40px rgba(18, 43, 115, 0.25);
         }
-        
-        .top-navbar h5 {
-            margin: 0;
-            color: var(--dark);
-            font-weight: 600;
-        }
-        
-        .user-menu {
+
+        .top-navbar-copy {
+            line-height: 1.25;
             display: flex;
             align-items: center;
             gap: 1rem;
         }
-        
+
+        .top-navbar-copy h5 {
+            margin: 0;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .top-navbar-copy small {
+            font-size: 0.75rem;
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            margin-top: 0.2rem;
+            color: rgba(255,255,255,0.75);
+        }
+
+        .user-pill {
+            display: flex;
+            align-items: center;
+            gap: 1.8rem;
+        }
+
         .user-avatar {
-            width: 40px;
-            height: 40px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            background: var(--secondary);
+            background: rgba(255,255,255,0.15);
+            color: #fff;
+            font-weight: 600;
+            font-size: 1.1rem;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: var(--dark);
-            font-weight: 600;
+            border: 1px solid rgba(255,255,255,0.35);
+            background-size: cover;
+            background-position: center;
+            margin-left: -10px;
+        }
+
+        .user-pill-info {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.15;
+        }
+
+        .user-pill-info small {
+            color: rgba(255,255,255,0.8);
+            letter-spacing: 0.35em;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+        }
+
+        .user-pill-info strong {
+            font-size: 1rem;
+            color: #fff;
+        }
+
+        .user-pill i {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.8);
         }
         
         /* Content Area */
         .content-area {
             padding: 2rem;
+            background: transparent;
+            min-height: calc(100vh - 110px);
         }
         
         /* Cards */
@@ -147,7 +216,7 @@
             background: white;
             border-radius: 12px;
             padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            box-shadow: 0 6px 22px rgba(0,0,0,0.08);
             transition: transform 0.3s, box-shadow 0.3s;
         }
         
@@ -212,6 +281,25 @@
             .content-area {
                 padding: 1rem;
             }
+
+            .top-navbar {
+                padding: 1rem;
+            }
+
+            .top-navbar-pill {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-navbar-copy {
+                width: 100%;
+                justify-content: flex-start;
+            }
+
+            .user-pill {
+                width: 100%;
+                justify-content: space-between;
+            }
         }
         
         /* Badges */
@@ -231,6 +319,12 @@
     @stack('styles')
 </head>
 <body>
+@php
+    use Illuminate\Support\Facades\Storage;
+    $navUser = auth()->user();
+    $navAvatarUrl = $navUser && $navUser->foto_profil ? Storage::url($navUser->foto_profil) : null;
+    $navInitial = strtoupper(substr($navUser->nama ?? 'A', 0, 1));
+@endphp
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
@@ -239,26 +333,23 @@
         </div>
         
         <div class="sidebar-menu">
+            <div class="menu-section">Utama</div>
             <a href="{{ route('admin.dashboard') }}" class="menu-item {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="fas fa-home"></i> Dashboard
             </a>
             <a href="{{ route('buku.index') }}" class="menu-item {{ request()->routeIs('buku.*') ? 'active' : '' }}">
                 <i class="fas fa-book"></i> Manajemen Buku
             </a>
-            <a href="{{ route('pengelolaan.pengguna') }}" class="menu-item {{ request()->routeIs('pengelolaan.pengguna') ? 'active' : '' }}">
-                <i class="fas fa-users"></i> Manajemen Pengguna
-            </a>
+
+            <div class="menu-section">Transaksi</div>
             <a href="{{ route('transaksi.index') }}" class="menu-item {{ request()->routeIs('transaksi.*') ? 'active' : '' }}">
                 <i class="fas fa-exchange-alt"></i> Pinjam & Kembali
             </a>
             <a href="{{ route('perpanjangan.index') }}" class="menu-item {{ request()->routeIs('perpanjangan.*') ? 'active' : '' }}">
-                <i class="fas fa-clock"></i> Perpanjangan
+                <i class="fas fa-clock"></i> Permintaan Perpanjangan
             </a>
             <a href="{{ route('denda.index') }}" class="menu-item {{ request()->routeIs('denda.*') ? 'active' : '' }}">
                 <i class="fas fa-money-bill-wave"></i> Laporan Denda
-            </a>
-            <a href="{{ route('pengelolaan.review') }}" class="menu-item {{ request()->routeIs('pengelolaan.review') ? 'active' : '' }}">
-                <i class="fas fa-star"></i> Review Ulasan
             </a>
             <a href="{{ route('admin.request-peminjaman.index') }}" class="menu-item {{ request()->routeIs('admin.request-peminjaman.*') ? 'active' : '' }}">
                 <i class="fas fa-clipboard-check"></i> Request Peminjaman
@@ -269,12 +360,23 @@
                     <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">{{ $pendingCount }}</span>
                 @endif
             </a>
+
+            <div class="menu-section">Pengelolaan</div>
+            <a href="{{ route('pengelolaan.pengguna') }}" class="menu-item {{ request()->routeIs('pengelolaan.pengguna') ? 'active' : '' }}">
+                <i class="fas fa-users"></i> Manajemen Pengguna
+            </a>
+            <a href="{{ route('pengelolaan.review') }}" class="menu-item {{ request()->routeIs('pengelolaan.review') ? 'active' : '' }}">
+                <i class="fas fa-star"></i> Review & Ulasan
+            </a>
             <a href="{{ route('admin.log-aktivitas') }}" class="menu-item {{ request()->routeIs('admin.log-aktivitas') ? 'active' : '' }}">
                 <i class="fas fa-history"></i> Log Aktivitas
             </a>
+            <div class="menu-spacer"></div>
+            <div class="menu-section">Pengaturan</div>
             <a href="{{ route('profil.index') }}" class="menu-item {{ request()->routeIs('profil.*') ? 'active' : '' }}">
                 <i class="fas fa-user-cog"></i> Pengaturan Profil
             </a>
+            <div class="menu-spacer"></div>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="menu-item">
                 <i class="fas fa-sign-out-alt"></i> Logout
             </a>
@@ -289,22 +391,27 @@
     <div class="main-content">
         <!-- Top Navbar -->
         <div class="top-navbar">
-            <div>
-                <button class="btn btn-link d-md-none" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <h5 class="d-inline-block">@yield('page-title', 'Dashboard')</h5>
-            </div>
-            
-            <div class="user-menu">
-                <div class="dropdown">
+            <div class="top-navbar-pill">
+                <div class="top-navbar-copy">
+                    <button class="btn btn-link text-white d-md-none" id="sidebarToggle">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h5 class="mb-0">@yield('page-title', 'Dashboard')</h5>
+                        <small></small>
+                    </div>
+                </div>
+
+                <div class="user-pill dropdown">
                     <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                        <div class="user-avatar me-2">
-                            {{ strtoupper(substr(auth()->user()->nama ?? 'A', 0, 1)) }}
+                        <div class="user-avatar" style="{{ $navAvatarUrl ? 'background-image: url(' . $navAvatarUrl . ');' : '' }}">
+                            @unless($navAvatarUrl)
+                                {{ $navInitial }}
+                            @endunless
                         </div>
-                        <div class="d-none d-md-block">
-                            <small class="d-block text-muted">Admin</small>
-                            <strong class="d-block" style="color: var(--dark);">{{ auth()->user()->nama ?? 'Administrator' }}</strong>
+                        <div class="user-pill-info">
+                            <small>Admin</small>
+                            <strong>{{ auth()->user()->nama ?? 'Administrator' }}</strong>
                         </div>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
