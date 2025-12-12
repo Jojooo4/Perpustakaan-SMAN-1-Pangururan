@@ -56,14 +56,44 @@ class DashboardController extends Controller
             ->limit(8)
             ->get();
         
+        // Overdue popup data
+        $overdueLoans = Peminjaman::with(['asetBuku.buku'])
+            ->where('id_user', auth()->user()->id_user)
+            ->where('status_peminjaman', 'Terlambat')
+            ->get();
+
+        // Show overdue modal only once after login (avoid on refresh)
+        $showOverdueModal = false;
+        if ($overdueLoans->count() > 0 && session('just_logged_in')) {
+            $showOverdueModal = true;
+            // Consume the flag so it won't show on refresh
+            session(['just_logged_in' => false]);
+        }
+
         return view('pengunjung.dashboard', compact(
             'peminjamanAktif',
             'totalPeminjaman',
             'dendaBelumLunas',
             'peminjamanAktifList',
             'riwayatPeminjaman',
-            'popularBooks'
+            'popularBooks',
+            'overdueLoans',
+            'showOverdueModal'
         ));
+    }
+
+    public function history()
+    {
+        $loans = Peminjaman::with(['asetBuku.buku'])
+            ->where('id_user', auth()->user()->id_user)
+            ->orderByDesc('tanggal_pinjam')
+            ->paginate(10);
+
+        $totalDenda = Peminjaman::where('id_user', auth()->user()->id_user)
+            ->where('denda', '>', 0)
+            ->sum('denda');
+
+        return view('pengunjung.history', compact('loans', 'totalDenda'));
     }
     
     public function myRequests()

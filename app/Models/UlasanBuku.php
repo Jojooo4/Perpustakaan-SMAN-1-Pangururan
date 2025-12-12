@@ -9,12 +9,11 @@ class UlasanBuku extends Model
     protected $table = 'ulasan_buku';
     protected $primaryKey = 'id_ulasan';
     
-    // Fixed: database uses kode_buku and nomor_identitas, not id_buku and id_user
-    protected $fillable = ['kode_buku', 'nomor_identitas', 'rating', 'komentar'];
+    // Use id_buku and id_user to match current schema
+    protected $fillable = ['id_buku', 'id_user', 'rating', 'komentar'];
     
-    // Fixed: table has created_at only (no updated_at)
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = null;
+    // Disable timestamps (table doesn't have created_at/updated_at)
+    public $timestamps = false;
     
     protected $casts = ['rating' => 'integer'];
     
@@ -33,14 +32,12 @@ class UlasanBuku extends Model
 
     public function buku()
     {
-        // Fixed: ulasan_buku.kode_buku -> buku.kode_buku
-        return $this->belongsTo(Buku::class, 'kode_buku', 'kode_buku');
+        return $this->belongsTo(Buku::class, 'id_buku', 'id_buku');
     }
 
-    public function pengunjung()
+    public function user()
     {
-        // Fixed: database uses nomor_identitas, not id_user
-        return $this->belongsTo(Pengunjung::class, 'nomor_identitas', 'nomor_identitas');
+        return $this->belongsTo(User::class, 'id_user', 'id_user');
     }
 
     public function scopeRecent($query)

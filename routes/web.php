@@ -127,6 +127,9 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         
         Route::get('/denda', [TransaksiController::class, 'laporanDenda'])->name('denda.index');
         Route::post('/denda/{id}/lunas', [TransaksiController::class, 'markPaid'])->name('denda.mark-paid');
+        // Export routes for Petugas
+        Route::get('/denda/export', [TransaksiController::class, 'exportDenda'])->name('denda.export');
+        Route::get('/denda/export-pdf', [TransaksiController::class, 'exportDendaPdf'])->name('denda.export-pdf');
         
         Route::get('/review', [PengelolaanController::class, 'review'])->name('pengelolaan.review');
         Route::delete('/review/{id}', [PengelolaanController::class, 'destroyReview'])->name('pengelolaan.review.destroy');
@@ -140,6 +143,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     // ========== PENGUNJUNG ROUTES ==========
     Route::prefix('pengunjung')->name('pengunjung.')->group(function() {
         Route::get('/', [PengunjungDashboardController::class, 'index'])->name('dashboard');
+        Route::get('/history', [PengunjungDashboardController::class, 'history'])->name('history');
         
         // Catalog & Borrow
         Route::get('/catalog', [CatalogController::class, 'index'])->name('catalog');
@@ -150,7 +154,8 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
         Route::get('/my-requests', [PengunjungDashboardController::class, 'myRequests'])->name('my-requests');
         Route::delete('/my-requests/{id}/cancel', [PengunjungDashboardController::class, 'cancelRequest'])->name('my-requests.cancel');
         
-        // Reviews     Route::get('/reviews/{id_buku}/create', [ReviewController::class, 'create'])->name('reviews.create');
+        // Reviews
+        Route::get('/reviews/{id_buku}/create', [ReviewController::class, 'create'])->name('reviews.create');
         Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
         
         // Extensions

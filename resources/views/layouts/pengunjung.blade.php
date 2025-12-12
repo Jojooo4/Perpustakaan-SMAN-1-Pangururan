@@ -577,7 +577,7 @@
             <a href="{{ route('pengunjung.extensions') }}" class="menu-item {{ request()->routeIs('pengunjung.extensions*') ? 'active' : '' }}">
                 <i class="fas fa-clock"></i> Perpanjangan
             </a>
-            <a href="{{ route('pengunjung.dashboard') }}#riwayat" class="menu-item">
+            <a href="{{ route('pengunjung.history') }}" class="menu-item {{ request()->routeIs('pengunjung.history') ? 'active' : '' }}">
                 <i class="fas fa-history"></i> Riwayat
             </a>
 
@@ -686,7 +686,7 @@
                 <ul class="visitor-footer-links">
                     <li><a href="{{ route('pengunjung.dashboard') }}">Dashboard</a></li>
                     <li><a href="{{ route('pengunjung.catalog') }}">Katalog Buku</a></li>
-                    <li><a href="{{ route('pengunjung.dashboard') }}#riwayat">Riwayat</a></li>
+                    <li><a href="{{ route('pengunjung.history') }}">Riwayat</a></li>
                 </ul>
             </div>
 
