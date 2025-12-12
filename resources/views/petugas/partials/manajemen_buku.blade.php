@@ -1,25 +1,13 @@
-@extends('layouts.admin')
+@extends('layouts.petugas')
 
 @section('title', 'Manajemen Buku')
 @section('page-title', 'Manajemen Buku')
 
 @push('styles')
-<!-- DataTables CSS -->
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
 <style>
-    .book-cover-preview {
-        width: 60px;
-        height: 80px;
-        object-fit: cover;
-        border-radius: 4px;
-    }
-    
-    .image-upload-preview {
-        max-width: 200px;
-        max-height: 250px;
-        margin-top: 10px;
-        border-radius: 8px;
-    }
+    .book-cover-preview { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; }
+    .image-upload-preview { max-width: 200px; max-height: 250px; margin-top: 10px; border-radius: 8px; }
 </style>
 @endpush
 
@@ -102,7 +90,7 @@
     </div>
 </div>
 
-<!-- Add Book Modal -->
+<!-- Add Book Modal - uses petugas routes -->
 <div class="modal fade" id="addBookModal" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -165,21 +153,17 @@
     </div>
 </div>
 
-<!-- Edit Book Modal (will be populated via AJAX) -->
+<!-- Edit Book Modal -->
 <div class="modal fade" id="editBookModal" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" id="editBookContent">
-            <!-- Content loaded via JavaScript -->
-        </div>
+        <div class="modal-content" id="editBookContent"></div>
     </div>
 </div>
 
 <!-- View Book Modal -->
 <div class="modal fade" id="viewBookModal" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
-        <div class="modal-content" id="viewBookContent">
-            <!-- Content loaded via JavaScript -->
-        </div>
+        <div class="modal-content" id="viewBookContent"></div>
     </div>
 </div>
 
@@ -211,27 +195,17 @@
 @endsection
 
 @push('scripts')
-<!-- DataTables JS -->
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
-
 <script>
 $(document).ready(function() {
     var table = $('#booksTable').DataTable({
-        language: {
-            url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json'
-        },
+        language: { url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/id.json' },
         order: [[2, 'asc']]
     });
-    
-    // Search functionality
-    $('#searchBook').on('keyup', function() {
-        table.search(this.value).draw();
-    });
-    
-    // Keep page scrollable when any modal is shown (no backdrop)
-    document.addEventListener('show.bs.modal', function (event) {
+    $('#searchBook').on('keyup', function() { table.search(this.value).draw(); });
+    document.addEventListener('show.bs.modal', function () {
         document.body.classList.remove('modal-open');
         document.body.style.overflow = 'auto';
         document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
@@ -241,15 +215,7 @@ $(document).ready(function() {
 function previewImage(event, previewId) {
     const preview = document.getElementById(previewId);
     const file = event.target.files[0];
-    
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            preview.src = e.target.result;
-            preview.style.display = 'block';
-        }
-        reader.readAsDataURL(file);
-    }
+    if (file) { const reader = new FileReader(); reader.onload = function(e){ preview.src = e.target.result; preview.style.display='block'; }; reader.readAsDataURL(file); }
 }
 
 function getRowData(id) {
@@ -269,19 +235,16 @@ function getRowData(id) {
 }
 
 function viewBook(id) {
-    const data = getRowData(id);
-    if (!data) return;
+    const data = getRowData(id); if (!data) return;
     const html = `
-        <div class="modal-header" style="background: var(--dark); color: white;">
-            <h5 class="modal-title"><i class="fas fa-eye me-2"></i>Detail Buku</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class=\"modal-header\" style=\"background: var(--dark); color: white;\">
+            <h5 class=\"modal-title\"><i class=\"fas fa-eye me-2\"></i>Detail Buku</h5>
+            <button type=\"button\" class=\"btn-close btn-close-white\" data-bs-dismiss=\"modal\"></button>
         </div>
-        <div class="modal-body">
-            <div class="row">
-                <div class="col-md-4 mb-3">
-                    ${data.cover ? `<img src="${data.cover}" class="image-upload-preview" />` : '<div class="image-upload-preview bg-light d-flex align-items-center justify-content-center"><i class="fas fa-book fa-2x text-muted"></i></div>'}
-                </div>
-                <div class="col-md-8">
+        <div class=\"modal-body\">
+            <div class=\"row\">
+                <div class=\"col-md-4 mb-3\">${data.cover ? `<img src=\"${data.cover}\" class=\"image-upload-preview\" />` : '<div class=\"image-upload-preview bg-light d-flex align-items-center justify-content-center\"><i class=\"fas fa-book fa-2x text-muted\"></i></div>'}</div>
+                <div class=\"col-md-8\">
                     <p><strong>Kode:</strong> ${data.id}</p>
                     <p><strong>Judul:</strong> ${data.judul}</p>
                     <p><strong>Pengarang:</strong> ${data.pengarang}</p>
@@ -291,58 +254,28 @@ function viewBook(id) {
                 </div>
             </div>
         </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-        </div>`;
+        <div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Tutup</button></div>`;
     document.getElementById('viewBookContent').innerHTML = html;
     new bootstrap.Modal(document.getElementById('viewBookModal')).show();
 }
 
 function editBook(id) {
-    const data = getRowData(id);
-    if (!data) return;
+    const data = getRowData(id); if (!data) return;
     const action = `{{ route('buku.update', ['id_buku' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', id);
     const html = `
-        <form action="${action}" method="POST" enctype="multipart/form-data">
+        <form action=\"${action}\" method=\"POST\" enctype=\"multipart/form-data\">
             @csrf
             @method('PUT')
-            <div class="modal-header" style="background: var(--dark); color: white;">
-                <h5 class="modal-title"><i class="fas fa-edit me-2"></i>Edit Buku</h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12 mb-3">
-                        <label class="form-label">Judul Buku <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" name="judul" value="${data.judul}" required>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Nama Pengarang</label>
-                        <input type="text" class="form-control" name="nama_pengarang" value="${data.pengarang}">
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label">Penerbit</label>
-                        <input type="text" class="form-control" name="penerbit" value="${data.penerbit}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Tahun Terbit</label>
-                        <input type="number" class="form-control" name="tahun_terbit" value="${data.tahun}">
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label">Stok Tersedia</label>
-                        <input type="number" class="form-control" name="stok_tersedia" value="${data.stok}">
-                    </div>
-                    <div class="col-12 mb-3">
-                        <label class="form-label">Cover Buku</label>
-                        <input type="file" class="form-control" name="gambar" accept="image/*" onchange="previewImage(event, 'editPreview')">
-                        <img id="editPreview" class="image-upload-preview" style="display: ${data.cover ? 'block' : 'none'};" src="${data.cover || ''}">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                <button type="submit" class="btn btn-primary"><i class="fas fa-save me-2"></i>Simpan</button>
-            </div>
+            <div class=\"modal-header\" style=\"background: var(--dark); color: white;\"><h5 class=\"modal-title\"><i class=\"fas fa-edit me-2\"></i>Edit Buku</h5><button type=\"button\" class=\"btn-close btn-close-white\" data-bs-dismiss=\"modal\"></button></div>
+            <div class=\"modal-body\"><div class=\"row\">
+                <div class=\"col-md-12 mb-3\"><label class=\"form-label\">Judul Buku <span class=\"text-danger\">*</span></label><input type=\"text\" class=\"form-control\" name=\"judul\" value=\"${data.judul}\" required></div>
+                <div class=\"col-md-6 mb-3\"><label class=\"form-label\">Nama Pengarang</label><input type=\"text\" class=\"form-control\" name=\"nama_pengarang\" value=\"${data.pengarang}\"></div>
+                <div class=\"col-md-6 mb-3\"><label class=\"form-label\">Penerbit</label><input type=\"text\" class=\"form-control\" name=\"penerbit\" value=\"${data.penerbit}\"></div>
+                <div class=\"col-md-4 mb-3\"><label class=\"form-label\">Tahun Terbit</label><input type=\"number\" class=\"form-control\" name=\"tahun_terbit\" value=\"${data.tahun}\"></div>
+                <div class=\"col-md-4 mb-3\"><label class=\"form-label\">Stok Tersedia</label><input type=\"number\" class=\"form-control\" name=\"stok_tersedia\" value=\"${data.stok}\"></div>
+                <div class=\"col-12 mb-3\"><label class=\"form-label\">Cover Buku</label><input type=\"file\" class=\"form-control\" name=\"gambar\" accept=\"image/*\" onchange=\"previewImage(event, 'editPreview')\"><img id=\"editPreview\" class=\"image-upload-preview\" style=\"display: ${data.cover ? 'block' : 'none'};\" src=\"${data.cover || ''}\"></div>
+            </div></div>
+            <div class=\"modal-footer\"><button type=\"button\" class=\"btn btn-secondary\" data-bs-dismiss=\"modal\">Batal</button><button type=\"submit\" class=\"btn btn-primary\"><i class=\"fas fa-save me-2\"></i>Simpan</button></div>
         </form>`;
     document.getElementById('editBookContent').innerHTML = html;
     new bootstrap.Modal(document.getElementById('editBookModal')).show();

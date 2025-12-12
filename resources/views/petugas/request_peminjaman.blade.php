@@ -104,7 +104,7 @@
 </div>
 
 <!-- Approve Modal -->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true" style="z-index: 1055;">
+<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true" style="z-index: 1055;" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form id="approveForm" method="POST">
@@ -155,7 +155,7 @@
 </div>
 
 <!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true" style="z-index: 1055;">
+<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true" style="z-index: 1055;" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <form id="rejectForm" method="POST">
@@ -182,7 +182,7 @@
 </div>
 
 <!-- Reason Modal -->
-<div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true" style="z-index: 1055;">
+<div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true" style="z-index: 1055;" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
@@ -207,18 +207,18 @@ function showApproveModal(id, borrowerName, bookTitle, requestDate) {
     document.getElementById('approveBookTitle').textContent = bookTitle;
     document.getElementById('approveRequestDate').textContent = requestDate;
     document.getElementById('approveForm').action = `/petugas/request-peminjaman/${id}/approve`;
-    new bootstrap.Modal(document.getElementById('approveModal')).show();
+    new bootstrap.Modal(document.getElementById('approveModal'), { backdrop: false, keyboard: true }).show();
 }
 
 function showRejectModal(id, bookTitle) {
     document.getElementById('rejectBookTitle').textContent = bookTitle;
     document.getElementById('rejectForm').action = `/petugas/request-peminjaman/${id}/reject`;
-    new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    new bootstrap.Modal(document.getElementById('rejectModal'), { backdrop: false, keyboard: true }).show();
 }
 
 function showReason(reason) {
     document.getElementById('reasonText').textContent = reason;
-    new bootstrap.Modal(document.getElementById('reasonModal')).show();
+    new bootstrap.Modal(document.getElementById('reasonModal'), { backdrop: false, keyboard: true }).show();
 }
 </script>
 @endpush

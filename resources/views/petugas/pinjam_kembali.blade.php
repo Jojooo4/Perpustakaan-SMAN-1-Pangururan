@@ -4,5 +4,5 @@
 @section('page-title', 'Manajemen Peminjaman')
 
 @section('content')
-@include('admin.pinjam_kembali', ['__inherit' => true])
+@include('petugas.partials.pinjam_kembali')
 @endsection
