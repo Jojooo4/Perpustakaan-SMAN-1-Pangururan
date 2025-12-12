@@ -93,6 +93,8 @@ class LoginController extends Controller
             }
 
             if ($roleStr === 'pengunjung' || $roleStr === 'visitor') {
+                // Mark just-logged-in for one-time overdue popup on dashboard
+                $request->session()->put('just_logged_in', true);
                 // Increment today's pengunjung counter (stored in cache) so homepage can show today's total.
                 $key = 'pengunjung:' . date('Y-m-d');
                 // Ensure key exists with initial 0 and TTL ~2 days to survive day boundary briefly
@@ -122,6 +124,9 @@ class LoginController extends Controller
     public function logout(Request $request)
     {
         Auth::logout();
+        // Reset one-time flags on logout
+        $request->session()->forget('just_logged_in');
+        $request->session()->forget('overdue_shown');
         $request->session()->invalidate();
         $request->session()->regenerateToken();
         return redirect()->route('login');

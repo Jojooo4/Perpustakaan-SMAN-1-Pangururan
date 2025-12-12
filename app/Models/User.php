@@ -21,6 +21,7 @@ class User extends Authenticatable
         'username',
         'nama',
         'password',
+        'role',
         // Fixed: Match ACTUAL database structure from phpMyAdmin
         'tipe_anggota',      // enum('Siswa', 'Guru', 'Kepala Sekolah', 'Staf', 'Umum')
         'kelas',             // varchar(20)
@@ -85,7 +86,7 @@ class User extends Authenticatable
             return $this->attributes['role'] === 'admin';
         }
         // Fallback: maybe admin is indicated by tipe_anggota
-        return isset($this->attributes[' tipe_anggota']) && 
+        return isset($this->attributes['tipe_anggota']) && 
                in_array($this->attributes['tipe_anggota'], ['Admin']);
     }
 
@@ -105,6 +106,6 @@ class User extends Authenticatable
         }
         // Siswa, Guru, dll are regular pengunjung/visitors
         return isset($this->attributes['tipe_anggota']) && 
-               in_array($this->attributes['tipe_anggota'], ['Siswa', 'Guru', 'Kepala Sekolah', 'Staf', 'Umum']);
+               in_array($this->attributes['tipe_anggota'], ['Siswa', 'Guru']);
     }
 }

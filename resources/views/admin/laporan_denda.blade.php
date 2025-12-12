@@ -22,7 +22,7 @@
         <a href="{{ route('denda.export', request()->query()) }}" class="btn btn-success w-100 mb-2">
             <i class="fas fa-file-excel me-2"></i>Export Excel
         </a>
-        <a href="{{ route('denda.export-pdf') }}" class="btn btn-danger w-100">
+        <a href="{{ route('denda.export-pdf', request()->query()) }}" class="btn btn-danger w-100">
             <i class="fas fa-file-pdf me-2"></i>Export PDF
         </a>
     </div>
@@ -96,16 +96,16 @@
 <script>
 function markPaid(id) {
     if(confirm('Tandai denda sebagai lunas?')) {
-        let form = document.createElement('form');
+        const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/admin/fines/${id}/mark-paid`;
-        
-        let csrf = document.createElement('input');
+        form.action = `{{ route('denda.mark-paid', ['id' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', id);
+
+        const csrf = document.createElement('input');
         csrf.type = 'hidden';
         csrf.name = '_token';
         csrf.value = '{{ csrf_token() }}';
         form.appendChild(csrf);
-        
+
         document.body.appendChild(form);
         form.submit();
     }

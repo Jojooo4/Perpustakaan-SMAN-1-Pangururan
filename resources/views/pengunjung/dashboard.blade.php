@@ -21,6 +21,62 @@
     </a>
 </div>
 
+@if(($showOverdueModal ?? false) === true)
+<!-- Overdue Modal Centered & Large -->
+<div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg overdue-hero-modal">
+        <div class="modal-content">
+            <div class="modal-header bg-warning-subtle">
+                <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Peringatan Keterlambatan</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-3">Anda memiliki peminjaman yang terlambat. Harap segera mengembalikan buku ke perpustakaan.</p>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Buku</th>
+                                <th class="text-end">Denda</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($overdueLoans as $loan)
+                            <tr>
+                                <td>{{ $loan->asetBuku->buku->judul ?? 'Buku' }}</td>
+                                <td class="text-end">Rp {{ number_format($loan->denda ?? 0, 0, ',', '.') }}</td>
+                            </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-2">Total denda belum lunas: <strong>Rp {{ number_format(($dendaBelumLunas ?? 0), 0, ',', '.') }}</strong></div>
+            </div>
+            <div class="modal-footer">
+                <a href="{{ route('pengunjung.history') }}" class="btn btn-primary"><i class="fas fa-history me-1"></i>Lihat Riwayat</a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            </div>
+        </div>
+    </div>
+</div>
+@push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var modalEl = document.getElementById('overdueModal');
+    if (modalEl) {
+        // Backdrop disabled to allow interaction with page while modal shows
+        var modal = new bootstrap.Modal(modalEl, { backdrop: false, keyboard: true });
+        modal.show();
+        // Ensure body remains scrollable even when Bootstrap adds modal-open
+        document.body.classList.remove('modal-open');
+        document.body.style.overflow = 'auto';
+        document.body.style.paddingRight = '';
+    }
+});
+</script>
+@endpush
+@endif
+
 <!-- Statistics Cards with Gradients -->
 <div class="row g-4 mb-4 stats-row">
     <div class="col-md-4">
@@ -687,6 +743,25 @@
     .quick-action-btn i { font-size: 1.5rem; }
     .quick-action-btn span { font-size: 0.8rem; }
 }
+
+/* Keep page scrollable and interactive when modal is open */
+body.modal-open {
+    overflow: auto !important;
+    padding-right: 0 !important;
+}
+
+/* Slightly lift the overdue modal towards the hero heading */
+.overdue-hero-modal {
+    margin-top: -8vh;
+}
+
+@media (max-width: 992px) {
+    .overdue-hero-modal { margin-top: -4vh; }
+}
+
+/* Ensure modal sits above content but doesn’t block page clicks due to backdrop */
+.modal { z-index: 1055; }
+.modal-backdrop { display: none !important; }
 </style>
 @endpush
 

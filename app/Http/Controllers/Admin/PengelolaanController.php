@@ -19,32 +19,55 @@ class PengelolaanController extends Controller
             $query->where('role', $request->role);
         }
         
-        // Search
+        // Search (DB doesn't have email column)
         if ($request->filled('search')) {
-            $query->where(function($q) use ($request) {
-                $q->where('nama', 'like', "%{$request->search}%")
-                  ->orWhere('username', 'like', "%{$request->search}%")
-                  ->orWhere('email', 'like', "%{$request->search}%");
+            $search = trim($request->search);
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('username', 'like', "%{$search}%");
             });
         }
+
+        // Sort
+        $allowedSorts = ['username','nama','role','tipe_anggota','created_at'];
+        $sort = in_array($request->get('sort'), $allowedSorts) ? $request->get('sort') : 'username';
+        $dir = strtolower($request->get('dir')) === 'desc' ? 'desc' : 'asc';
+        $query->orderBy($sort, $dir);
         
-        $users = $query->paginate(10);
+        $users = $query->paginate(10)->appends($request->query());
         
-        return view('admin.manajemen_pengguna', compact('users'));
+        return view('admin.manajemen_pengguna', [
+            'users' => $users,
+            'currentRole' => $request->get('role',''),
+            'currentSearch' => $request->get('search',''),
+            'currentSort' => $sort,
+            'currentDir' => $dir,
+        ]);
     }
 
     public function storeUser(Request $request)
     {
-        // Fixed: Match ACTUAL database schema (from phpMyAdmin screenshot)
+        // Validate incoming fields
         $validated = $request->validate([
             'username' => 'required|unique:users,username',
             'nama' => 'required|string|max:100',
             'password' => 'required|min:6',
-            'tipe_anggota' => 'required|in:Siswa,Guru,Kepala Sekolah,Staf,Umum,Admin,Petugas',
+            'role' => 'required|in:petugas,pengunjung',
+            'tipe_anggota' => 'nullable|in:Siswa,Guru,Kepala Sekolah,Staf',
             'kelas' => 'nullable|string|max:20',
             'status_keanggotaan' => 'nullable|in:Aktif,Tidak Aktif,Dibekukan',
             'foto_profil' => 'nullable|image|max:2048'
         ]);
+
+        // Derive tipe_anggota from role if not provided
+        if ($validated['role'] === 'petugas') {
+            $validated['tipe_anggota'] = 'Petugas';
+        } else {
+            // pengunjung must provide one of the allowed categories
+            if (empty($validated['tipe_anggota'])) {
+                return back()->withErrors(['tipe_anggota' => 'Tipe anggota wajib diisi untuk role Pengguna.'])->withInput();
+            }
+        }
 
         // Hash password
         $validated['password'] = Hash::make($validated['password']);
@@ -57,12 +80,13 @@ class PengelolaanController extends Controller
         // Set default status if not provided
         $validated['status_keanggotaan'] = $validated['status_keanggotaan'] ?? 'Aktif';
 
-        // Database users table columns: id_user, username, password, nama, tipe_anggota, kelas, status_keanggotaan, foto_profil
+        // Database users table columns: id_user, username, password, nama, tipe_anggota, role, kelas, status_keanggotaan, foto_profil
         \DB::table('users')->insert([
             'username' => $validated['username'],
             'nama' => $validated['nama'],
             'password' => $validated['password'],
             'tipe_anggota' => $validated['tipe_anggota'],
+            'role' => $validated['role'],
             'kelas' => $validated['kelas'] ?? null,
             'status_keanggotaan' => $validated['status_keanggotaan'],
             'foto_profil' => $validated['foto_profil'] ?? null,
@@ -81,7 +105,10 @@ class PengelolaanController extends Controller
             'username' => 'required|unique:users,username,' . $id_user . ',id_user',
             'nama' => 'required|string|max:100',
             'password' => 'nullable|min:6',
-            'role' => 'required|in:admin,petugas,pengunjung',
+            'role' => 'required|in:petugas,pengunjung,admin',
+            'tipe_anggota' => 'nullable|in:Siswa,Guru,Kepala Sekolah,Staf,Umum',
+            'kelas' => 'nullable|string|max:20',
+            'status_keanggotaan' => 'nullable|in:Aktif,Tidak Aktif,Dibekukan',
             'foto_profil' => 'nullable|image|max:2048'
         ]);
 
@@ -90,6 +117,16 @@ class PengelolaanController extends Controller
             $validated['password'] = Hash::make($validated['password']);
         } else {
             unset($validated['password']);
+        }
+        
+        // Normalize tipe_anggota based on role
+        if ($validated['role'] === 'petugas') {
+            // Set NULL karena enum tipe_anggota tidak memiliki 'Petugas'
+            $validated['tipe_anggota'] = null;
+        } else if ($validated['role'] === 'pengunjung') {
+            if (empty($validated['tipe_anggota'])) {
+                return back()->withErrors(['tipe_anggota' => 'Tipe anggota wajib diisi untuk role Pengguna.'])->withInput();
+            }
         }
         
         // Handle photo upload
@@ -115,7 +152,6 @@ class PengelolaanController extends Controller
         }
         
         $user->delete();
-
         return redirect()->route('pengelolaan.pengguna')->with('success', 'Pengguna berhasil dihapus!');
     }
 
