@@ -131,6 +131,26 @@
                     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.55);
                 }
 
+                .sidebar-logo-circle {
+                    width: 80px;
+                    height: 80px;
+                    margin: 0 auto 1rem;
+                    border-radius: 50%;
+                    border: 2px solid rgba(255, 255, 255, 0.7);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background: rgba(255, 255, 255, 0.95);
+                    box-shadow: 0 18px 35px rgba(0, 0, 0, 0.55);
+                    padding: 0.5rem;
+                }
+
+                .sidebar-logo-img {
+                    width: 100%;
+                    height: 100%;
+                    object-fit: contain;
+                }
+
                 .sidebar-header h4 {
                     font-size: 1.05rem;
                     letter-spacing: 0.18rem;
@@ -519,7 +539,10 @@
         <body>
             <div class="sidebar" id="sidebar">
                 <div class="sidebar-header">
-                    <h4><i class="fas fa-book-reader"></i> PERPUSTAKAAN</h4>
+                    <div class="sidebar-logo-circle">
+                        <img src="{{ asset('assets/logo-website.png') }}" alt="Logo SMAN 1 Pangururan" class="sidebar-logo-img">
+                    </div>
+                    <h4>PERPUSTAKAAN</h4>
                     <p>SMAN 1 Pangururan</p>
                 </div>
                 <div class="sidebar-separator"></div>
