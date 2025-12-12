@@ -34,10 +34,24 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background: var(--light);
+            background: #ffffff;
             min-height: 100vh;
             overflow-x: hidden;
             color: #0b1e35;
+        }
+
+        /* Background hanya untuk area konten (bukan footer) */
+        .page-bg {
+            background:
+                linear-gradient(
+                    to bottom,
+                    rgba(255, 255, 255, 0.80) 0%,
+                    rgba(255, 255, 255, 0.65) 35%,
+                    rgba(14, 25, 64, 0.18) 55%,
+                    rgba(14, 25, 64, 0.6) 100%
+                ),
+                url('https://images.unsplash.com/photo-1521587760476-6c12a4b040da?auto=format&fit=crop&w=1600&q=80') center top/cover no-repeat fixed;
+            min-height: 100vh;
         }
         
         /* Sidebar Overlay Backdrop */
@@ -183,24 +197,32 @@
         .main-content {
             min-height: 100vh;
             padding: 0;
+            display: flex;
+            flex-direction: column;
         }
         
         /* Top Navbar with Hamburger */
         .top-navbar {
-            background: transparent;
-            padding: 1.5rem 2rem;
-            border-bottom: none;
+            background: var(--primary);
+            padding: 0.9rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.12);
+            position: sticky;
+            top: 0;
+            z-index: 1030;
+            width: 100%;
         }
 
         .top-navbar-pill {
-            background: white;
-            border-radius: 16px;
-            padding: 1rem 1.5rem;
+            background: transparent;
+            border-radius: 0;
+            padding: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             gap: 1rem;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: none;
+            width: 100%;
         }
 
         .hamburger-btn {
@@ -216,12 +238,12 @@
         }
 
         .hamburger-btn:hover {
-            background: rgba(43, 52, 88, 0.1);
+            background: rgba(255, 255, 255, 0.14);
         }
 
         .hamburger-btn i {
             font-size: 1.3rem;
-            color: var(--dark);
+            color: #ffffff;
         }
 
         .top-navbar-title {
@@ -234,7 +256,7 @@
             margin: 0;
             font-weight: 700;
             font-size: 1.1rem;
-            color: var(--dark);
+            color: #ffffff;
         }
 
         .user-info {
@@ -243,18 +265,65 @@
             gap: 0.75rem;
         }
 
+        .user-dropdown {
+            display: flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        .user-dropdown-toggle {
+            background: transparent;
+            border: none;
+            padding: 0.35rem 0.4rem;
+            border-radius: 10px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0.95);
+            transition: background 0.2s ease;
+        }
+
+        .user-dropdown-toggle:hover {
+            background: rgba(255, 255, 255, 0.14);
+        }
+
+        .user-dropdown-toggle i {
+            font-size: 0.95rem;
+        }
+
+        .user-dropdown-menu {
+            border-radius: 12px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+            min-width: 190px;
+        }
+
+        .user-dropdown-menu .dropdown-item {
+            padding: 0.7rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .user-dropdown-menu .dropdown-item i {
+            width: 18px;
+            text-align: center;
+            opacity: 0.75;
+        }
+
         .user-avatar {
             width: 40px;
             height: 40px;
             border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
+            background: #ffffff;
+            color: var(--primary);
             font-weight: 600;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 0.9rem;
-            box-shadow: 0 2px 6px rgba(43, 52, 88, 0.3);
+            box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18);
         }
 
         .user-details {
@@ -264,19 +333,148 @@
         }
 
         .user-details small {
-            color: #6c757d;
+            color: rgba(255, 255, 255, 0.78);
             font-size: 0.75rem;
         }
 
         .user-details strong {
             font-size: 0.95rem;
-            color: var(--dark);
+            color: #ffffff;
         }
         
         /* Content Area */
         .content-area {
             padding: 2rem;
-            min-height: calc(100vh - 110px);
+            min-height: auto;
+            flex: 0 0 auto;
+        }
+
+        /* Footer */
+        .visitor-footer {
+            background: var(--primary);
+            color: rgba(255, 255, 255, 0.88);
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            backdrop-filter: none;
+            padding: 0;
+        }
+
+        .visitor-footer-top {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.6rem 2rem 1.1rem;
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 1.8rem;
+            justify-items: center;
+            text-align: center;
+        }
+
+        .visitor-footer-title {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            margin: 0 0 0.85rem;
+            letter-spacing: 0.14em;
+            text-align: center;
+        }
+
+        .visitor-footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+            align-items: center;
+        }
+
+        .visitor-footer-links a {
+            color: rgba(255, 255, 255, 0.78);
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .visitor-footer-links a:hover {
+            color: #ffffff;
+        }
+
+        .visitor-footer-social {
+            display: flex;
+            gap: 0.6rem;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .visitor-footer-social a {
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            border-radius: 999px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            text-decoration: none;
+            transition: background 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .visitor-footer-social a:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.28);
+            transform: translateY(-1px);
+        }
+
+        .visitor-footer-bottom {
+            border-top: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(0, 0, 0, 0.12);
+            padding: 0.9rem 2rem;
+        }
+
+        .visitor-footer-bottom-inner {
+            max-width: 1200px;
+            margin: 0 auto;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.9);
+            font-weight: 600;
+            font-size: 0.85rem;
+        }
+
+        .visitor-footer-bottom-inner a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .visitor-footer-bottom-inner a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .visitor-footer {
+                padding: 0;
+            }
+
+            .visitor-footer-top {
+                padding: 1.25rem 1rem 0.9rem;
+                grid-template-columns: 1fr;
+                gap: 1.25rem;
+                text-align: center;
+            }
+
+            .visitor-footer-title {
+                margin-bottom: 0.9rem;
+            }
+
+            .visitor-footer-links a {
+                font-size: 0.95rem;
+            }
+
+            .visitor-footer-bottom {
+                padding: 0.85rem 1rem;
+            }
         }
         
         .content-container-fixed {
@@ -321,11 +519,11 @@
             }
 
             .top-navbar {
-                padding: 1rem;
+                padding: 0.85rem 1rem;
             }
 
             .top-navbar-pill {
-                padding: 0.8rem 1rem;
+                padding: 0;
             }
 
             .user-details {
@@ -392,33 +590,57 @@
         @csrf
     </form>
     
-    <!-- Main Content -->
-    <div class="main-content">
-        <!-- Top Navbar -->
-        <div class="top-navbar">
-            <div class="top-navbar-pill">
-                <div class="top-navbar-title">
-                    <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Menu">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h5>Menu</h5>
-                </div>
-
-                <div class="user-info">
-                    <div class="user-avatar">
-                        {{ strtoupper(substr(auth()->user()->nama ?? 'U', 0, 1)) }}
+    <div class="page-bg">
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navbar -->
+            <div class="top-navbar">
+                <div class="top-navbar-pill">
+                    <div class="top-navbar-title">
+                        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Toggle Menu">
+                            <i class="fas fa-bars"></i>
+                        </button>
+                        <h5>Menu</h5>
                     </div>
-                    <div class="user-details d-none d-md-flex">
-                        <small>Pengunjung</small>
-                        <strong>{{ auth()->user()->nama ?? 'User' }}</strong>
+
+                    <div class="user-info">
+                        <div class="dropdown">
+                            <div class="user-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar">
+                                    {{ strtoupper(substr(auth()->user()->nama ?? 'U', 0, 1)) }}
+                                </div>
+                                <div class="user-details d-none d-md-flex">
+                                    <small>Pengunjung</small>
+                                    <strong>{{ auth()->user()->nama ?? 'User' }}</strong>
+                                </div>
+                                <button class="user-dropdown-toggle" type="button" aria-label="Buka menu pengguna">
+                                    <i class="fas fa-chevron-down"></i>
+                                </button>
+                            </div>
+
+                            <ul class="dropdown-menu dropdown-menu-end user-dropdown-menu">
+                                <li>
+                                    <a class="dropdown-item" href="{{ route('pengunjung.profile') }}">
+                                        <i class="fas fa-user"></i>
+                                        Profil
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li>
+                                    <a class="dropdown-item text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                        <i class="fas fa-sign-out-alt"></i>
+                                        Logout
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Content Area -->
-        <div class="content-area">
-            <div class="content-container-fixed">
+            
+            <!-- Content Area -->
+            <div class="content-area">
+                <div class="content-container-fixed">
                 @if(session('success'))
                     <div class="alert alert-success alert-dismissible fade show">
                         <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
@@ -444,10 +666,51 @@
                     </div>
                 @endif
                 
-                @yield('content')
+                    @yield('content')
+                </div>
             </div>
         </div>
     </div>
+
+    <footer class="visitor-footer">
+        <div class="visitor-footer-top">
+            <div>
+                <div class="visitor-footer-title">Link Terkait</div>
+                <ul class="visitor-footer-links">
+                    <li><a href="{{ route('pengunjung.dashboard') }}">Dashboard</a></li>
+                    <li><a href="{{ route('pengunjung.catalog') }}">Katalog Buku</a></li>
+                    <li><a href="{{ route('pengunjung.dashboard') }}#riwayat">Riwayat</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="visitor-footer-title">Akses Cepat</div>
+                <ul class="visitor-footer-links">
+                    <li><a href="{{ route('pengunjung.my-requests') }}">Request Saya</a></li>
+                    <li><a href="{{ route('pengunjung.extensions') }}">Perpanjangan</a></li>
+                    <li><a href="{{ route('pengunjung.profile') }}">Profil</a></li>
+                    <li>
+                        <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Logout</a>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <div class="visitor-footer-title">Sosial Media</div>
+                <div class="visitor-footer-social">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="visitor-footer-bottom">
+            <div class="visitor-footer-bottom-inner">
+                Copyright ©{{ date('Y') }} All rights reserved | Perpustakaan SMAN 1 Pangururan
+            </div>
+        </div>
+    </footer>
     
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script>
