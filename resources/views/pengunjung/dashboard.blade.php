@@ -55,33 +55,6 @@
     </div>
 </div>
 
-<!-- Quick Actions (Mobile Friendly) -->
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-3">
-        <a href="{{ route('pengunjung.catalog') }}" class="quick-action-btn">
-            <i class="fas fa-book"></i>
-            <span>Katalog</span>
-        </a>
-    </div>
-    <div class="col-6 col-md-3">
-        <a href="{{ route('pengunjung.extensions') }}" class="quick-action-btn">
-            <i class="fas fa-clock"></i>
-            <span>Perpanjangan</span>
-        </a>
-    </div>
-    <div class="col-6 col-md-3">
-        <a href="{{ route('pengunjung.profile') }}" class="quick-action-btn">
-            <i class="fas fa-user"></i>
-            <span>Profil</span>
-        </a>
-    </div>
-    <div class="col-6 col-md-3">
-        <a href="#riwayat" class="quick-action-btn">
-            <i class="fas fa-list"></i>
-            <span>Riwayat</span>
-        </a>
-    </div>
-</div>
 
 <!-- Active Loans -->
 <div class="card-modern mb-4">
