@@ -9,21 +9,21 @@
     $profileUser = auth()->user();
     $profilePhotoUrl = $profileUser->foto_profil ? Storage::url($profileUser->foto_profil) : null;
 @endphp
-<div class="row">
-    <div class="col-md-8 mx-auto">
-        <div class="stat-card">
+<div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-7">
+        <div class="profile-card shadow-sm">
             <form action="{{ route('profil.update') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 @method('POST')
                 
                 <div class="text-center mb-4">
-                    <div class="user-avatar mx-auto" style="width: 100px; height: 100px; font-size: 2rem; {{ $profilePhotoUrl ? 'background-image: url(' . $profilePhotoUrl . ');' : '' }}">
+                    <div class="profile-avatar mx-auto" style="{{ $profilePhotoUrl ? 'background-image: url(' . $profilePhotoUrl . ');' : '' }}">
                         @unless($profilePhotoUrl)
                             {{ strtoupper(substr($profileUser->nama ?? 'A', 0, 1)) }}
                         @endunless
                     </div>
-                    <h5 class="mt-3">{{ $profileUser->nama }}</h5>
-                    <p class="text-muted">{{ $profileUser->role ?? $profileUser->tipe_anggota ?? 'Admin' }}</p>
+                    <h5 class="mt-3 mb-0">{{ $profileUser->nama }}</h5>
+                    <p class="text-muted mb-0 small">ADMIN PERPUSTAKAAN</p>
                 </div>
                 
                 <hr>
@@ -63,8 +63,8 @@
                     <input type="password" class="form-control" name="password_baru_confirmation">
                 </div>
                 
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary">
+                <div class="text-end pt-1">
+                    <button type="submit" class="btn btn-primary px-4">
                         <i class="fas fa-save me-2"></i>Simpan Perubahan
                     </button>
                 </div>
@@ -73,3 +73,49 @@
     </div>
 </div>
 @endsection
+
+@push('styles')
+<style>
+    .profile-card {
+        background: #ffffff;
+        border-radius: 28px;
+        padding: 2.3rem 2.3rem 2.4rem;
+        box-shadow: 0 28px 60px rgba(4, 10, 40, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.9);
+    }
+
+    .profile-avatar {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        background: linear-gradient(140deg, #4aa0c9, #1f6fb2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 2.4rem;
+        text-transform: uppercase;
+        box-shadow: 0 18px 45px rgba(6, 27, 79, 0.55);
+        background-size: cover;
+        background-position: center;
+    }
+
+    .profile-card .form-label {
+        font-weight: 500;
+        color: #0b1f3d;
+    }
+
+    .profile-card input.form-control,
+    .profile-card select.form-select {
+        border-radius: 0.9rem;
+        border-color: rgba(15, 43, 93, 0.18);
+    }
+
+    .profile-card input.form-control:focus,
+    .profile-card select.form-select:focus {
+        box-shadow: 0 0 0 0.15rem rgba(66, 139, 202, 0.25);
+        border-color: #4aa0c9;
+    }
+</style>
+@endpush
