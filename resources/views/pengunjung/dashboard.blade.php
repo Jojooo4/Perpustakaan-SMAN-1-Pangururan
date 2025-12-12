@@ -6,13 +6,12 @@
 <div class="visitor-dashboard fade-in-dashboard">
 <!-- Hero Welcome Section -->
 <div class="hero-dashboard mb-4">
-    <p class="hero-dashboard-eyebrow mb-2">
-        Perpustakaan Digital
-        <span>SMAN 1 Pangururan</span>
-    </p>
     <h2 class="hero-dashboard-title mb-2">
-        Selamat Datang, {{ auth()->user()->nama }}!
+        Perpustakaan Digital<br>SMAN 1 Pangururan
     </h2>
+    <p class="hero-dashboard-eyebrow mb-2">
+        Selamat Datang, {{ auth()->user()->nama }}!
+    </p>
     <p class="hero-dashboard-subtitle mb-3">
         Kelola peminjamanmu, pantau riwayat baca, dan temukan buku-buku menarik yang sesuai dengan minatmu.
     </p>
@@ -358,25 +357,23 @@
 }
 
 .hero-dashboard-eyebrow {
-    font-size: 0.9rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    opacity: 0.95;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+    text-transform: none;
+    opacity: 0.88;
+    font-weight: 400;
 }
 
 .hero-dashboard-eyebrow span {
-    display: block;
-    margin-top: 0.35rem;
-    letter-spacing: 0.18em;
-    opacity: 0.95;
+    display: none;
 }
 
 .hero-dashboard-title {
-    font-weight: 800;
-    font-size: clamp(2.1rem, 3.2vw, 3.25rem);
-    line-height: 1.05;
+    font-weight: 900;
+    font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+    line-height: 1.1;
     text-transform: uppercase;
-    letter-spacing: 0.06em;
+    letter-spacing: 0.08em;
     text-shadow:
         0 2px 12px rgba(255, 255, 255, 0.85),
         0 10px 26px rgba(0, 0, 0, 0.12);
