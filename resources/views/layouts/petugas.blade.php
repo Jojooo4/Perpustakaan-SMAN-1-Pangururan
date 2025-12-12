@@ -207,7 +207,7 @@
                     align-items: center;
                     position: sticky;
                     top: 1rem;
-                    z-index: 10;
+                    z-index: 1100;
                     border: 1px solid rgba(255, 255, 255, 0.8);
                     backdrop-filter: blur(18px);
                     -webkit-backdrop-filter: blur(18px);
@@ -278,6 +278,11 @@
 
                 .user-menu .dropdown-toggle::after {
                     display: none;
+                }
+
+                /* ensure navbar dropdowns appear above content/search */
+                .top-navbar .dropdown-menu {
+                    z-index: 2000 !important;
                 }
 
                 .content-area {

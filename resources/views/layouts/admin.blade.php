@@ -195,6 +195,8 @@
             background: transparent;
             padding: 1.1rem 2rem 0;
             border-bottom: none;
+            position: relative;
+            z-index: 1100;
         }
 
         .top-navbar-pill {
@@ -286,6 +288,10 @@
         .user-pill i {
             font-size: 0.8rem;
             color: #8a9ab8;
+        }
+        /* ensure navbar dropdowns appear above content/search */
+        .top-navbar .dropdown-menu {
+            z-index: 2000 !important;
         }
         
         /* Content Area */
