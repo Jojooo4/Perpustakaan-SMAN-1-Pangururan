@@ -4,5 +4,5 @@
 @section('page-title', 'Laporan Denda')
 
 @section('content')
-@include('admin.laporan_denda', ['__inherit' => true])
+@include('petugas.partials.laporan_denda')
 @endsection

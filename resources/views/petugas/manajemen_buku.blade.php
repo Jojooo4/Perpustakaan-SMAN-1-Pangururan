@@ -12,5 +12,5 @@
 @endpush
 
 @section('content')
-@include('admin.manajemen_buku', ['__inherit' => true])
+@include('petugas.partials.manajemen_buku')
 @endsection
