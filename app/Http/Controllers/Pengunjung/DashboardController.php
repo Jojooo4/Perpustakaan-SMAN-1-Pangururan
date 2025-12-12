@@ -69,4 +69,12 @@ class DashboardController extends Controller
         return redirect()->route('pengunjung.my-requests')
             ->with('success', 'Request peminjaman berhasil dibatalkan.');
     }
+    
+    public function search(Request $request)
+{
+    $keyword = $request->q;
+
+    return "Fitur search berjalan. Kata kunci: " . $keyword;
+}
+
 }
