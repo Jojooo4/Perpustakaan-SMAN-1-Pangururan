@@ -37,7 +37,7 @@ class BukuController extends Controller
             'tahun_terbit' => 'nullable|integer',
             'jumlah_halaman' => 'nullable|integer',
             'stok_tersedia' => 'nullable|integer|min:0',
-            'gambar' => 'nullable|image|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:51200',
             'genres' => 'nullable|array'
         ]);
 
@@ -93,7 +93,7 @@ class BukuController extends Controller
             'tahun_terbit' => 'nullable|integer',
             'jumlah_halaman' => 'nullable|integer',
             'stok_tersedia' => 'nullable|integer|min:0',
-            'gambar' => 'nullable|image|max:2048',
+            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:51200',
             'genres' => 'nullable|array'
         ]);
 

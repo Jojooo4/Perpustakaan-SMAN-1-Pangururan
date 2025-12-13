@@ -8,6 +8,7 @@ class Genre extends Model
 {
     protected $table = 'genre';
     protected $primaryKey = 'id_genre';
+    public $timestamps = false;
     
     protected $fillable = ['nama_genre', 'deskripsi'];
 

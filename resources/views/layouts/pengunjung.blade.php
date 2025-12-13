@@ -613,8 +613,16 @@
                     <div class="user-info">
                         <div class="dropdown">
                             <div class="user-dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <div class="user-avatar">
-                                    {{ strtoupper(substr(auth()->user()->nama ?? 'U', 0, 1)) }}
+@php
+    use Illuminate\Support\Facades\Storage;
+    $navUser = auth()->user();
+    $navAvatarUrl = $navUser && $navUser->foto_profil ? Storage::url($navUser->foto_profil) : null;
+    $navInitial = strtoupper(substr($navUser->nama ?? 'U', 0, 1));
+@endphp
+                                <div class="user-avatar" style="{{ $navAvatarUrl ? 'background-image: url(' . $navAvatarUrl . '); background-size: cover; background-position: center;' : '' }}">
+                                    @unless($navAvatarUrl)
+                                        {{ $navInitial }}
+                                    @endunless
                                 </div>
                                 <div class="user-details d-none d-md-flex">
                                     <small>Pengunjung</small>

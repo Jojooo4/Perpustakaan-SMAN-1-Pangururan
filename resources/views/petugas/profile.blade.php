@@ -12,8 +12,16 @@
                 @method('POST')
                 
                 <div class="text-center mb-4">
-                    <div class="user-avatar mx-auto" style="width: 100px; height: 100px; font-size: 2rem;">
-                        {{ strtoupper(substr(auth()->user()->nama ?? 'P', 0, 1)) }}
+@php
+    use Illuminate\Support\Facades\Storage;
+    $pfUser = auth()->user();
+    $pfAvatarUrl = $pfUser && $pfUser->foto_profil ? Storage::url($pfUser->foto_profil) : null;
+    $pfInitial = strtoupper(substr($pfUser->nama ?? 'P', 0, 1));
+@endphp
+                    <div class="user-avatar mx-auto" style="width: 100px; height: 100px; font-size: 2rem; {{ $pfAvatarUrl ? 'background-image: url(' . $pfAvatarUrl . '); background-size: cover; background-position: center;' : '' }}">
+                        @unless($pfAvatarUrl)
+                            {{ $pfInitial }}
+                        @endunless
                     </div>
                     <h5 class="mt-3">{{ auth()->user()->nama }}</h5>
                     <p class="text-muted">Petugas Perpustakaan</p>

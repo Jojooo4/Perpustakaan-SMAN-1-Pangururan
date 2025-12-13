@@ -19,7 +19,7 @@ class ProfileController extends Controller
         
         $validated = $request->validate([
             'nama' => 'required|string|max:100',
-            'foto_profil' => 'nullable|image|max:2048',
+            'foto_profil' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:51200',
             'password_lama' => 'nullable|required_with:password_baru',
             'password_baru' => 'nullable|min:6|confirmed'
         ]);
@@ -45,6 +45,6 @@ class ProfileController extends Controller
         
         $user->save();
         
-        return redirect()->route('pengunjung.profile')->with('success', 'Profil berhasil diperbarui!');
+        return redirect()->route('pengunjung.dashboard')->with('success', 'Profil berhasil diperbarui!');
     }
 }

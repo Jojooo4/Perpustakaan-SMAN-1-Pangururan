@@ -5,6 +5,7 @@
 
 @push('styles')
 <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/dataTables.bootstrap5.min.css">
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 <style>
     .book-cover-preview { width: 60px; height: 80px; object-fit: cover; border-radius: 4px; }
     .image-upload-preview { max-width: 200px; max-height: 250px; margin-top: 10px; border-radius: 8px; }
@@ -133,12 +134,12 @@
                         </div>
                         <div class="col-12 mb-3">
                             <label class="form-label">Genre</label>
-                            <select class="form-select" name="genres[]" multiple>
+                            <select class="form-select" id="genreSelectAdd" name="genres[]" multiple>
                                 @foreach($genres ?? [] as $genre)
                                     <option value="{{ $genre->id_genre }}">{{ $genre->nama_genre }}</option>
                                 @endforeach
                             </select>
-                            <small class="text-muted">Tekan Ctrl untuk memilih lebih dari satu</small>
+                            <small class="text-muted">Cari dan pilih lebih dari satu genre</small>
                         </div>
                     </div>
                 </div>
@@ -198,6 +199,7 @@
 <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 <script src="https://cdn.datatables.net/1.13.7/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 $(document).ready(function() {
     var table = $('#booksTable').DataTable({
@@ -210,6 +212,17 @@ $(document).ready(function() {
         document.body.style.overflow = 'auto';
         document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
     });
+
+    if (window.jQuery && $('#genreSelectAdd').length) {
+        $('#genreSelectAdd').select2({
+            width: '100%',
+            placeholder: 'Pilih genre',
+            allowClear: true
+        });
+        $(document).on('shown.bs.modal', '#addBookModal', function () {
+            $('#genreSelectAdd').select2('close');
+        });
+    }
 });
 
 function previewImage(event, previewId) {

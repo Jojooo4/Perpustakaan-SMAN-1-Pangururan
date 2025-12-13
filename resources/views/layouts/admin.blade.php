@@ -201,6 +201,8 @@
             background: transparent;
             padding: 1.1rem 2rem 0;
             border-bottom: none;
+            position: relative;
+            z-index: 10;
         }
 
         .top-navbar-pill {
@@ -216,6 +218,8 @@
             border: 1px solid rgba(255, 255, 255, 0.88);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
+            position: relative;
+            z-index: 20;
         }
 
         .top-navbar-copy {
@@ -245,12 +249,20 @@
         .user-pill {
             display: flex;
             align-items: center;
+            position: relative;
+            z-index: 30;
         }
 
         .user-pill .dropdown-toggle {
             display: flex;
             align-items: center;
             gap: 1.1rem;
+        }
+
+        /* Ensure user dropdown overlays content like search inputs */
+        .dropdown-menu {
+            z-index: 2000; /* above DataTables and inputs */
+            position: absolute;
         }
 
         .user-avatar {
