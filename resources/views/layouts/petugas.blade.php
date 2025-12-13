@@ -594,8 +594,16 @@
                     <div class="user-menu">
                         <div class="dropdown">
                             <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" data-bs-toggle="dropdown">
-                                <div class="user-avatar">
-                                    {{ strtoupper(substr(auth()->user()->nama ?? 'P', 0, 1)) }}
+@php
+    use Illuminate\Support\Facades\Storage;
+    $navUser = auth()->user();
+    $navAvatarUrl = $navUser && $navUser->foto_profil ? Storage::url($navUser->foto_profil) : null;
+    $navInitial = strtoupper(substr($navUser->nama ?? 'P', 0, 1));
+@endphp
+                                <div class="user-avatar" style="{{ $navAvatarUrl ? 'background-image: url(' . $navAvatarUrl . '); background-size: cover; background-position: center;' : '' }}">
+                                    @unless($navAvatarUrl)
+                                        {{ $navInitial }}
+                                    @endunless
                                 </div>
                                 <div class="d-none d-md-block user-meta">
                                     <small class="d-block">Petugas</small>
