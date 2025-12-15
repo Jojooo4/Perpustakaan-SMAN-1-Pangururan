@@ -97,10 +97,40 @@
 
 <!-- Pagination -->
 @if($books->hasPages())
-<div class="mt-5">
-    {{ $books->appends(request()->query())->links() }}
+<div class="pagination-wrapper mt-5">
+    <nav aria-label="Catalog pagination">
+        <ul class="catalog-pagination">
+            {{-- Previous Button --}}
+            @if ($books->onFirstPage())
+                <li class="page-btn disabled">
+                    <span>← Previous</span>
+                </li>
+            @else
+                <li class="page-btn">
+                    <a href="{{ $books->previousPageUrl() }}">← Previous</a>
+                </li>
+            @endif
+
+            {{-- Page Info --}}
+            <li class="page-info">
+                <span>Halaman {{ $books->currentPage() }} dari {{ $books->lastPage() }}</span>
+            </li>
+
+            {{-- Next Button --}}
+            @if ($books->hasMorePages())
+                <li class="page-btn">
+                    <a href="{{ $books->nextPageUrl() }}">Next →</a>
+                </li>
+            @else
+                <li class="page-btn disabled">
+                    <span>Next →</span>
+                </li>
+            @endif
+        </ul>
+    </nav>
 </div>
 @endif
+
 @endsection
 
 @push('styles')
@@ -299,26 +329,73 @@
 }
 
 /* Pagination Styling */
-.pagination {
+.pagination-wrapper {
+    display: flex;
     justify-content: center;
 }
 
-.pagination .page-link {
-    color: var(--primary);
-    border-radius: 8px;
-    margin: 0 0.2rem;
-    border: none;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.06);
+.catalog-pagination {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-.pagination .page-item.active .page-link {
-    background-color: var(--primary);
-    border-color: var(--primary);
+.catalog-pagination .page-btn a,
+.catalog-pagination .page-btn span {
+    display: inline-block;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: white;
+    border-radius: 10px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(235,69,95,0.2);
+    min-width: 120px;
+    text-align: center;
 }
 
-.pagination .page-link:hover {
-    background-color: var(--secondary);
+.catalog-pagination .page-btn a:hover {
+    background: #c93551;
     transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(235,69,95,0.3);
+}
+
+.catalog-pagination .page-btn.disabled span {
+    background: #e0e0e0;
+    color: #999;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.catalog-pagination .page-info {
+    padding: 0 1rem;
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 0.95rem;
+    white-space: nowrap;
+}
+
+@media (max-width: 576px) {
+    .catalog-pagination {
+        gap: 0.5rem;
+    }
+    
+    .catalog-pagination .page-btn a,
+    .catalog-pagination .page-btn span {
+        padding: 0.6rem 1rem;
+        font-size: 0.85rem;
+        min-width: 90px;
+    }
+    
+    .catalog-pagination .page-info {
+        font-size: 0.85rem;
+        padding: 0 0.5rem;
+    }
 }
 </style>
 @endpush

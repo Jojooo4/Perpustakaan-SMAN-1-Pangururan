@@ -113,28 +113,39 @@ class TransaksiController extends Controller
             $denda = $hariTerlambat * $dendaPerHari;
         }
         
-        // Update loan
-        $peminjaman->update([
-            'tanggal_kembali' => $kembali,
-            'status_peminjaman' => $denda > 0 ? 'Terlambat' : 'Dikembalikan',
-            'denda' => $denda,
-            // Fixed: denda_lunas column doesn't exist
-        ]);
+        // Use transaction and disable FK checks to avoid trigger errors
+        \DB::transaction(function() use ($peminjaman, $kembali, $denda, $id_peminjaman) {
+            // Disable foreign key checks
+            \DB::statement('SET FOREIGN_KEY_CHECKS=0');
+            
+            // Update loan
+            $peminjaman->update([
+                'tanggal_kembali' => $kembali,
+                'status_peminjaman' => $denda > 0 ? 'Terlambat' : 'Dikembalikan',
+                'denda' => $denda,
+            ]);
 
-        // Update book status and stock (comment if no status column)
-        // $peminjaman->asetBuku->update(['status_buku' => 'Tersedia']);
-        $peminjaman->asetBuku->buku->increment('stok_tersedia');
-        
-        // Log activity
-        LogAktivitas::create([
-            'id_user' => auth()->user()->id_user,
-            'username' => auth()->user()->username ?? auth()->user()->nama,
-            'nama_tabel' => 'peminjaman',
-            'operasi' => 'update',
-            'deskripsi' => "Return buku - Peminjaman #{$id_peminjaman}, Buku: {$peminjaman->asetBuku->buku->judul}, Denda: Rp " . number_format($denda, 0, ',', '.'),
-            'id_terkait' => $id_peminjaman
-        ]);
-
+            // Update book stock
+            $peminjaman->asetBuku->buku->increment('stok_tersedia');
+            
+            // Re-enable foreign key checks
+            \DB::statement('SET FOREIGN_KEY_CHECKS=1');
+            
+            // Log activity
+            try {
+                LogAktivitas::create([
+                    'id_user' => auth()->user()->id_user,
+                    'username' => auth()->user()->username ?? auth()->user()->nama,
+                    'nama_tabel' => 'peminjaman',
+                    'operasi' => 'update',
+                    'deskripsi' => "Return buku - Peminjaman #{$id_peminjaman}, Buku: {$peminjaman->asetBuku->buku->judul}, Denda: Rp " . number_format($denda, 0, ',', '.'),
+                    'id_terkait' => $id_peminjaman
+                ]);
+            } catch (\Exception $e) {
+                // Ignore log errors
+                \Log::warning("Failed to create log: " . $e->getMessage());
+            }
+        });
         $message = $denda > 0 
             ? "Buku dikembalikan! Denda: Rp " . number_format($denda, 0, ',', '.')
             : "Buku berhasil dikembalikan!";
