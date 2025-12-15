@@ -15,9 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Jalankan seeder Genre agar pilihan genre tersedia
+        // Urutan penting: Genre -> Users -> Buku -> AsetBuku
         $this->call([
             GenreSeeder::class,
+            UserSeeder::class,
+            BukuSeeder::class,
+            AsetBukuSeeder::class,
         ]);
     }
 }

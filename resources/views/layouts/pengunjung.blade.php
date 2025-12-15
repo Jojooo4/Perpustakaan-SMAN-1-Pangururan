@@ -66,12 +66,14 @@
             z-index: 1040;
             opacity: 0;
             visibility: hidden;
+            pointer-events: none;
             transition: all 0.3s ease;
         }
 
         .sidebar-overlay.show {
             opacity: 1;
             visibility: visible;
+            pointer-events: auto;
         }
         
         /* Sidebar - Hidden by default */

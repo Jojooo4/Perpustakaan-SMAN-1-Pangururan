@@ -90,15 +90,117 @@
         </table>
     </div>
 </div>
+
+<!-- Custom Confirmation Modal -->
+<div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg">
+            <div class="modal-header border-0 bg-gradient" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <h5 class="modal-title text-white" id="paymentModalLabel">
+                    <i class="fas fa-money-check-alt me-2"></i>Konfirmasi Pembayaran Denda
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center py-4">
+                <div class="mb-4">
+                    <div class="payment-icon">
+                        <i class="fas fa-question-circle"></i>
+                    </div>
+                </div>
+                <h5 class="mb-2">Tandai Denda Sebagai Lunas?</h5>
+                <p class="text-muted mb-0">Pastikan pembayaran telah diterima sebelum menandai denda sebagai lunas.</p>
+            </div>
+            <div class="modal-footer border-0 justify-content-center pb-4">
+                <button type="button" class="btn btn-secondary px-4" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-2"></i>Batal
+                </button>
+                <button type="button" class="btn btn-success px-4" id="confirmPayment">
+                    <i class="fas fa-check me-2"></i>Ya, Tandai Lunas
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
+
+@push('styles')
+<style>
+.payment-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: pulse 2s infinite;
+}
+
+.payment-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.7); }
+    50% { box-shadow: 0 0 0 15px rgba(102, 126, 234, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(102, 126, 234, 0); }
+}
+
+.modal-content {
+    border-radius: 20px;
+    overflow: hidden;
+}
+
+.modal-header {
+    padding: 1.5rem;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>
+@endpush
 
 @push('scripts')
 <script>
+let selectedDendaId = null;
+let shouldSubmit = false;
+
 function markPaid(id) {
-    if(confirm('Tandai denda sebagai lunas?')) {
+    selectedDendaId = id;
+    shouldSubmit = false;
+    const modal = new bootstrap.Modal(document.getElementById('paymentModal'));
+    modal.show();
+}
+
+// Handle confirm button click
+document.getElementById('confirmPayment').addEventListener('click', function() {
+    if(selectedDendaId) {
+        shouldSubmit = true;
+        // Close modal using Bootstrap method
+        const modalElement = document.getElementById('paymentModal');
+        const modal = bootstrap.Modal.getInstance(modalElement);
+        if(modal) {
+            modal.hide();
+        }
+    }
+});
+
+// Submit form after modal is completely hidden
+document.getElementById('paymentModal').addEventListener('hidden.bs.modal', function () {
+    if(shouldSubmit && selectedDendaId) {
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `{{ route('denda.mark-paid', ['id' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', id);
+        form.action = `{{ route('denda.mark-paid', ['id' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', selectedDendaId);
 
         const csrf = document.createElement('input');
         csrf.type = 'hidden';
@@ -108,7 +210,11 @@ function markPaid(id) {
 
         document.body.appendChild(form);
         form.submit();
+        
+        // Reset
+        shouldSubmit = false;
+        selectedDendaId = null;
     }
-}
+});
 </script>
 @endpush
