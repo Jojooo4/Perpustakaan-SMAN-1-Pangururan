@@ -9,6 +9,11 @@ use Illuminate\Support\Facades\Storage;
 
 class BukuController extends Controller
 {
+    private function indexRouteName(Request $request): string
+    {
+        return $request->routeIs('petugas.*') ? 'petugas.buku.index' : 'buku.index';
+    }
+
     public function index(Request $request)
     {
         $query = Buku::with(['genres']);
@@ -21,7 +26,9 @@ class BukuController extends Controller
             });
         }
         
-        $bukus = $query->paginate(10);
+        // DataTables on the view is client-side, so we must not paginate here.
+        // Otherwise, newly created books can end up on another page and appear “missing”.
+        $bukus = $query->latest('id_buku')->get();
         $genres = Genre::all();
         
         $view = request()->routeIs('petugas.*') ? 'petugas.manajemen_buku' : 'admin.manajemen_buku';
@@ -73,7 +80,8 @@ class BukuController extends Controller
             }
         }
 
-        return redirect()->route('buku.index')->with('success', "Buku berhasil ditambahkan! $stok aset buku telah dibuat otomatis.");
+        return redirect()->route($this->indexRouteName($request))
+            ->with('success', "Buku berhasil ditambahkan! $stok aset buku telah dibuat otomatis.");
     }
 
     public function show($id_buku)
@@ -114,7 +122,8 @@ class BukuController extends Controller
             $buku->genres()->sync($request->genres);
         }
 
-        return redirect()->route('buku.index')->with('success', 'Buku berhasil diperbarui!');
+        return redirect()->route($this->indexRouteName($request))
+            ->with('success', 'Buku berhasil diperbarui!');
     }
 
     public function destroy($id_buku)
@@ -129,6 +138,7 @@ class BukuController extends Controller
         // Delete book
         $buku->delete();
 
-        return redirect()->route('buku.index')->with('success', 'Buku berhasil dihapus!');
+        return redirect()->route($this->indexRouteName(request()))
+            ->with('success', 'Buku berhasil dihapus!');
     }
 }

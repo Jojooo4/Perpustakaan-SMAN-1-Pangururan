@@ -103,98 +103,102 @@
     {{ $requests->appends(request()->query())->links() }}
 </div>
 
-<!-- Approve Modal -->
-<div class="modal fade" id="approveModal" tabindex="-1" aria-labelledby="approveModalLabel" aria-hidden="true" style="z-index: 1055;">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form id="approveForm" method="POST">
-                @csrf
-                <div class="modal-header bg-success text-white">
-                    <h5 class="modal-title" id="approveModalLabel">
-                        <i class="fas fa-check-circle me-2"></i>Konfirmasi Approve Peminjaman
-                    </h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+<!-- Approve Modal (Custom) -->
+<div class="custom-modal-overlay" id="approveModal">
+    <div class="custom-modal-content">
+        <form id="approveForm" method="POST">
+            @csrf
+            <div class="custom-modal-header success">
+                <h5><i class="fas fa-check-circle me-2"></i>Konfirmasi Approve Peminjaman</h5>
+                <button type="button" class="custom-modal-close" onclick="closeModal('approveModal')">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    Pastikan data berikut sudah benar sebelum menyetujui peminjaman.
                 </div>
-                <div class="modal-body">
-                    <div class="alert alert-info">
-                        <i class="fas fa-info-circle me-2"></i>
-                        Pastikan data berikut sudah benar sebelum menyetujui peminjaman.
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="fw-bold text-muted small">Peminjam:</label>
-                        <p class="mb-0" id="approveBorrowerName"></p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="fw-bold text-muted small">Buku:</label>
-                        <p class="mb-0" id="approveBookTitle"></p>
-                    </div>
-                    
-                    <div class="mb-3">
-                        <label class="fw-bold text-muted small">Tanggal Request:</label>
-                        <p class="mb-0" id="approveRequestDate"></p>
-                    </div>
-                    
-                    <div class="alert alert-warning mb-0">
-                        <i class="fas fa-calendar-check me-2"></i>
-                        <small>Periode peminjaman: <strong>7 hari</strong> dari hari ini</small>
-                    </div>
+                
+                <div class="mb-3">
+                    <label class="fw-bold text-muted small">Peminjam:</label>
+                    <p class="mb-0" id="approveBorrowerName"></p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                        <i class="fas fa-times me-1"></i>Batal
-                    </button>
-                    <button type="submit" class="btn btn-success">
-                        <i class="fas fa-check me-1"></i>Ya, Setujui Peminjaman
-                    </button>
+                
+                <div class="mb-3">
+                    <label class="fw-bold text-muted small">Buku:</label>
+                    <p class="mb-0" id="approveBookTitle"></p>
                 </div>
-            </form>
-        </div>
+                
+                <div class="mb-3">
+                    <label class="fw-bold text-muted small">Tanggal Request:</label>
+                    <p class="mb-0" id="approveRequestDate"></p>
+                </div>
+                
+                <div class="alert alert-warning mb-0">
+                    <i class="fas fa-calendar-check me-2"></i>
+                    <small>Periode peminjaman: <strong>7 hari</strong> dari hari ini</small>
+                </div>
+            </div>
+            <div class="custom-modal-footer">
+                <button type="button" class="custom-modal-btn secondary" onclick="closeModal('approveModal')">
+                    <i class="fas fa-times me-1"></i>Batal
+                </button>
+                <button type="submit" class="custom-modal-btn success">
+                    <i class="fas fa-check me-1"></i>Ya, Setujui Peminjaman
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- Reject Modal -->
-<div class="modal fade" id="rejectModal" tabindex="-1" aria-labelledby="rejectModalLabel" aria-hidden="true" style="z-index: 1055;">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <form id="rejectForm" method="POST">
-                @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Tolak Request Peminjaman</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+<!-- Reject Modal (Custom) -->
+<div class="custom-modal-overlay" id="rejectModal">
+    <div class="custom-modal-content">
+        <form id="rejectForm" method="POST">
+            @csrf
+            <div class="custom-modal-header danger">
+                <h5><i class="fas fa-times-circle me-2"></i>Konfirmasi Reject Peminjaman</h5>
+                <button type="button" class="custom-modal-close" onclick="closeModal('rejectModal')">&times;</button>
+            </div>
+            <div class="custom-modal-body">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Request akan ditolak. Berikan alasan yang jelas.
                 </div>
-                <div class="modal-body">
-                    <p>Buku: <strong id="rejectBookTitle"></strong></p>
-                    <div class="mb-3">
-                        <label class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="catatan_admin" rows="4" required 
-                                  placeholder="Masukkan alasan penolakan..."></textarea>
-                    </div>
+
+                <div class="mb-3">
+                    <label class="fw-bold text-muted small">Buku:</label>
+                    <p class="mb-0"><strong id="rejectBookTitle"></strong></p>
                 </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger">Tolak Request</button>
+
+                <div class="mb-3">
+                    <label class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
+                    <textarea class="form-control" name="catatan_admin" rows="4" required placeholder="Masukkan alasan penolakan..."></textarea>
                 </div>
-            </form>
-        </div>
+            </div>
+            <div class="custom-modal-footer">
+                <button type="button" class="custom-modal-btn secondary" onclick="closeModal('rejectModal')">
+                    <i class="fas fa-times me-1"></i>Batal
+                </button>
+                <button type="submit" class="custom-modal-btn danger">
+                    <i class="fas fa-times me-1"></i>Ya, Tolak Request
+                </button>
+            </div>
+        </form>
     </div>
 </div>
 
-<!-- Reason Modal -->
-<div class="modal fade" id="reasonModal" tabindex="-1" aria-labelledby="reasonModalLabel" aria-hidden="true" style="z-index: 1055;">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="reasonModalLabel">Alasan Penolakan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <p id="reasonText"></p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
-            </div>
+<!-- Reason Modal (Custom) -->
+<div class="custom-modal-overlay" id="reasonModal">
+    <div class="custom-modal-content">
+        <div class="custom-modal-header">
+            <h5>Alasan Penolakan</h5>
+            <button type="button" class="custom-modal-close" onclick="closeModal('reasonModal')">&times;</button>
+        </div>
+        <div class="custom-modal-body">
+            <p id="reasonText"></p>
+        </div>
+        <div class="custom-modal-footer">
+            <button type="button" class="custom-modal-btn secondary" onclick="closeModal('reasonModal')">Tutup</button>
         </div>
     </div>
 </div>
@@ -202,45 +206,210 @@
 
 @push('styles')
 <style>
-/* Lighter modal backdrop */
-.modal-backdrop {
-    background-color: rgba(0, 0, 0, 0.3) !important; /* Changed from 0.5 to 0.3 - lebih terang */
+/* ===== CUSTOM MODAL STYLES ===== */
+.custom-modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 99998;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    backdrop-filter: blur(4px);
 }
 
-.modal-backdrop.show {
-    opacity: 1 !important;
+.custom-modal-overlay.show {
+    display: flex;
+    opacity: 1;
+    align-items: center;
+    justify-content: center;
 }
 
-/* Ensure modal content is visible */
-.modal {
-    z-index: 1055;
+.custom-modal-content {
+    position: relative;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    max-width: 500px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.3s ease;
+    z-index: 99999;
 }
 
-.modal-dialog {
-    z-index: 1056;
+@keyframes modalSlideIn {
+    from {
+        transform: translateY(-50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.custom-modal-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-radius: 15px 15px 0 0;
+}
+
+.custom-modal-header.success {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.custom-modal-header.danger {
+    background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+    color: white;
+    border-bottom: none;
+}
+
+.custom-modal-header h5 {
+    margin: 0;
+    font-weight: 600;
+}
+
+.custom-modal-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: inherit;
+    padding: 0;
+    line-height: 1;
+}
+
+.custom-modal-body {
+    padding: 1.5rem;
+}
+
+.custom-modal-footer {
+    padding: 1.5rem;
+    text-align: right;
+    border-top: 1px solid #f0f0f0;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: flex-end;
+}
+
+.custom-modal-btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+
+.custom-modal-btn.primary {
+    background: #2b3458;
+    color: white;
+}
+
+.custom-modal-btn.primary:hover {
+    background: #1a1f2e;
+    transform: translateY(-2px);
+}
+
+.custom-modal-btn.secondary {
+    background: #e9ecef;
+    color: #333;
+}
+
+.custom-modal-btn.secondary:hover {
+    background: #dee2e6;
+}
+
+.custom-modal-btn.success {
+    background: #28a745;
+    color: white;
+}
+
+.custom-modal-btn.success:hover {
+    background: #218838;
+}
+
+.custom-modal-btn.danger {
+    background: #dc3545;
+    color: white;
+}
+
+.custom-modal-btn.danger:hover {
+    background: #c82333;
 }
 </style>
 @endpush
 
 @push('scripts')
 <script>
+// Custom Modal Functions
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('show');
+        document.body.style.overflow = 'auto';
+    }
+}
+
+// Close modal when clicking on overlay
+document.addEventListener('DOMContentLoaded', function() {
+    ['approveModal', 'rejectModal', 'reasonModal'].forEach(modalId => {
+        const overlay = document.getElementById(modalId);
+        if (overlay) {
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeModal(modalId);
+                }
+            });
+        }
+    });
+
+    // ESC key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal('approveModal');
+            closeModal('rejectModal');
+            closeModal('reasonModal');
+        }
+    });
+});
+
 function showApproveModal(id, borrowerName, bookTitle, requestDate) {
     document.getElementById('approveBorrowerName').textContent = borrowerName;
     document.getElementById('approveBookTitle').textContent = bookTitle;
     document.getElementById('approveRequestDate').textContent = requestDate;
     document.getElementById('approveForm').action = `/request-peminjaman/${id}/approve`;
-    new bootstrap.Modal(document.getElementById('approveModal')).show();
+    openModal('approveModal');
 }
 
 function showRejectModal(id, bookTitle) {
     document.getElementById('rejectBookTitle').textContent = bookTitle;
     document.getElementById('rejectForm').action = `/request-peminjaman/${id}/reject`;
-    new bootstrap.Modal(document.getElementById('rejectModal')).show();
+    const textarea = document.querySelector('#rejectForm textarea[name="catatan_admin"]');
+    if (textarea) textarea.value = '';
+    openModal('rejectModal');
 }
 
 function showReason(reason) {
     document.getElementById('reasonText').textContent = reason;
-    new bootstrap.Modal(document.getElementById('reasonModal')).show();
+    openModal('reasonModal');
 }
 </script>
 @endpush

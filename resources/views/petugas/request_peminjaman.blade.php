@@ -160,21 +160,35 @@
         <div class="modal-content">
             <form id="rejectForm" method="POST">
                 @csrf
-                <div class="modal-header">
-                    <h5 class="modal-title">Tolak Request Peminjaman</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="rejectModalLabel">
+                        <i class="fas fa-times-circle me-2"></i>Konfirmasi Reject Peminjaman
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Buku: <strong id="rejectBookTitle"></strong></p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        Request akan ditolak. Berikan alasan yang jelas.
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="fw-bold text-muted small">Buku:</label>
+                        <p class="mb-0"><strong id="rejectBookTitle"></strong></p>
+                    </div>
+
                     <div class="mb-3">
                         <label class="form-label">Alasan Penolakan <span class="text-danger">*</span></label>
-                        <textarea class="form-control" name="catatan_admin" rows="4" required 
-                                  placeholder="Masukkan alasan penolakan..."></textarea>
+                        <textarea class="form-control" name="catatan_admin" rows="4" required placeholder="Masukkan alasan penolakan..."></textarea>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
-                    <button type="submit" class="btn btn-danger">Tolak Request</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>Batal
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-times me-1"></i>Ya, Tolak Request
+                    </button>
                 </div>
             </form>
         </div>
@@ -213,7 +227,10 @@ function showApproveModal(id, borrowerName, bookTitle, requestDate) {
 function showRejectModal(id, bookTitle) {
     document.getElementById('rejectBookTitle').textContent = bookTitle;
     document.getElementById('rejectForm').action = `/petugas/request-peminjaman/${id}/reject`;
-    new bootstrap.Modal(document.getElementById('rejectModal'), { backdrop: false, keyboard: true }).show();
+    const textarea = document.querySelector('#rejectForm textarea[name="catatan_admin"]');
+    if (textarea) textarea.value = '';
+    const modal = new bootstrap.Modal(document.getElementById('rejectModal'), { backdrop: false, keyboard: true });
+    modal.show();
 }
 
 function showReason(reason) {

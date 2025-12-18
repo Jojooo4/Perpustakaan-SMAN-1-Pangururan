@@ -23,7 +23,7 @@
                 @endif
                 
                 <!-- Request Info -->
-                <div class="flex-grow-1">
+                <div class="grow">
                     <h6 class="book-title-req">{{ $req->buku->judul }}</h6>
                     <small class="text-muted d-block mb-2">
                         <i class="fas fa-calendar-alt me-1"></i>
@@ -55,21 +55,21 @@
                     
                     <!-- Rejection Reason -->
                     @if($req->status == 'ditolak' && $req->catatan_admin)
-                        <div class="alert alert-danger py-2 px-3 mb-2">
+                        <div class="alert alert-danger py-2 px-3 mb-2" data-autohide="10000">
                             <small><strong>Alasan:</strong> {{ $req->catatan_admin }}</small>
                         </div>
                     @endif
                     
                     <!-- Approval Message -->
                     @if($req->status == 'disetujui')
-                        <div class="alert alert-success py-2 px-3 mb-2">
+                        <div class="alert alert-success py-2 px-3 mb-2" data-autohide="10000">
                             <small><i class="fas fa-check me-1"></i>Request Anda disetujui. Buku dapat diambil di perpustakaan.</small>
                         </div>
                     @endif
                     
                     <!-- Actions -->
                     @if($req->status == 'pending')
-                        <button class="btn btn-sm btn-danger mt-2" onclick="cancelRequest({{ $req->id_request }})">
+                        <button class="btn btn-sm btn-danger mt-2" onclick="openCancelModal({{ $req->id_request }})">
                             <i class="fas fa-times me-1"></i>Batalkan Request
                         </button>
                     @endif
@@ -96,32 +96,78 @@
     {{ $requests->links() }}
 </div>
 @endif
+ 
+<!-- Modal Konfirmasi Pembatalan Request -->
+<div class="modal fade" id="cancelRequestModal" tabindex="-1" aria-labelledby="cancelRequestLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 18px;">
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title" id="cancelRequestLabel">
+                    <i class="fas fa-question-circle me-2 text-danger"></i>Batalkan Request Peminjaman
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body pt-2">
+                <p class="mb-0">Apakah Anda yakin ingin membatalkan request peminjaman ini?</p>
+            </div>
+            <div class="modal-footer border-0 pt-0">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-danger" id="confirmCancelBtn">
+                    <i class="fas fa-times me-1"></i>Ya, Batalkan
+                </button>
+            </div>
+        </div>
+    </div>
+    
+</div>
 @endsection
 
 @push('scripts')
 <script>
-function cancelRequest(id) {
-    if(confirm('Batalkan request peminjaman ini?')) {
-        let form = document.createElement('form');
+let cancelRequestId = null;
+
+function openCancelModal(id) {
+    cancelRequestId = id;
+    const modalEl = document.getElementById('cancelRequestModal');
+    if (!modalEl) return;
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+    modal.show();
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+    const confirmBtn = document.getElementById('confirmCancelBtn');
+    const modalEl = document.getElementById('cancelRequestModal');
+
+    if (!confirmBtn || !modalEl) return;
+
+    const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+    confirmBtn.addEventListener('click', function () {
+        if (!cancelRequestId) return;
+
+        const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `/pengunjung/my-requests/${id}/cancel`;
-        
-        let method = document.createElement('input');
+        form.action = `/pengunjung/my-requests/${cancelRequestId}/cancel`;
+
+        const method = document.createElement('input');
         method.type = 'hidden';
         method.name = '_method';
         method.value = 'DELETE';
         form.appendChild(method);
-        
-        let csrf = document.createElement('input');
+
+        const csrf = document.createElement('input');
         csrf.type = 'hidden';
         csrf.name = '_token';
         csrf.value = '{{ csrf_token() }}';
         form.appendChild(csrf);
-        
+
         document.body.appendChild(form);
         form.submit();
-    }
-}
+        
+        modal.hide();
+    });
+});
 </script>
 @endpush
 

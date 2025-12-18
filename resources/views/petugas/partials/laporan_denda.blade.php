@@ -280,6 +280,7 @@ function closePaymentModal() {
 
 function confirmPayment() {
     if(selectedDendaId) {
+        const id = selectedDendaId;
         closePaymentModal();
         
         // Detect if we're on petugas or admin page
@@ -292,9 +293,9 @@ function confirmPayment() {
         
         // Build correct URL based on current location
         if (isPetugas) {
-            form.action = '/petugas/denda/' + selectedDendaId + '/lunas';
+            form.action = '/petugas/denda/' + id + '/lunas';
         } else {
-            form.action = '/laporan-denda/' + selectedDendaId + '/lunas';
+            form.action = '/laporan-denda/' + id + '/lunas';
         }
         
         form.style.display = 'none';
