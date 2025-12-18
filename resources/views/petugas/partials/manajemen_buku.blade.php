@@ -97,7 +97,7 @@
         <div class="modal-content">
             <form action="{{ route('buku.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
-                <div class="modal-header" style="background: var(--dark); color: white;">
+                <div class="modal-header" style="background: var(--dark); color: black;">
                     <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Tambah Buku Baru</h5>
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
                 </div>
