@@ -280,14 +280,26 @@ function closePaymentModal() {
 
 function confirmPayment() {
     if(selectedDendaId) {
+        console.log('Selected Denda ID:', selectedDendaId);
         closePaymentModal();
         
-        // Submit form
+        // Detect if we're on petugas or admin page
+        const currentPath = window.location.pathname;
+        const isAdmin = currentPath.includes('/laporan-denda');
+        const isPetugas = currentPath.includes('/petugas/');
+        
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `{{ route('denda.mark-paid', ['id' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', selectedDendaId);
-        form.style.display = 'none';
-
+        
+        // Build correct URL based on current location
+        if (isAdmin) {
+            form.action = '/laporan-denda/' + selectedDendaId + '/lunas';
+        } else if (isPetugas) {
+            form.action = '/petugas/denda/' + selectedDendaId + '/lunas';
+        } else {
+            form.action = '/laporan-denda/' + selectedDendaId + '/lunas'; // fallback
+        }
+        
         const csrf = document.createElement('input');
         csrf.type = 'hidden';
         csrf.name = '_token';
@@ -295,7 +307,10 @@ function confirmPayment() {
         form.appendChild(csrf);
 
         document.body.appendChild(form);
+        console.log('Form action:', form.action);
         form.submit();
+    } else {
+        console.error('No denda ID selected!');
     }
 }
 

@@ -200,6 +200,28 @@
 </div>
 @endsection
 
+@push('styles')
+<style>
+/* Lighter modal backdrop */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.3) !important; /* Changed from 0.5 to 0.3 - lebih terang */
+}
+
+.modal-backdrop.show {
+    opacity: 1 !important;
+}
+
+/* Ensure modal content is visible */
+.modal {
+    z-index: 1055;
+}
+
+.modal-dialog {
+    z-index: 1056;
+}
+</style>
+@endpush
+
 @push('scripts')
 <script>
 function showApproveModal(id, borrowerName, bookTitle, requestDate) {

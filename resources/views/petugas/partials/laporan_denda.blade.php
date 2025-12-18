@@ -282,10 +282,21 @@ function confirmPayment() {
     if(selectedDendaId) {
         closePaymentModal();
         
+        // Detect if we're on petugas or admin page
+        const currentPath = window.location.pathname;
+        const isPetugas = currentPath.includes('/petugas/');
+        
         // Submit form
         const form = document.createElement('form');
         form.method = 'POST';
-        form.action = `{{ route('denda.mark-paid', ['id' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', selectedDendaId);
+        
+        // Build correct URL based on current location
+        if (isPetugas) {
+            form.action = '/petugas/denda/' + selectedDendaId + '/lunas';
+        } else {
+            form.action = '/laporan-denda/' + selectedDendaId + '/lunas';
+        }
+        
         form.style.display = 'none';
 
         const csrf = document.createElement('input');
@@ -295,6 +306,7 @@ function confirmPayment() {
         form.appendChild(csrf);
 
         document.body.appendChild(form);
+        console.log('Submitting to:', form.action);
         form.submit();
     }
 }

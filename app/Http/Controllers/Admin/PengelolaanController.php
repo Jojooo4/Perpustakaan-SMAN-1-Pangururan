@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\{User, UlasanBuku};
+use App\Models\{User, UlasanBuku, Buku};
 use Illuminate\Support\Facades\{Hash, Storage};
 
 class PengelolaanController extends Controller
@@ -180,18 +180,63 @@ class PengelolaanController extends Controller
     // API: Get reviews for specific book
     public function getBookReviews($id_buku)
     {
-        // Fixed: ulasan_buku uses id_buku not kode_buku
+        // Fixed: Load user relationship for reviewer info
         $reviews = UlasanBuku::where('id_buku', $id_buku)
-            ->with(['buku'])
-            ->latest('created_at')
+            ->with(['buku', 'user'])  // Added user
+            ->latest('id_ulasan')  // Changed from created_at
             ->get();
             
         return response()->json($reviews);
     }
 
+    // Show detailed reviews for a specific book
+    public function showBookReviews(Request $request, $id_buku)
+    {
+        $book = Buku::with(['ulasanBuku.user'])->findOrFail($id_buku);
+        
+        $query = UlasanBuku::where('id_buku', $id_buku)->with('user');
+        
+        // Filter by rating if provided
+        if ($request->filled('rating')) {
+            $query->where('rating', $request->rating);
+        }
+        
+        // Search by reviewer name
+        if ($request->filled('search')) {
+            $query->whereHas('user', function($q) use ($request) {
+                $q->where('nama', 'like', "%{$request->search}%");
+            });
+        }
+        
+        $reviews = $query->latest('id_ulasan')->paginate(10);  // Changed from created_at
+        
+        // Calculate stats
+        $avgRating = $book->ulasanBuku()->avg('rating');
+        $totalReviews = $book->ulasanBuku()->count();
+        $ratingDistribution = [];
+        for ($i = 5; $i >= 1; $i--) {
+            $ratingDistribution[$i] = $book->ulasanBuku()->where('rating', $i)->count();
+        }
+        
+        $view = request()->routeIs('petugas.*') ? 'petugas.book_reviews' : 'admin.book_reviews';
+        return view($view, compact('book', 'reviews', 'avgRating', 'totalReviews', 'ratingDistribution'));
+    }
+
     public function destroyReview($id_ulasan)
     {
         UlasanBuku::findOrFail($id_ulasan)->delete();
-        return redirect()->route('pengelolaan.review')->with('success', 'Review berhasil dihapus!');
+        
+        // Dynamic routing based on current route prefix
+        $routePrefix = request()->routeIs('petugas.*') ? 'petugas.' : '';
+        
+        return redirect()->route($routePrefix . 'pengelolaan.review')->with('success', 'Review berhasil dihapus!');
+    }
+    
+    /**
+     * Helper to get route prefix based on current route
+     */
+    protected function getRoutePrefix()
+    {
+        return request()->routeIs('petugas.*') ? 'petugas.' : '';
     }
 }

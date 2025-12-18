@@ -10,10 +10,9 @@ class Peminjaman extends Model
     protected $table = 'peminjaman';
     protected $primaryKey = 'id_peminjaman';
     
-    // Database only has created_at, NOT updated_at
+    
+    // Disable timestamps - table doesn't have created_at/updated_at
     public $timestamps = false;
-    const CREATED_AT = 'created_at';
-    const UPDATED_AT = null;
     
     // Database columns: id_user, id_aset_buku (NOT id_aset!)
     protected $fillable = ['id_user', 'id_aset_buku', 'tanggal_pinjam', 'tanggal_jatuh_tempo', 'tanggal_kembali', 'status_peminjaman', 'denda'];

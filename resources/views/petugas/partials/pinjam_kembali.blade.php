@@ -106,7 +106,7 @@
 <div class="modal fade" id="addLoanModal" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog">
         <div class="modal-content">
-            <form action="{{ route('admin.loans.store') }}" method="POST">
+            <form action="{{ route('petugas.transaksi.store') }}" method="POST">
                 @csrf
                 <div class="modal-header" style="background: var(--dark); color: white;">
                     <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Pinjam Buku</h5>
@@ -222,7 +222,16 @@ document.getElementById('selectBuku').addEventListener('change', function() {
 
 function returnBook(id) {
   const form = document.getElementById('returnConfirmForm');
-  form.action = `{{ route('transaksi.return', ['id' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', id);
+  // Detect petugas or admin route
+  const currentPath = window.location.pathname;
+  const isPetugas = currentPath.includes('/petugas/');
+  
+  if (isPetugas) {
+    form.action = '/petugas/transaksi/' + id + '/kembali';
+  } else {
+    form.action = '/pinjam-kembali/' + id + '/kembali';
+  }
+  
   new bootstrap.Modal(document.getElementById('returnConfirmModal')).show();
 }
 
