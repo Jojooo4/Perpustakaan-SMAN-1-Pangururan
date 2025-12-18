@@ -567,6 +567,12 @@
                     </a>
                     <a href="{{ route('petugas.request-peminjaman.index') }}" class="menu-item {{ request()->routeIs('petugas.request-peminjaman.*') ? 'active' : '' }}">
                         <i class="fas fa-clipboard-list"></i> Request Peminjaman
+                        @php
+                            $pendingCount = \App\Models\RequestPeminjaman::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingCount > 0)
+                            <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">{{ $pendingCount }}</span>
+                        @endif
                     </a>
                     <a href="{{ route('petugas.profile') }}" class="menu-item {{ request()->routeIs('petugas.profile') ? 'active' : '' }}">
                         <i class="fas fa-user-cog"></i> Pengaturan Profil
@@ -624,37 +630,70 @@
                     </div>
                 </div>
                 <div class="content-area">
-                    @if(session('success'))
-                        <div class="alert alert-success alert-dismissible fade show" role="alert">
-                            <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-            
-                    @if(session('error'))
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-circle me-2"></i>{{ session('error') }}
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-            
-                    @if($errors->any())
-                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                            <i class="fas fa-exclamation-triangle me-2"></i>
-                            <ul class="mb-0">
-                                @foreach($errors->all() as $error)
-                                    <li>{{ $error }}</li>
-                                @endforeach
-                            </ul>
-                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-                        </div>
-                    @endif
-            
                     <div class="dashboard-shell">
                         @yield('content')
                     </div>
                 </div>
             </div>
+            
+            <!-- Global Notification Modal -->
+            @if(session('success') || session('error') || $errors->any())
+            <div class="modal fade" id="notificationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+                        @if(session('success'))
+                        <!-- Success Notification -->
+                        <div class="modal-header border-0" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 2rem;">
+                            <div class="w-100 text-center">
+                                <div class="notification-icon mx-auto mb-3" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-check-circle" style="font-size: 2.5rem; color: white;"></i>
+                                </div>
+                                <h4 class="text-white fw-bold mb-0">Berhasil!</h4>
+                            </div>
+                        </div>
+                        <div class="modal-body text-center" style="padding: 2rem;">
+                            <p class="mb-0" style="font-size: 1.1rem;">{{ session('success') }}</p>
+                        </div>
+                        @elseif(session('error'))
+                        <!-- Error Notification -->
+                        <div class="modal-header border-0" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); padding: 2rem;">
+                            <div class="w-100 text-center">
+                                <div class="notification-icon mx-auto mb-3" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: white;"></i>
+                                </div>
+                                <h4 class="text-white fw-bold mb-0">Gagal!</h4>
+                            </div>
+                        </div>
+                        <div class="modal-body text-center" style="padding: 2rem;">
+                            <p class="mb-0" style="font-size: 1.1rem;">{{ session('error') }}</p>
+                        </div>
+                        @elseif($errors->any())
+                        <!-- Validation Errors -->
+                        <div class="modal-header border-0" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); padding: 2rem;">
+                            <div class="w-100 text-center">
+                                <div class="notification-icon mx-auto mb-3" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: white;"></i>
+                                </div>
+                                <h4 class="text-white fw-bold mb-0">Perhatian!</h4>
+                            </div>
+                        </div>
+                        <div class="modal-body" style="padding: 2rem;">
+                            <ul class="text-start mb-0">
+                                @foreach($errors->all() as $error)
+                                    <li style="margin-bottom: 0.5rem;">{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        @endif
+                        <div class="modal-footer border-0" style="padding: 1rem 2rem; background: #f8f9fa;">
+                            <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="border-radius: 10px; padding: 0.6rem 2rem;">
+                                <i class="fas fa-check me-2"></i>OK
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endif
 
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
             <script>
@@ -662,12 +701,14 @@
                     document.getElementById('sidebar').classList.toggle('show');
                 });
 
-                setTimeout(function() {
-                    document.querySelectorAll('.alert').forEach(function(alert) {
-                        let bsAlert = new bootstrap.Alert(alert);
-                        bsAlert.close();
-                    });
-                }, 5000);
+                // Auto-show notification modal
+                document.addEventListener('DOMContentLoaded', function() {
+                    const notificationModal = document.getElementById('notificationModal');
+                    if (notificationModal) {
+                        const modal = new bootstrap.Modal(notificationModal);
+                        modal.show();
+                    }
+                });
             </script>
     
             @stack('scripts')

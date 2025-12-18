@@ -244,7 +244,16 @@ document.getElementById('selectBuku').addEventListener('change', function() {
 
 function returnBook(id) {
     const form = document.getElementById('returnConfirmForm');
-    form.action = `{{ route('transaksi.return', ['id' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', id);
+    
+    // Detect petugas or admin route
+    const currentPath = window.location.pathname;
+    const isPetugas = currentPath.includes('/petugas/');
+    
+    if (isPetugas) {
+        form.action = '/petugas/transaksi/' + id + '/kembali';
+    } else {
+        form.action = '/pinjam-kembali/' + id + '/kembali';
+    }
 
     const modalElement = document.getElementById('returnConfirmModal');
     const modal = new bootstrap.Modal(modalElement);

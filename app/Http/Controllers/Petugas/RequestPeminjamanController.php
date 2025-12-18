@@ -39,6 +39,17 @@ class RequestPeminjamanController extends Controller
                 return back()->with('error', 'User yang melakukan request tidak ditemukan!');
             }
             
+            // CHECK: Block approval if user has unpaid fines
+            $unpaidFines = Peminjaman::where('id_user', $request->id_user)
+                ->where('denda', '>', 0)
+                ->sum('denda');
+                
+            if ($unpaidFines > 0) {
+                return back()->with('error', 
+                    "Siswa {$request->user->nama} masih memiliki denda yang belum lunas!"
+                );
+            }
+            
             // Check book stock availability
             $book = $request->buku;
             

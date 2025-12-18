@@ -56,42 +56,47 @@ class TransaksiController extends Controller
             'lama_pinjam' => 'required|integer|min:1|max:14'
         ]);
 
-        $aset = AsetBuku::findOrFail($validated['id_aset']);
-        
-        // Note: Add status check here if your database has status column
-        // if ($aset->status_buku !== 'Tersedia') {
-        //     return back()->withErrors(['id_aset' => 'Buku tidak tersedia!']);
-        // }
+        try {
+            $result = \DB::transaction(function() use ($validated) {
+                $aset = AsetBuku::findOrFail($validated['id_aset']);
+                
+                // Calculate due date - cast to int for Carbon
+                $tanggalJatuhTempo = Carbon::parse($validated['tanggal_pinjam'])->addDays((int)$validated['lama_pinjam']);
 
-        // Calculate due date - cast to int for Carbon
-        $tanggalJatuhTempo = Carbon::parse($validated['tanggal_pinjam'])->addDays((int)$validated['lama_pinjam']);
+                // Create loan - ATOMIC OPERATION
+                $peminjaman = Peminjaman::create([
+                    'id_user' => $validated['id_user'],
+                    'id_aset_buku' => $validated['id_aset'], // Map form field to DB column
+                    'tanggal_pinjam' => $validated['tanggal_pinjam'],
+                    'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
+                    'status_peminjaman' => 'Dipinjam',
+                    'denda' => 0
+                ]);
 
-        // Create loan - map id_aset from form to id_aset_buku in database
-        Peminjaman::create([
-            'id_user' => $validated['id_user'],
-            'id_aset_buku' => $validated['id_aset'], // Map form field to DB column
-            'tanggal_pinjam' => $validated['tanggal_pinjam'],
-            'tanggal_jatuh_tempo' => $tanggalJatuhTempo,
-            'status_peminjaman' => 'Dipinjam',
-            'denda' => 0
-        ]);
+                // Update book stock - ATOMIC OPERATION
+                $aset->buku->decrement('stok_tersedia');
+                
+                // Log activity - ATOMIC OPERATION
+                $user = User::find($validated['id_user']);
+                LogAktivitas::create([
+                    'id_user' => auth()->user()->id_user,
+                    'username' => auth()->user()->username ?? auth()->user()->nama,
+                    'nama_tabel' => 'peminjaman',
+                    'operasi' => 'insert',
+                    'deskripsi' => "Create peminjaman - User: {$user->nama}, Buku: {$aset->buku->judul}",
+                    'id_terkait' => $peminjaman->id_peminjaman
+                ]);
 
-        // Update book status and stock (comment if no status column)
-        // $aset->update(['status_buku' => 'Dipinjam']);
-        $aset->buku->decrement('stok_tersedia');
-        
-        // Log activity
-        $user = User::find($validated['id_user']);
-        LogAktivitas::create([
-            'id_user' => auth()->user()->id_user,
-            'username' => auth()->user()->username ?? auth()->user()->nama,
-            'nama_tabel' => 'peminjaman',
-            'operasi' => 'insert',
-            'deskripsi' => "Create peminjaman - User: {$user->nama}, Buku: {$aset->buku->judul}",
-            'id_terkait' => $validated['id_aset']
-        ]);
+                return $peminjaman;
+            });
 
-        return redirect()->route('transaksi.index')->with('success', 'Peminjaman berhasil dibuat!');
+            $routePrefix = request()->routeIs('petugas.*') ? 'petugas.' : '';
+            return redirect()->route($routePrefix . 'transaksi.index')->with('success', 'Peminjaman berhasil dibuat!');
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to create loan: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Gagal membuat peminjaman: ' . $e->getMessage()])->withInput();
+        }
     }
 
     public function return($id_peminjaman)
@@ -150,7 +155,8 @@ class TransaksiController extends Controller
             ? "Buku dikembalikan! Denda: Rp " . number_format($denda, 0, ',', '.')
             : "Buku berhasil dikembalikan!";
 
-        return redirect()->route('transaksi.index')->with('success', $message);
+        $routePrefix = request()->routeIs('petugas.*') ? 'petugas.' : '';
+        return redirect()->route($routePrefix . 'transaksi.index')->with('success', $message);
     }
 
     public function destroy($id_peminjaman)
@@ -165,7 +171,8 @@ class TransaksiController extends Controller
         
         $peminjaman->delete();
 
-        return redirect()->route('transaksi.index')->with('success', 'Peminjaman berhasil dihapus!');
+        $routePrefix = request()->routeIs('petugas.*') ? 'petugas.' : '';
+        return redirect()->route($routePrefix . 'transaksi.index')->with('success', 'Peminjaman berhasil dihapus!');
     }
 
     // PERPANJANGAN
@@ -185,59 +192,80 @@ class TransaksiController extends Controller
 
     public function approve($id_request)
     {
-        $request = RequestPerpanjangan::with('peminjaman')->findOrFail($id_request);
-        
-        if ($request->status !== 'pending') {
-            return back()->withErrors(['error' => 'Request sudah diproses!']);
+        try {
+            \DB::transaction(function() use ($id_request) {
+                $request = RequestPerpanjangan::with('peminjaman')->findOrFail($id_request);
+                
+                if ($request->status !== 'pending') {
+                    throw new \Exception('Request sudah diproses!');
+                }
+                
+                // Update request status - ATOMIC OPERATION
+                $request->update([
+                    'status' => 'disetujui',
+                    'diproses_oleh' => auth()->id()
+                ]);
+                
+                // Update loan due date - ATOMIC OPERATION
+                $request->peminjaman->update([
+                    'tanggal_jatuh_tempo' => $request->tanggal_perpanjangan_baru
+                ]);
+                
+                // Log activity - ATOMIC OPERATION
+                LogAktivitas::create([
+                    'id_user' => auth()->user()->id_user,
+                    'username' => auth()->user()->username ?? auth()->user()->nama,
+                    'nama_tabel' => 'request_perpanjangan',
+                    'operasi' => 'update',
+                    'deskripsi' => "Approve perpanjangan #{$id_request} - User: {$request->peminjaman->user->nama}, Buku: {$request->peminjaman->asetBuku->buku->judul}",
+                    'id_terkait' => $id_request
+                ]);
+            });
+            
+            $routePrefix = request()->routeIs('petugas.*') ? 'petugas.' : '';
+            return redirect()->route($routePrefix . 'perpanjangan.index')->with('success', 'Perpanjangan disetujui!');
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to approve extension: ' . $e->getMessage());
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
-        
-        $request->update([
-            'status' => 'disetujui',
-            'diproses_oleh' => auth()->id()
-        ]);
-        
-        $request->peminjaman->update([
-            'tanggal_jatuh_tempo' => $request->tanggal_perpanjangan_baru
-        ]);
-        
-        // Log activity
-        LogAktivitas::create([
-            'id_user' => auth()->user()->id_user,
-            'username' => auth()->user()->username ?? auth()->user()->nama,
-            'nama_tabel' => 'request_perpanjangan',
-            'operasi' => 'update',
-            'deskripsi' => "Approve perpanjangan #{$id_request} - User: {$request->peminjaman->user->nama}, Buku: {$request->peminjaman->asetBuku->buku->judul}",
-            'id_terkait' => $id_request
-        ]);
-
-        return redirect()->route('perpanjangan.index')->with('success', 'Perpanjangan disetujui!');
     }
 
     public function reject(Request $request, $id_request)
     {
-        $reqPerpanjangan = RequestPerpanjangan::findOrFail($id_request);
-        
-        if ($reqPerpanjangan->status !== 'pending') {
-            return back()->withErrors(['error' => 'Request sudah diproses!']);
+        try {
+            \DB::transaction(function() use ($request, $id_request) {
+                $reqPerpanjangan = RequestPerpanjangan::findOrFail($id_request);
+                
+                if ($reqPerpanjangan->status !== 'pending') {
+                    throw new \Exception('Request sudah diproses!');
+                }
+                
+                // Update request status - ATOMIC OPERATION
+                $reqPerpanjangan->update([
+                    'status' => 'ditolak',
+                    'catatan' => $request->catatan_admin ?? 'Ditolak',
+                    'diproses_oleh' => auth()->id()
+                ]);
+                
+                // Log activity - ATOMIC OPERATION
+                LogAktivitas::create([
+                    'id_user' => auth()->user()->id_user,
+                    'username' => auth()->user()->username ?? auth()->user()->nama,
+                    'nama_tabel' => 'request_perpanjangan',
+                    'operasi' => 'update',
+                    'deskripsi' => "Reject perpanjangan #{$id_request} - Alasan: " . ($request->catatan_admin ?? 'Ditolak'),
+                    'id_terkait' => $id_request
+                ]);
+            });
+            
+            $routePrefix = request()->routeIs('petugas.*') ? 'petugas.' : '';
+            return redirect()->route($routePrefix . 'perpanjangan.index')->with('success', 'Perpanjangan ditolak!');
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to reject extension: ' . $e->getMessage());
+            return back()->withErrors(['error' => $e->getMessage()]);
         }
-        
-        $reqPerpanjangan->update([
-            'status' => 'ditolak',
-            'catatan_admin' => $request->catatan_admin ?? 'Ditolak',
-            'diproses_oleh' => auth()->id()
-        ]);
-        
-        // Log activity
-        LogAktivitas::create([
-            'id_user' => auth()->user()->id_user,
-            'username' => auth()->user()->username ?? auth()->user()->nama,
-            'nama_tabel' => 'request_perpanjangan',
-            'operasi' => 'update',
-            'deskripsi' => "Reject perpanjangan #{$id_request} - Alasan: " . ($request->catatan_admin ?? 'Ditolak'),
-            'id_terkait' => $id_request
-        ]);
-
-        return redirect()->route('perpanjangan.index')->with('success', 'Perpanjangan ditolak!');
     }
 
     // LAPORAN DENDA
@@ -256,13 +284,43 @@ class TransaksiController extends Controller
         return view($view, compact('denda', 'totalDendaBelumLunas'));
     }
 
-    public function markPaid($id_peminjaman)
+    public function markPaid($id)  // Changed to match route parameter
     {
-        $peminjaman = Peminjaman::findOrFail($id_peminjaman);
-        // Fixed: denda_lunas column doesn't exist - just set denda to 0 to mark as paid
-        $peminjaman->update(['denda' => 0]);
-
-        return back()->with('success', 'Denda ditandai lunas!');
+        try {
+            \DB::transaction(function() use ($id) {
+                $peminjaman = Peminjaman::findOrFail($id);
+                $dendaAmount = $peminjaman->denda;
+                
+                // Mark as paid - set both denda and denda_lunas
+                $peminjaman->update([
+                    'denda' => 0,
+                    'denda_lunas' => true  // FIX: added this!
+                ]);
+                
+                // Log activity - ATOMIC OPERATION (optional, won't fail transaction)
+                try {
+                    if (auth()->check() && auth()->user()) {
+                        LogAktivitas::create([
+                            'id_user' => auth()->user()->id_user,
+                            'username' => auth()->user()->username ?? auth()->user()->nama,
+                            'nama_tabel' => 'peminjaman',
+                            'operasi' => 'update',
+                            'deskripsi' => "Mark denda lunas - Peminjaman #{$id}, Jumlah: Rp " . number_format($dendaAmount, 0, ',', '.'),
+                            'id_terkait' => $id
+                        ]);
+                    }
+                } catch (\Exception $logError) {
+                    // Ignore log errors, don't rollback transaction
+                    \Log::warning('Failed to log markPaid activity: ' . $logError->getMessage());
+                }
+            });
+            
+            return back()->with('success', 'Denda ditandai lunas!');
+            
+        } catch (\Exception $e) {
+            \Log::error('Failed to mark fine as paid: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Gagal menandai denda lunas: ' . $e->getMessage()]);
+        }
     }
 
     public function exportDenda(Request $request)

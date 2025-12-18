@@ -21,40 +21,117 @@
     </a>
 </div>
 
-@if(($showOverdueModal ?? false) === true)
-<!-- Overdue Modal Centered & Large -->
-<div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg overdue-hero-modal">
-        <div class="modal-content">
-            <div class="modal-header bg-warning-subtle">
-                <h5 class="modal-title"><i class="fas fa-exclamation-triangle text-warning me-2"></i>Peringatan Keterlambatan</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+<!-- Warning Banner for Overdue & Fines -->
+@if(($showOverdueModal ?? false) === true || ($dendaBelumLunas ?? 0) > 0)
+<div class="alert alert-danger alert-dismissible fade show shadow-lg" role="alert" style="border-radius: 16px; border-left: 6px solid #dc3545; background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);">
+    <div class="d-flex align-items-start">
+        <div class="me-3" style="font-size: 2.5rem; color: #dc3545;">
+            <i class="fas fa-exclamation-circle"></i>
+        </div>
+        <div class="flex-grow-1">
+            <h5 class="alert-heading mb-2" style="color: #dc3545; font-weight: 700;">
+                <i class="fas fa-bell me-2"></i>Peringatan Penting!
+            </h5>
+            
+            @if(($showOverdueModal ?? false) === true)
+            <p class="mb-2">
+                <strong>Anda memiliki {{ count($overdueLoans ?? []) }} peminjaman yang terlambat.</strong>
+                Harap segera mengembalikan buku ke perpustakaan.
+            </p>
+            @endif
+            
+            @if(($dendaBelumLunas ?? 0) > 0)
+            <p class="mb-0">
+                <i class="fas fa-money-bill-wave me-2"></i>
+                Total denda belum lunas: <strong class="text-danger" style="font-size: 1.1rem;">Rp {{ number_format($dendaBelumLunas, 0, ',', '.') }}</strong>
+            </p>
+            @endif
+            
+            <div class="mt-3">
+                <a href="{{ route('pengunjung.history') }}" class="btn btn-danger btn-sm me-2" style="border-radius: 8px;">
+                    <i class="fas fa-history me-1"></i>Lihat Riwayat
+                </a>
+                <button type="button" class="btn btn-outline-danger btn-sm" data-bs-dismiss="alert" style="border-radius: 8px;">
+                    <i class="fas fa-times me-1"></i>Tutup
+                </button>
             </div>
-            <div class="modal-body">
-                <p class="mb-3">Anda memiliki peminjaman yang terlambat. Harap segera mengembalikan buku ke perpustakaan.</p>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
+        </div>
+    </div>
+</div>
+@endif
+
+@if(($showOverdueModal ?? false) === true)
+<!-- Professional Overdue Warning Modal -->
+<div class="modal fade" id="overdueModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+            <!-- Header with gradient -->
+            <div class="modal-header border-0" style="background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%); padding: 2rem;">
+                <div class="w-100 text-center">
+                    <div class="warning-icon-circle mx-auto mb-3" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: white;"></i>
+                    </div>
+                    <h4 class="modal-title text-white fw-bold mb-1">
+                        Peringatan Keterlambatan
+                    </h4>
+                    <p class="text-white mb-0" style="opacity: 0.9; font-size: 0.95rem;">
+                        Anda memiliki peminjaman yang terlambat
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Body -->
+            <div class="modal-body" style="padding: 2rem;">
+                <div class="alert alert-warning mb-4" style="border-radius: 12px; border-left: 4px solid #ffc107;">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Perhatian!</strong> Harap segera mengembalikan buku ke perpustakaan untuk menghindari denda lebih lanjut.
+                </div>
+                
+                <h6 class="mb-3 fw-bold text-dark"><i class="fas fa-list me-2"></i>Daftar Buku Terlambat:</h6>
+                <div class="table-responsive" style="border-radius: 12px; overflow: hidden;">
+                    <table class="table table-hover mb-0">
+                        <thead style="background: #f8f9fa;">
                             <tr>
-                                <th>Buku</th>
-                                <th class="text-end">Denda</th>
+                                <th style="border: none; padding: 1rem;">Buku</th>
+                                <th class="text-end" style="border: none; padding: 1rem;">Denda</th>
                             </tr>
                         </thead>
                         <tbody>
                             @foreach($overdueLoans as $loan)
                             <tr>
-                                <td>{{ $loan->asetBuku->buku->judul ?? 'Buku' }}</td>
-                                <td class="text-end">Rp {{ number_format($loan->denda ?? 0, 0, ',', '.') }}</td>
+                                <td style="padding: 1rem; vertical-align: middle;">
+                                    <strong>{{ $loan->asetBuku->buku->judul ?? 'Buku' }}</strong>
+                                </td>
+                                <td class="text-end" style="padding: 1rem; vertical-align: middle;">
+                                    <span class="badge bg-danger" style="font-size: 0.9rem; padding: 0.5rem 0.8rem;">
+                                        Rp {{ number_format($loan->denda ?? 0, 0, ',', '.') }}
+                                    </span>
+                                </td>
                             </tr>
                             @endforeach
                         </tbody>
+                        <tfoot style="background: #fff3cd;">
+                            <tr>
+                                <td style="padding: 1rem; border: none;"><strong>Total Denda Belum Lunas:</strong></td>
+                                <td class="text-end" style="padding: 1rem; border: none;">
+                                    <strong class="text-danger" style="font-size: 1.2rem;">
+                                        Rp {{ number_format(($dendaBelumLunas ?? 0), 0, ',', '.') }}
+                                    </strong>
+                                </td>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
-                <div class="mt-2">Total denda belum lunas: <strong>Rp {{ number_format(($dendaBelumLunas ?? 0), 0, ',', '.') }}</strong></div>
             </div>
-            <div class="modal-footer">
-                <a href="{{ route('pengunjung.history') }}" class="btn btn-primary"><i class="fas fa-history me-1"></i>Lihat Riwayat</a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+            
+            <!-- Footer -->
+            <div class="modal-footer border-0" style="padding: 1.5rem 2rem; background: #f8f9fa;">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal" style="border-radius: 10px; padding: 0.6rem 1.5rem;">
+                    <i class="fas fa-times me-2"></i>Tutup
+                </button>
+                <a href="{{ route('pengunjung.history') }}" class="btn btn-primary" style="border-radius: 10px; padding: 0.6rem 1.5rem;">
+                    <i class="fas fa-history me-2"></i>Lihat Riwayat
+                </a>
             </div>
         </div>
     </div>
@@ -64,13 +141,12 @@
 document.addEventListener('DOMContentLoaded', function() {
     var modalEl = document.getElementById('overdueModal');
     if (modalEl) {
-        // Backdrop disabled to allow interaction with page while modal shows
-        var modal = new bootstrap.Modal(modalEl, { backdrop: false, keyboard: true });
+        // PROPER backdrop - blocks all interaction until closed
+        var modal = new bootstrap.Modal(modalEl, { 
+            backdrop: 'static',  // Can't click outside to close
+            keyboard: false      // Can't press ESC to close
+        });
         modal.show();
-        // Ensure body remains scrollable even when Bootstrap adds modal-open
-        document.body.classList.remove('modal-open');
-        document.body.style.overflow = 'auto';
-        document.body.style.paddingRight = '';
     }
 });
 </script>
@@ -744,10 +820,9 @@ document.addEventListener('DOMContentLoaded', function() {
     .quick-action-btn span { font-size: 0.8rem; }
 }
 
-/* Keep page scrollable and interactive when modal is open */
+/* Keep page scrollable when modal is NOT forcing static backdrop */
 body.modal-open {
-    overflow: auto !important;
-    padding-right: 0 !important;
+    overflow: hidden !important; /* Changed: allow Bootstrap to handle overflow */
 }
 
 /* Slightly lift the overdue modal towards the hero heading */
@@ -759,10 +834,24 @@ body.modal-open {
     .overdue-hero-modal { margin-top: -4vh; }
 }
 
-/* Ensure modal sits above content but doesn’t block page clicks due to backdrop */
-.modal { z-index: 1055; }
-.modal-backdrop { display: none !important; }
+/* Professional modal backdrop - darker and blocks interaction */
+.modal-backdrop {
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    z-index: 1050;
+}
+
+.modal-backdrop.show {
+    opacity: 1 !important;
+}
+
+/* Ensure modal sits above backdrop */
+.modal { 
+    z-index: 1055 !important;
+}
+
+.modal-dialog {
+    z-index: 1056;
+}
 </style>
 @endpush
-
-
+```

@@ -47,7 +47,7 @@
                     </div>
                     
                     <button class="btn btn-sm btn-primary mt-2" onclick="event.stopPropagation(); toggleReviews({{ $book->id_buku }})">
-                        <i class="fas fa-eye me-1"></i>Lihat Ulasan
+                        <i class="fas fa-eye me-1"></i>Lihat
                     </button>
                 </div>
             </div>
@@ -120,12 +120,12 @@ function loadReviews(bukuId) {
                     <div class="border-bottom pb-3 mb-3">
                         <div class="d-flex justify-content-between align-items-start">
                             <div>
-                                <strong>${review.nomor_identitas}</strong>
+                                <strong>${review.user ? review.user.nama : 'Anonymous'}</strong>
                                 <div class="mb-1">
                                     ${getStarHTML(review.rating)}
-                                    <small class="text-muted ms-2">${formatDate(review.created_at)}</small>
+                                    <small class="text-muted ms-2">Review #${review.id_ulasan}</small>
                                 </div>
-                                <p class="mb-0">${review.ulasan || '-'}</p>
+                                <p class="mb-0">${review.komentar || '-'}</p>
                             </div>
                             <button class="btn btn-sm btn-danger" onclick="deleteReview(${review.id_ulasan})">
                                 <i class="fas fa-trash"></i>

@@ -88,6 +88,7 @@ Route::middleware(['auth', 'prevent-back-history'])->group(function () {
     
     // REVIEW ULASAN  
     Route::get('/review-ulasan', [PengelolaanController::class, 'review'])->name('pengelolaan.review');
+    Route::get('/review-buku/{id_buku}', [PengelolaanController::class, 'showBookReviews'])->name('review.book');
     Route::get('/api/reviews/{id_buku}', [PengelolaanController::class, 'getBookReviews']);
     Route::delete('/review-ulasan/{id}', [PengelolaanController::class, 'destroyReview'])->name('pengelolaan.review.destroy');
     
