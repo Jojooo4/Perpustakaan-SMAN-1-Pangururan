@@ -27,6 +27,10 @@
             padding: 0;
             box-sizing: border-box;
         }
+
+        ul, ol {
+            list-style: none;
+        }
         
         html {
             font-size: 16px;
@@ -749,14 +753,16 @@
             document.body.style.overflow = '';
         }
 
-        // Toggle sidebar
-        hamburgerBtn.addEventListener('click', function() {
-            if (sidebar.classList.contains('show')) {
-                closeSidebar();
-            } else {
-                openSidebar();
-            }
-        });
+        // Toggle sidebar (hamburgerBtn may not exist on some pages)
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function() {
+                if (sidebar.classList.contains('show')) {
+                    closeSidebar();
+                } else {
+                    openSidebar();
+                }
+            });
+        }
 
         // Close when clicking overlay
         sidebarOverlay.addEventListener('click', closeSidebar);
@@ -777,12 +783,19 @@
             }
         });
         
-        // Auto-hide alerts
-        setTimeout(() => {
-            document.querySelectorAll('.alert').forEach(alert => {
-                new bootstrap.Alert(alert).close();
-            });
-        }, 5000);
+        // Auto-hide alerts (supports per-alert duration via data-autohide="ms")
+        document.querySelectorAll('.alert').forEach(alertEl => {
+            const ms = Number(alertEl.dataset.autohide || 5000);
+            if (!Number.isFinite(ms) || ms <= 0) return;
+
+            setTimeout(() => {
+                try {
+                    new bootstrap.Alert(alertEl).close();
+                } catch (_) {
+                    // ignore
+                }
+            }, ms);
+        });
     </script>
     @stack('scripts')
 </body>

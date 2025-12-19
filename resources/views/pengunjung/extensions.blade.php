@@ -115,7 +115,7 @@
                     </div>
                     
                     <div class="modal-body">
-                        <div class="alert alert-info">
+                        <div class="alert alert-info" data-autohide="10000">
                             <strong>Buku:</strong> {{ $loan->asetBuku->buku->judul }}<br>
                             <strong>Jatuh Tempo Saat Ini:</strong> {{ $loan->tanggal_jatuh_tempo->format('d/m/Y') }}
                         </div>

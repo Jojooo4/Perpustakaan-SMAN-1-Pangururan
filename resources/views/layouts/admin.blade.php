@@ -416,6 +416,150 @@
             border-radius: 10px;
             border: none;
         }
+
+        /* ===== CUSTOM MODAL STYLES ===== */
+        .custom-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 99998;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .custom-modal-overlay.show {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .custom-modal-content {
+            position: relative;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalSlideIn 0.3s ease;
+            z-index: 99999;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .custom-modal-header {
+            padding: 2rem;
+            border-bottom: none;
+            text-align: center;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .custom-modal-header.success {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        }
+
+        .custom-modal-header.error {
+            background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+        }
+
+        .custom-modal-header.warning {
+            background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+        }
+
+        .custom-modal-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        .custom-modal-header h4 {
+            color: white;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .custom-modal-body {
+            padding: 2rem;
+            text-align: center;
+            color: #333;
+        }
+
+        .custom-modal-body p {
+            margin: 0;
+            font-size: 1.1rem;
+            line-height: 1.5;
+        }
+
+        .custom-modal-body ul {
+            list-style: none;
+            padding: 0;
+            text-align: left;
+        }
+
+        .custom-modal-body li {
+            margin-bottom: 0.5rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+
+        .custom-modal-body li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #dc3545;
+        }
+
+        .custom-modal-footer {
+            padding: 1rem 2rem;
+            text-align: center;
+            background: #f8f9fa;
+            border-radius: 0 0 20px 20px;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .custom-modal-btn {
+            background: #2b3458;
+            color: white;
+            border: none;
+            padding: 0.6rem 2rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .custom-modal-btn:hover {
+            background: #1a1f2e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(43, 52, 88, 0.3);
+        }
+
+        .custom-modal-btn:active {
+            transform: translateY(0);
+        }
     </style>
     
     @stack('styles')
@@ -452,6 +596,12 @@
             </a>
             <a href="{{ route('perpanjangan.index') }}" class="menu-item {{ request()->routeIs('perpanjangan.*') ? 'active' : '' }}">
                 <i class="fas fa-clock"></i> Permintaan Perpanjangan
+                @php
+                    $pendingPerpanjanganCount = \App\Models\RequestPerpanjangan::where('status', 'pending')->count();
+                @endphp
+                @if($pendingPerpanjanganCount > 0)
+                    <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">{{ $pendingPerpanjanganCount }}</span>
+                @endif
             </a>
             <a href="{{ route('denda.index') }}" class="menu-item {{ request()->routeIs('denda.*') ? 'active' : '' }}">
                 <i class="fas fa-money-bill-wave"></i> Laporan Denda
@@ -538,64 +688,8 @@
         </div>
     </div>
     
-    <!-- Global Notification Modal -->
-    @if(session('success') || session('error') || $errors->any())
-    <div class="modal fade" id="notificationModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
-                @if(session('success'))
-                <!-- Success Notification -->
-                <div class="modal-header border-0" style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); padding: 2rem;">
-                    <div class="w-100 text-center">
-                        <div class="notification-icon mx-auto mb-3" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-check-circle" style="font-size: 2.5rem; color: white;"></i>
-                        </div>
-                        <h4 class="text-white fw-bold mb-0">Berhasil!</h4>
-                    </div>
-                </div>
-                <div class="modal-body text-center" style="padding: 2rem;">
-                    <p class="mb-0" style="font-size: 1.1rem;">{{ session('success') }}</p>
-                </div>
-                @elseif(session('error'))
-                <!-- Error Notification -->
-                <div class="modal-header border-0" style="background: linear-gradient(135deg, #dc3545 0%, #c82333 100%); padding: 2rem;">
-                    <div class="w-100 text-center">
-                        <div class="notification-icon mx-auto mb-3" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-exclamation-circle" style="font-size: 2.5rem; color: white;"></i>
-                        </div>
-                        <h4 class="text-white fw-bold mb-0">Gagal!</h4>
-                    </div>
-                </div>
-                <div class="modal-body text-center" style="padding: 2rem;">
-                    <p class="mb-0" style="font-size: 1.1rem;">{{ session('error') }}</p>
-                </div>
-                @elseif($errors->any())
-                <!-- Validation Errors -->
-                <div class="modal-header border-0" style="background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%); padding: 2rem;">
-                    <div class="w-100 text-center">
-                        <div class="notification-icon mx-auto mb-3" style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
-                            <i class="fas fa-exclamation-triangle" style="font-size: 2.5rem; color: white;"></i>
-                        </div>
-                        <h4 class="text-white fw-bold mb-0">Perhatian!</h4>
-                    </div>
-                </div>
-                <div class="modal-body" style="padding: 2rem;">
-                    <ul class="text-start mb-0">
-                        @foreach($errors->all() as $error)
-                            <li style="margin-bottom: 0.5rem;">{{ $error }}</li>
-                        @endforeach
-                    </ul>
-                </div>
-                @endif
-                <div class="modal-footer border-0" style="padding: 1rem 2rem; background: #f8f9fa;">
-                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal" style="border-radius: 10px; padding: 0.6rem 2rem;">
-                        <i class="fas fa-check me-2"></i>OK
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-    @endif
+    <!-- Global Notification Modal (Custom) - DISABLED -->
+    <!-- Modal dijadikan notification alert top-right saja -->
     
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -604,15 +698,6 @@
         // Sidebar toggle for mobile
         document.getElementById('sidebarToggle')?.addEventListener('click', function() {
             document.getElementById('sidebar').classList.toggle('show');
-        });
-        
-        // Auto-show notification modal
-        document.addEventListener('DOMContentLoaded', function() {
-            const notificationModal = document.getElementById('notificationModal');
-            if (notificationModal) {
-                const modal = new bootstrap.Modal(notificationModal);
-                modal.show();
-            }
         });
     </script>
     

@@ -95,7 +95,7 @@
 <div class="modal fade" id="addBookModal" tabindex="-1" data-bs-backdrop="false" data-bs-keyboard="true">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
-            <form action="{{ route('buku.store') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('petugas.buku.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="modal-header" style="background: var(--dark); color: black;">
                     <h5 class="modal-title"><i class="fas fa-plus me-2"></i>Tambah Buku Baru</h5>
@@ -274,7 +274,7 @@ function viewBook(id) {
 
 function editBook(id) {
     const data = getRowData(id); if (!data) return;
-    const action = `{{ route('buku.update', ['id_buku' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', id);
+    const action = `{{ route('petugas.buku.update', ['id_buku' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', id);
     const html = `
         <form action=\"${action}\" method=\"POST\" enctype=\"multipart/form-data\">
             @csrf
@@ -296,7 +296,7 @@ function editBook(id) {
 
 function deleteBook(idBuku, judul) {
     document.getElementById('deleteBookTitle').innerText = judul;
-    document.getElementById('deleteForm').action = `{{ route('buku.destroy', ['id_buku' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', idBuku);
+    document.getElementById('deleteForm').action = `{{ route('petugas.buku.destroy', ['id_buku' => 'ID_PLACEHOLDER']) }}`.replace('ID_PLACEHOLDER', idBuku);
     new bootstrap.Modal(document.getElementById('deleteModal')).show();
 }
 </script>

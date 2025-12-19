@@ -558,6 +558,12 @@
                     </a>
                     <a href="{{ route('petugas.perpanjangan.index') }}" class="menu-item {{ request()->routeIs('petugas.perpanjangan.*') ? 'active' : '' }}">
                         <i class="fas fa-clock"></i> Perpanjangan
+                        @php
+                            $pendingPerpanjanganCount = \App\Models\RequestPerpanjangan::where('status', 'pending')->count();
+                        @endphp
+                        @if($pendingPerpanjanganCount > 0)
+                            <span class="badge bg-warning text-dark ms-2" style="font-size: 0.7rem; padding: 0.25rem 0.5rem;">{{ $pendingPerpanjanganCount }}</span>
+                        @endif
                     </a>
                     <a href="{{ route('petugas.denda.index') }}" class="menu-item {{ request()->routeIs('petugas.denda.*') ? 'active' : '' }}">
                         <i class="fas fa-money-bill-wave"></i> Laporan Denda

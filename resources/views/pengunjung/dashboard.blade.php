@@ -21,14 +21,14 @@
     </a>
 </div>
 
-<!-- Warning Banner for Overdue & Fines -->
+<!-- Warning Banner for Overdue & Fines (now placed under hero button) -->
 @if(($showOverdueModal ?? false) === true || ($dendaBelumLunas ?? 0) > 0)
-<div class="alert alert-danger alert-dismissible fade show shadow-lg" role="alert" style="border-radius: 16px; border-left: 6px solid #dc3545; background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);">
+<div id="importantWarningPopup" class="alert alert-danger alert-dismissible fade show shadow-lg important-warning-popup" role="alert" data-autohide="10000" style="border-radius: 16px; border-left: 6px solid #dc3545; background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);">
     <div class="d-flex align-items-start">
         <div class="me-3" style="font-size: 2.5rem; color: #dc3545;">
             <i class="fas fa-exclamation-circle"></i>
         </div>
-        <div class="flex-grow-1">
+        <div class="grow">
             <h5 class="alert-heading mb-2" style="color: #dc3545; font-weight: 700;">
                 <i class="fas fa-bell me-2"></i>Peringatan Penting!
             </h5>
@@ -450,6 +450,19 @@ document.addEventListener('DOMContentLoaded', function() {
     padding-top: 1.75rem;
 }
 
+/* Important warning popup (below topbar, near avatar) */
+.important-warning-popup {
+    position: static;
+    margin: 0 auto 1.25rem;
+    width: min(520px, 100%);
+}
+
+@media (max-width: 768px) {
+    .important-warning-popup {
+        width: 100%;
+    }
+}
+
 .fade-in-dashboard {
     opacity: 0;
     animation: fadeInUp 0.6s ease-out forwards;
@@ -854,4 +867,3 @@ body.modal-open {
 }
 </style>
 @endpush
-```

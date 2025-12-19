@@ -280,7 +280,8 @@ function closePaymentModal() {
 
 function confirmPayment() {
     if(selectedDendaId) {
-        console.log('Selected Denda ID:', selectedDendaId);
+        const id = selectedDendaId;
+        console.log('Selected Denda ID:', id);
         closePaymentModal();
         
         // Detect if we're on petugas or admin page
@@ -293,11 +294,11 @@ function confirmPayment() {
         
         // Build correct URL based on current location
         if (isAdmin) {
-            form.action = '/laporan-denda/' + selectedDendaId + '/lunas';
+            form.action = '/laporan-denda/' + id + '/lunas';
         } else if (isPetugas) {
-            form.action = '/petugas/denda/' + selectedDendaId + '/lunas';
+            form.action = '/petugas/denda/' + id + '/lunas';
         } else {
-            form.action = '/laporan-denda/' + selectedDendaId + '/lunas'; // fallback
+            form.action = '/laporan-denda/' + id + '/lunas'; // fallback
         }
         
         const csrf = document.createElement('input');
